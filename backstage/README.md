@@ -33,7 +33,23 @@ Il provisioning esegue automaticamente:
 ## Accesso GUI
 
 - Frontend: http://192.168.1.60:3000
-- Backend: http://192.168.1.60:7007
+- Backend API base: http://192.168.1.60:7007
+
+Nota: l'URL base del backend puo dare `404 Not Found`, ed e normale.
+Con le versioni recenti di Backstage molte API (es. catalogo) richiedono credenziali.
+
+Per un controllo rapido da browser/CLI:
+
+- Endpoint pubblico utile: `http://192.168.1.60:7007/api/auth/guest/refresh`
+- Endpoint catalogo (protetto): `http://192.168.1.60:7007/api/catalog/entities`
+
+Esempio test catalogo con token guest:
+
+```bash
+TOKEN=$(curl -s http://192.168.1.60:7007/api/auth/guest/refresh | jq -r .backstageIdentity.token)
+curl -H "Authorization: Bearer $TOKEN" \
+	http://192.168.1.60:7007/api/catalog/entities
+```
 
 ## Comandi utili
 
