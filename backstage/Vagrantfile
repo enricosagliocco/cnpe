@@ -1,0 +1,36 @@
+# Backstage su Rocky Linux 9
+# URL: http://192.168.1.60:3000
+# Backend API: http://192.168.1.60:7007
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "rocky9-updated"
+  config.vm.hostname = "backstage-rocky9"
+  config.vm.network "public_network",
+    ip: "192.168.1.60",
+    bridge: "WLAN"
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = true
+    v.vmx["memsize"] = "16384"
+    v.vmx["numvcpus"] = "4"
+    v.vmx["displayname"] = "backstage-rocky9"
+    v.vmx["ethernet0.pcislotnumber"] = "160"
+  end
+
+  # Fix per box che crea 70-persistent-net.rules come directory
+  config.vm.provision "shell", inline: <<-SHELL
+    if [ -d /etc/udev/rules.d/70-persistent-net.rules ]; then
+      rm -rf /etc/udev/rules.d/70-persistent-net.rules
+    fi
+    if [ ! -e /etc/udev/rules.d/70-persistent-net.rules ]; then
+      touch /etc/udev/rules.d/70-persistent-net.rules
+    fi
+  SHELL
+
+  config.vm.provision "shell",
+    path: "scripts/install_backstage.sh",
+    env: {
+      "BACKSTAGE_HOST" => "192.168.1.60",
+      "BACKSTAGE_PORT" => "3000"
+    }
+end
