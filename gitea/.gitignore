@@ -1,0 +1,31 @@
+# Git ignore per Backstage setup
+.env
+.env.local
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Dati locali
+data/
+logs/
+
+# Vagrant
+.vagrant/
+*.log
+
+# Docker
+.docker/
+
+# Backups
+*.bak
+*.backup
+*-old
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+Thumbs.db
