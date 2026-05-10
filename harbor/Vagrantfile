@@ -1,0 +1,57 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "rocky9-updated"
+  config.vm.hostname = "harbor-rocky9"
+  config.vm.network "public_network",
+    ip: "192.168.1.57",
+    bridge: "WLAN"
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = true
+    v.vmx["memsize"] = "8192"
+    v.vmx["numvcpus"] = "4"
+    v.vmx["displayname"] = "harbor-rocky9"
+    v.vmx["ethernet0.pcislotnumber"] = "160"
+  end
+
+  # Gateway e DNS sulla NIC bridged
+  config.vm.provision "shell", inline: <<-SHELL
+    if [ -d /etc/udev/rules.d/70-persistent-net.rules ]; then
+      rm -rf /etc/udev/rules.d/70-persistent-net.rules
+    fi
+  SHELL
+
+  config.vm.provision "shell", inline: <<-SHELL
+    set -euo pipefail
+    BR_IFACE="$(ip -o -4 addr show | awk 'index($4,"192.168.1.57/")==1{print $2; exit}')"
+    if [ -n "${BR_IFACE}" ]; then
+      BR_CONN="$(nmcli -t -f NAME,DEVICE con show --active | awk -F: -v dev="${BR_IFACE}" '$2==dev {print $1; exit}')"
+      if [ -n "${BR_CONN}" ]; then
+        # Metric alta: questa route resta meno preferita rispetto ad altre default route
+        nmcli con mod "${BR_CONN}" ipv4.gateway "192.168.1.1" ipv4.dns "8.8.8.8" ipv4.route-metric 500 ipv4.method manual || true
+        nmcli con up "${BR_CONN}" || true
+      fi
+    fi
+  SHELL
+
+  config.vm.provision "shell",
+    path: "install_harbor.sh",
+    env: {
+      "HARBOR_URL" => "http://192.168.1.57",
+      "HARBOR_HOSTNAME" => "192.168.1.57",
+      "HARBOR_VERSION" => "2.11.0",
+      "HARBOR_ADMIN_PASSWORD" => "Harbor12345"
+    }
+
+# Primo collegamento:
+# 1) Avvio VM:
+#    vagrant up --provider=vmware_desktop
+# 2) Accesso SSH alla VM:
+#    vagrant ssh
+# 3) Verifica stato servizi Harbor:
+#    sudo docker compose -f /opt/harbor/harbor/docker-compose.yml ps
+# 4) Accesso web Harbor dal browser:
+#    http://192.168.1.57
+# 5) Login iniziale:
+#    user: admin
+#    password: Harbor12345 (o valore HARBOR_ADMIN_PASSWORD)
+end
