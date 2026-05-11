@@ -22,8 +22,8 @@ echo "==> Verifiche risorse"
 sudo /var/lib/rancher/rke2/bin/kubectl get gatewayclass
 sudo /var/lib/rancher/rke2/bin/kubectl -n demo get gateway,httproute,svc,pods
 
-echo "==> Test HTTP via NodePort 30080"
-HTTP_CODE=$(curl -s -o /tmp/gw-body.html -w "%{http_code}" -H 'Host: nginx.example.local' http://127.0.0.1:30080/ || true)
+echo "==> Test HTTP via porta standard 80"
+HTTP_CODE=$(curl -s -o /tmp/gw-body.html -w "%{http_code}" -H 'Host: nginx.example.local' http://127.0.0.1/ || true)
 
 if [ "${HTTP_CODE}" != "200" ]; then
   echo "Test FALLITO: HTTP status ${HTTP_CODE}"

@@ -11,6 +11,7 @@ if ! sudo grep -q "alias kubectl=" /root/.bashrc; then
 
 # Kubectl alias for RKE2
 alias kubectl='/var/lib/rancher/rke2/bin/kubectl'
+alias k='kubectl'
 export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
 export PATH=$PATH:/var/lib/rancher/rke2/bin
 EOF

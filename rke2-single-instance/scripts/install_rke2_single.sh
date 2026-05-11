@@ -14,11 +14,14 @@ token: "${RKE2_TOKEN}"
 tls-san:
   - "${RKE2_SINGLE_IP}"
   - "rke2-single"
+node-ip: "${RKE2_SINGLE_IP}"
+node-external-ip: "${RKE2_SINGLE_IP}"
 cluster-cidr: "10.244.0.0/16"
 service-cidr: "10.43.0.0/16"
 cluster-dns: "10.43.0.10"
 cni: calico
 ingress-controller: traefik
+enable-servicelb: true
 EOF
 
 echo "==> Configuro HelmChartConfig per Traefik Gateway API"
@@ -41,6 +44,14 @@ spec:
         enabled: false
       kubernetesCRD:
         enabled: false
+    ports:
+      web:
+        hostPort: null
+      websecure:
+        hostPort: null
+    service:
+      spec:
+        type: LoadBalancer
 EOF
 
 sudo systemctl enable --now rke2-server
