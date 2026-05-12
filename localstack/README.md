@@ -63,9 +63,11 @@ Dovresti ricevere un JSON con stato `running`.
 Da VM (installato nel provisioning):
 
 ```bash
-awslocal s3 mb s3://demo-bucket
-awslocal s3 ls
+aws --endpoint-url=http://192.168.1.58:4566 s3 mb s3://demo-bucket
+aws --endpoint-url=http://192.168.1.58:4566 s3 ls
 ```
+
+Il provisioning prepara credenziali demo e regione di default nella home di `vagrant`, quindi il comando `aws` è pronto subito dopo `vagrant ssh`.
 
 ## Servizi abilitati nel compose
 

@@ -24,8 +24,21 @@ sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 echo "==> Abilito e avvio Docker"
 sudo systemctl enable --now docker
 
-echo "==> Installo AWS CLI local helpers"
-sudo pip3 install --upgrade awscli awscli-local
+echo "==> Installo AWS CLI"
+sudo pip3 install --upgrade awscli
+
+echo "==> Preparo credenziali demo per la VM"
+sudo -u vagrant mkdir -p /home/vagrant/.aws
+sudo -u vagrant bash -c 'cat > /home/vagrant/.aws/config <<EOF
+[default]
+region = eu-west-1
+output = json
+EOF'
+sudo -u vagrant bash -c 'cat > /home/vagrant/.aws/credentials <<EOF
+[default]
+aws_access_key_id = test
+aws_secret_access_key = test
+EOF'
 
 echo "==> Preparo cartelle LocalStack"
 sudo mkdir -p /opt/localstack/data
