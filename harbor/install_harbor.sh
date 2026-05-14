@@ -91,6 +91,49 @@ else
   echo "==> Harbor v${HARBOR_VERSION} gia installato, skip installazione"
 fi
 
+echo "==> Configuro avvio automatico Harbor con pulizia container falliti"
+sudo tee /usr/local/sbin/harbor-startup.sh >/dev/null <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+COMPOSE_FILE="/opt/harbor/harbor/docker-compose.yml"
+PROJECT_LABEL="com.docker.compose.project=harbor"
+
+if [ ! -f "${COMPOSE_FILE}" ]; then
+  echo "Compose file non trovato: ${COMPOSE_FILE}"
+  exit 0
+fi
+
+# Rimuove solo i container Harbor usciti con errore.
+for cid in $(docker ps -aq --filter "label=${PROJECT_LABEL}" --filter "status=exited"); do
+  exit_code="$(docker inspect --format '{{.State.ExitCode}}' "${cid}" 2>/dev/null || echo 0)"
+  if [ "${exit_code}" != "0" ]; then
+    docker rm -f "${cid}" >/dev/null 2>&1 || true
+  fi
+done
+
+docker compose -f "${COMPOSE_FILE}" up -d
+EOF
+sudo chmod 755 /usr/local/sbin/harbor-startup.sh
+
+sudo tee /etc/systemd/system/harbor-startup.service >/dev/null <<'EOF'
+[Unit]
+Description=Harbor cleanup failed containers and start services
+After=docker.service network-online.target
+Wants=docker.service network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/harbor-startup.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now harbor-startup.service
+
 echo "==> Verifica stato servizi Harbor"
 sudo docker compose -f /opt/harbor/harbor/docker-compose.yml ps || true
 
