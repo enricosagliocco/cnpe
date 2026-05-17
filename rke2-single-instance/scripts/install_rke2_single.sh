@@ -3,6 +3,7 @@ set -euo pipefail
 
 RKE2_TOKEN="${RKE2_TOKEN:-rke2-single-secret-token-CambiaMe}"
 RKE2_SINGLE_IP="${RKE2_SINGLE_IP:-192.168.1.21}"
+LOCAL_PATH_MANIFEST_URL="${LOCAL_PATH_MANIFEST_URL:-https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml}"
 
 echo "==> Installo RKE2 server (single instance)"
 curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE="server" sh -
@@ -78,6 +79,18 @@ curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" -o /tmp
 tar -xzf /tmp/helm.tgz -C /tmp
 sudo install -m 0755 /tmp/linux-amd64/helm /usr/local/bin/helm
 sudo /usr/local/bin/helm version --short
+
+echo "==> Installo StorageClass local-path"
+sudo /var/lib/rancher/rke2/bin/kubectl apply -f "${LOCAL_PATH_MANIFEST_URL}"
+sudo /var/lib/rancher/rke2/bin/kubectl -n local-path-storage rollout status deployment/local-path-provisioner --timeout=180s
+
+if sudo /var/lib/rancher/rke2/bin/kubectl get storageclass local-path >/dev/null 2>&1; then
+  echo "==> Imposto local-path come StorageClass di default"
+  for sc in $(sudo /var/lib/rancher/rke2/bin/kubectl get storageclass -o name); do
+    sudo /var/lib/rancher/rke2/bin/kubectl annotate "${sc}" storageclass.kubernetes.io/is-default-class- --overwrite >/dev/null 2>&1 || true
+  done
+  sudo /var/lib/rancher/rke2/bin/kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=true --overwrite
+fi
 
 echo "==> Nodo single instance configurato"
 echo "Comandi utili:"
