@@ -1,0 +1,19 @@
+services:
+  cncf-desktop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cncf-exam-desktop
+    ports:
+      - "127.0.0.1:6901:6901"
+      - "127.0.0.1:5901:5901"
+    environment:
+      VNC_PW: "changeme"
+      SSH_MOUNT_PATH: /tmp/host-ssh
+      VNC_RESOLUTION: 1024x768
+      VNC_COL_DEPTH: 24
+    volumes:
+      - ~/.ssh:/tmp/host-ssh:ro
+      - ./workspace:/home/headless/workspace
+    shm_size: "2gb"
+    restart: unless-stopped
