@@ -1,313 +1,280 @@
-# CNPE Simulator - Batteria 02 (Domains & Competencies)
-> Killer Shell style | Kubernetes 1.35 | Exam-oriented practice set
+# CNPE Simulator - Batteria 02 - Domande
+> Killer Shell style | Kubernetes 1.35 | CNPE Exam Simulator
 
 ---
 
-## Distribuzione per dominio
+## Indice delle Domande
 
-- Platform Architecture and Infrastructure (15%): Q1-Q3
-- GitOps and Continuous Delivery (25%): Q4-Q8
-- Platform APIs and Self-Service Capabilities (25%): Q9-Q13
-- Observability and Operations (20%): Q14-Q17
-- Security and Policy Enforcement (15%): Q18-Q20
-
-Totale: 20 domande
-
----
-
-## Question 1 | Platform Architecture - Multi-tenancy Compute and Storage
-
-> Instance: `ssh cnpe6101`
-
-In cluster sono presenti i namespace tenant-a, tenant-b e tenant-c.
-Implementa i limiti multi-tenant come segue:
-
-1. In tenant-a applica un ResourceQuota con:
-   - requests.cpu: 2
-   - requests.memory: 4Gi
-   - persistentvolumeclaims: 2
-2. In tenant-b applica un LimitRange che imposti default:
-   - cpu: 200m
-   - memory: 256Mi
-3. In tenant-c impedisci la creazione di nuovi PVC.
-4. Verifica che tenant-c non possa creare un PVC di test.
+| Q 1 | Operator Pattern, CRD, Kustomize, Git |
+| Q 2 | Prometheus Monitoring |
+| Q 3 | Argo CD |
+| Q 4 | Flagger for Blue/Green Deployments |
+| Q 5 | OPA Gatekeeper, Helm |
+| Q 6 | OpenTofu, Terraform |
+| Q 7 | OpenCost, Prometheus |
+| Q 8 | Grafana, Loki, Logging, Monitoring |
+| Q 9 | Kustomize, Prometheus CRDs |
+| Q10 | ResourceQuota, StorageClass, PV/PVC, Git |
+| Q11 | Argo Workflows |
+| Q12 | Tekton, Security Scanning, SBOM |
+| Q13 | Pod Security Standards, RBAC |
+| Q14 | OpenTelemetry, Jaeger |
+| Q15 | Vertical Pod Autoscaler (VPA) |
+| Q16 | Argo Rollouts, Canary |
+| Q17 | FluxCD |
+| Q18 | Kyverno |
+| Q19 | Crossplane, CloudNativePG |
+| Q20 | Linkerd, Istio, Gateway API |
 
 ---
 
-## Question 2 | Platform Architecture - Right-Sizing with Metrics
+## Question 1 | Operator Pattern, CRD, Kustomize, Git
 
-> Instance: `ssh cnpe6102`
+> Instance: `ssh cnpe0201`
+A custom operator project is available in /course/1/repo-b02. The TeamMonitoring CRD already exists in the cluster.
 
-Il team vuole fare right-sizing su namespace market.
-
-1. Usa metriche reali (metrics-server o Prometheus) per identificare il Deployment con overprovisioning CPU piu alto.
-2. Aggiorna requests.cpu e limits.cpu del Deployment identificato riducendo rispettivamente del 30%.
-3. Mantieni invariato il numero di repliche.
-4. Salva prima e dopo in /course/2/right-sizing-report.txt.
-
----
-
-## Question 3 | Platform Architecture - Network Segmentation
-
-> Instance: `ssh cnpe6103`
-
-Nel namespace shared-apps devi separare il traffico tra frontend, api e db.
-
-1. Crea una NetworkPolicy default-deny ingress per tutto il namespace.
-2. Consenti traffico:
-   - frontend -> api su TCP 8080
-   - api -> db su TCP 5432
-3. Blocca qualsiasi accesso diretto frontend -> db.
-4. Verifica con pod test e salva gli esiti in /course/3/network-check.txt.
+1. Add a new CRD version v1beta1 where spec.target is an object with string fields namespace and service.
+2. Keep v1alpha1 served, and make v1beta1 the storage version.
+3. Deploy changes with Kustomize and commit on branch main with message: crd v1beta1 b02.
+4. Create TeamMonitoring resource app-b02-q01 in namespace ns-b02-q01 with target.namespace=metrics and target.service=api.
+5. Save kubectl get output to /course/1/b02-q01-evidence.txt.
 
 ---
 
-## Question 4 | GitOps - Flux Reconciliation and Drift Recovery
+## Question 2 | Prometheus Monitoring
 
-> Instance: `ssh cnpe6201`
+> Instance: `ssh cnpe0202`
+Prometheus is installed in namespace monitoring and reachable from the node.
 
-FluxCD e installato e gestisce il path /course/4/team-red.
-
-1. Individua la Kustomization che gestisce team-red e forzane una reconcile manuale.
-2. Introduci un drift manuale su un Deployment gestito da Flux (replicas +1).
-3. Verifica che Flux riporti lo stato a quello dichiarato in Git.
-4. Salva evidenze comandi e output in /course/4/flux-drift.txt.
-
----
-
-## Question 5 | GitOps - Argo CD Multi-Env Strategy
-
-> Instance: `ssh cnpe6202`
-
-Hai il repository locale in /course/5/payment-app con branch main e staging.
-
-1. Aggiorna il branch staging impostando label version=v2 sui Pod e contenuto pagina: Payment API Staging v2.
-2. Crea o aggiorna Application Argo CD payment-api-staging puntando a branch staging e namespace payment-staging.
-3. Assicurati che sync policy sia automated con prune e selfHeal attivi.
-4. Verifica applicazione Healthy/Synced.
+1. Extend the scrape config so Pods with label app=worker in namespace ns-b02-q02 are scraped.
+2. Reload Prometheus configuration without deleting resources.
+3. Run query sum by (deployment) (rate(http_requests_total{namespace="ns-b02-q02"}[5m])) and identify the highest value deployment.
+4. Scale that deployment to 2 replicas and save before/after evidence to /course/2/b02-q02-report.txt.
 
 ---
 
-## Question 6 | CI/CD - Tekton Pipeline Hardening
+## Question 3 | Argo CD
 
-> Instance: `ssh cnpe6203`
+> Instance: `ssh cnpe0203`
+Argo CD is installed and an application app-b02-q03 points to /course/3/repo-b02 branch main.
 
-Nel namespace builder esiste una pipeline ci-service.
-
-1. Aggiungi task lint prima del task build.
-2. Aggiungi task image-scan dopo build e prima di deploy.
-3. Se image-scan fallisce, deploy non deve partire.
-4. Esegui una PipelineRun e salva i log in /course/6/tekton-ci.log.
-
----
-
-## Question 7 | Progressive Delivery - Argo Rollouts Canary
-
-> Instance: `ssh cnpe6204`
-
-Nel namespace checkout il Rollout web e configurato in modo incompleto.
-
-1. Configura steps canary:
-   - setWeight 10
-   - pause 20s
-   - setWeight 40
-   - pause 30s
-   - setWeight 100
-2. Aggiorna immagine a nginx:1.27.
-3. Promuovi il rollout fino al completamento.
-4. Esporta storia e stato in /course/7/rollout-status.txt.
+1. In /course/3/repo-b02 update workload label version to v4 and app response text to "app-b02-q03 main".
+2. Commit and push on main.
+3. Create branch b02-q03, change response text to "app-b02-q03 testing", commit and push.
+4. Create Argo CD application app-b02-q03-testing targeting branch b02-q03 and namespace ns-b02-q03-testing.
+5. Ensure both applications end in Healthy and Synced.
 
 ---
 
-## Question 8 | GitOps - Kustomize Promotion Flow
+## Question 4 | Flagger for Blue/Green Deployments
 
-> Instance: `ssh cnpe6205`
+> Instance: `ssh cnpe0204`
+Flagger manages Deployment app-b02-q04 in namespace ns-b02-q04.
 
-In /course/8/app-config hai base + overlays/dev + overlays/prod.
-
-1. In base aggiungi env var FEATURE_FLAG=true al container principale.
-2. In overlay prod imposta replicas=4.
-3. Applica dev e poi prod verificando che il rendering sia coerente.
-4. Commit in branch main con messaggio: promote feature flag with prod scale.
-
----
-
-## Question 9 | Platform APIs - CRD Design and Versioning
-
-> Instance: `ssh cnpe6301`
-
-Devi introdurre un API self-service chiamata AppEnvironment.
-
-1. Crea CRD appenvironments.platform.example.io.
-2. Supporta versioni v1alpha1 e v1beta1 (storage v1beta1).
-3. In v1beta1 aggiungi campi:
-   - spec.size (enum: small, medium, large)
-   - spec.owner (string)
-4. Applica CRD e crea una risorsa di esempio env-sandbox nel namespace dev-platform.
+1. Increase APP_VERSION patch number by 1 on deployment app-b02-q04.
+2. Add a pre-rollout webhook in Canary analysis that performs HTTP GET against canary service app-b02-q04-canary.
+3. Trigger a rollout and wait until analysis is completed.
+4. Write Canary events and rollout result to /course/4/b02-q04-events.log.
 
 ---
 
-## Question 10 | Platform APIs - Operator-driven Provisioning
+## Question 5 | OPA Gatekeeper, Helm
 
-> Instance: `ssh cnpe6302`
+> Instance: `ssh cnpe0205`
+OPA Gatekeeper is installed and policy files are in /course/5/repo-b02/gatekeeper.
 
-Nel namespace platform-ops e installato un operator che osserva DatabaseClaim.
-
-1. Crea DatabaseClaim db-team1 con:
-   - engine: postgres
-   - size: small
-   - storage: 5Gi
-2. Verifica che l'operator crei Deployment e Service associati.
-3. Salva eventi della claim in /course/10/dbclaim-events.log.
+1. Complete ConstraintTemplate so Pods require label owner and Deployments require replicas >= 2.
+2. Scope the Constraint to namespace ns-b02-q05 only.
+3. Update Helm chart in /course/5/repo-b02/chart to satisfy the policy without adding new values files.
+4. Bump chart version to 1.02.05 and deploy release app-b02-q05 in namespace ns-b02-q05.
+5. Save successful validation evidence in /course/5/b02-q05-evidence.txt.
 
 ---
 
-## Question 11 | Self-Service - Argo Workflows API
+## Question 6 | OpenTofu, Terraform
 
-> Instance: `ssh cnpe6303`
+> Instance: `ssh cnpe0206`
+OpenTofu project contains three services under /course/6/repo-b02.
 
-In /course/11/workflowtemplate.yaml esiste un WorkflowTemplate parziale.
-
-1. Aggiungi parametro namespace e parametro app-name.
-2. Aggiungi uno step parallelo che crea ConfigMap e Secret applicativi.
-3. Applica il WorkflowTemplate e lancia un Workflow per namespace team-lake.
-4. Mantieni solo un Workflow riuscito eliminando eventuali run fallite.
-
----
-
-## Question 12 | Platform APIs - Crossplane Composition Extension
-
-> Instance: `ssh cnpe6304`
-
-La Composition in /course/12/composition.yaml crea solo un Deployment.
-
-1. Estendila per creare anche un Service ClusterIP sulla porta 8080.
-2. Mantieni patch pattern coerente con le risorse gia presenti.
-3. Applica la Composition aggiornata.
-4. Verifica che i composite resource esistenti ricevano anche il Service.
+1. For service-a, generate a readable plan and save it to /course/6/b02-q06-report.txt.
+2. For service-b, change deployment replicas to 3 and apply.
+3. For service-c, add a NodePort Service named app-b02-q06-public on port 30026.
+4. Verify resources created and store terraform/tofu outputs in /course/6/b02-q06-evidence.txt.
 
 ---
 
-## Question 13 | Self-Service Automation - Terraform/OpenTofu
+## Question 7 | OpenCost, Prometheus
 
-> Instance: `ssh cnpe6305`
+> Instance: `ssh cnpe0207`
+OpenCost and Prometheus are available in the cluster.
 
-Sono presenti tre moduli in /course/13.
-
-1. In service-a genera piano leggibile e salva in /course/13/service-a-plan.txt.
-2. In service-b aumenta replicas a 3 e applica.
-3. In service-c aggiungi Service NodePort chiamato public-api su 30090.
-4. Verifica risorse create e registra output in /course/13/tofu-verify.txt.
-
----
-
-## Question 14 | Observability - Prometheus Alerting
-
-> Instance: `ssh cnpe6401`
-
-In namespace monitor e attivo Prometheus Operator.
-
-1. Crea o aggiorna PrometheusRule con alert High5xxRate:
-   - trigger se rate errori 5xx > 5 req/s per 2m
-2. Scope dell'alert sul namespace retail.
-3. Verifica caricamento regola in Prometheus.
-4. Salva YAML finale in /course/14/high5xx-rule.yaml.
+1. Update OpenCost custom pricing: internetNetworkEgress=0.22, spotCPU=0.011.
+2. Run a Prometheus query filtered by namespace ns-b02-q07 and save result to /course/7/b02-q07-report.txt.
+3. Identify targets with scrape errors and write error messages to /course/7/b02-q07-events.log.
+4. Confirm OpenCost reflects new pricing and record command evidence in /course/7/b02-q07-evidence.txt.
 
 ---
 
-## Question 15 | Observability - Grafana and Loki Triage
+## Question 8 | Grafana, Loki, Logging, Monitoring
 
-> Instance: `ssh cnpe6402`
+> Instance: `ssh cnpe0208`
+Grafana uses Loki as datasource.
 
-Grafana usa Loki come datasource principale.
-
-1. Imposta Maximum lines datasource Loki a 200.
-2. Aggiorna pannello Errors con query esatta:
-
-   sum(count_over_time({namespace="retail"} |= "ERROR" [5m]))
-
-3. Identifica i due workload con piu errori negli ultimi 15m.
-4. Scala i relativi controller a 0 e annota i nomi in /course/15/error-workloads.txt.
+1. Set Loki datasource maximum lines to 102.
+2. Update existing panel query to exactly: count(rate({namespace="ns-b02-q08"} |= "ERROR" [5m])).
+3. Find two workloads with highest error volume in last 15 minutes.
+4. Scale corresponding controllers to 0 replicas and write findings to /course/8/b02-q08-report.txt.
+5. Pick one failing workload from logs, diagnose root cause (events/logs/describe), apply a minimal fix, and capture remediation evidence in the same report.
 
 ---
 
-## Question 16 | Observability - Tracing with Jaeger
+## Question 9 | Kustomize, Prometheus CRDs
 
-> Instance: `ssh cnpe6403`
+> Instance: `ssh cnpe0209`
+Prometheus Operator manifests are managed with Kustomize under /course/9/repo-b02/prom-config.
 
-Namespace tracing ospita Jaeger e vari servizi.
-
-1. Trova il servizio con tag release=canary e aggiorna env VERSION a 2.4.1.
-2. Trova il servizio con tag public=true e scala a 2 repliche.
-3. Esporta 10 trace JSON del servizio checkout in /course/16/checkout-traces.json.
-4. Verifica che il file contenga esattamente 10 trace.
-
----
-
-## Question 17 | Operations - Incident Remediation
-
-> Instance: `ssh cnpe6404`
-
-Nel namespace ops-lab un'app e in CrashLoopBackOff.
-
-1. Identifica root cause con describe/logs/eventi.
-2. Applica fix minimo senza cambiare immagine container.
-3. Ripristina stato Running/Ready.
-4. Scrivi il postmortem tecnico breve in /course/17/incident-report.md con:
-   - impatto
-   - causa
-   - fix
-   - prevenzione
+1. Add a ServiceMonitor selecting app=app-b02-q09 in namespace ns-b02-q09.
+2. Add a PrometheusRule alerting on high 5xx rate over 2m.
+3. Ensure overlays dev and prod both render successfully.
+4. Apply prod overlay and save final rendered resources to /course/9/b02-q09-result.yaml.
 
 ---
 
-## Question 18 | Security - Service-to-Service Authorization
+## Question 10 | ResourceQuota, StorageClass, PV/PVC, Git
 
-> Instance: `ssh cnpe6501`
+> Instance: `ssh cnpe0210`
+A multi-team cluster needs quota hardening and Git traceability.
 
-Namespace secure-mesh usa Linkerd.
-
-1. Crea Server resource:
-   - frontend (selector app=frontend, porta 80)
-   - backend (selector app=backend, porta 80)
-2. Correggi AuthorizationPolicy frontend-to-backend per consentire solo frontend -> backend.
-3. Verifica con curl da Pod frontend verso backend.
-4. Blocca accessi da Pod non autorizzati.
+1. Create ResourceQuota in namespace ns-b02-q10 with requests.cpu=2, requests.memory=4Gi, persistentvolumeclaims=2.
+2. Add a LimitRange setting default cpu=250m and memory=256Mi.
+3. Validate quota enforcement with a failing Pod or PVC test.
+4. Commit all manifests in /course/10/repo-b02 on branch main and capture git log + quota checks in /course/10/b02-q10-evidence.txt.
+5. Create a static PersistentVolume and a matching PersistentVolumeClaim that references a valid StorageClass, validate binding status and include kubectl describe pv/pvc evidence in the same report.
 
 ---
 
-## Question 19 | Security - Policy Engine and Admission Control
+## Question 11 | Argo Workflows
 
-> Instance: `ssh cnpe6502`
+> Instance: `ssh cnpe0211`
+Argo Workflows is installed and templates are in /course/11/repo-b02/workflows.
 
-Kyverno deve governare il namespace finance.
-
-1. Crea ClusterPolicy require-finance-labels:
-   - Pod devono avere labels owner e data-classification
-   - enforce mode
-2. Crea mutate policy che aggiunge annotation compliance=required solo se assente.
-3. Verifica con un Pod non conforme (deve fallire) e uno conforme (deve passare).
-4. Salva test output in /course/19/kyverno-tests.txt.
+1. Extend WorkflowTemplate with parameters namespace and appName.
+2. Add a parallel step creating ConfigMap and Secret.
+3. Run one workflow in namespace ns-b02-q11 and ensure it succeeds.
+4. Delete failed runs if any and save workflow status output to /course/11/b02-q11-report.txt.
 
 ---
 
-## Question 20 | Security - Pipeline Compliance and Audit Trail
+## Question 12 | Tekton, Security Scanning, SBOM
 
-> Instance: `ssh cnpe6503`
+> Instance: `ssh cnpe0212`
+Tekton pipeline app-b02-q12-ci exists in namespace ns-b02-q12.
 
-La pipeline in /course/20 deve includere controlli sicurezza e audit.
-
-1. Aggiungi step SBOM generation (es. syft o equivalente).
-2. Aggiungi step image vulnerability scan con threshold HIGH.
-3. Fallisci la pipeline se vulnerabilita HIGH o CRITICAL > 0.
-4. Pubblica artifacts sbom.json e scan-report.txt in /course/20/artifacts.
-5. Registra risultato finale (PASS/FAIL) in /course/20/compliance-result.txt.
+1. Insert lint task before build task.
+2. Insert image-scan task between build and deploy.
+3. Configure pipeline so deploy runs only if scan succeeds.
+4. Start a PipelineRun, collect logs, and save evidence to /course/12/b02-q12-events.log.
+5. Integrate a security scan task that exports an SBOM (CycloneDX or SPDX) artifact and fail the pipeline on critical findings.
 
 ---
 
-## Note operative
+## Question 13 | Pod Security Standards, RBAC
 
-- Usa prevalentemente CLI, salvo dove esplicitamente richiesto UI.
-- Ogni task e considerato completo solo con verifica oggettiva riuscita.
-- In caso di risorse fallite (PipelineRun, Workflow, Rollout), pulisci gli oggetti non riusciti.
-- Se un comando modifica stato cluster, raccogli sempre almeno una evidenza in file.
+> Instance: `ssh cnpe0213`
+Pod Security must be enforced in namespace ns-b02-q13.
+
+1. Label namespace ns-b02-q13 to enforce restricted profile at latest version.
+2. Update one failing workload so it passes restricted admission without privileged mode.
+3. Verify admission blocks an intentionally non-compliant Pod.
+4. Save compliant manifest and validation commands in /course/13/b02-q13-result.yaml.
+5. Create Role and RoleBinding that grant least-privilege read access to Pods for a service account in the same namespace, then verify with kubectl auth can-i.
+
+---
+
+## Question 14 | OpenTelemetry, Jaeger
+
+> Instance: `ssh cnpe0214`
+Jaeger is deployed in namespace tracing.
+
+1. Identify service tagged release=canary and update env VERSION to 2.2.4.
+2. Identify public service and scale it to 2 replicas.
+3. Export 10 traces for service app-b02-q14 into /course/14/b02-q14-report.txt.
+4. Verify exported file contains exactly 10 traces and store check output in /course/14/b02-q14-evidence.txt.
+5. Ensure traces are routed through OpenTelemetry Collector before Jaeger storage (validate collector pipeline and exporter status).
+
+---
+
+## Question 15 | Vertical Pod Autoscaler (VPA)
+
+> Instance: `ssh cnpe0215`
+Vertical Pod Autoscaler is installed and a workload in namespace ns-b02-q15 needs tuning.
+
+1. Create or update VPA for deployment app-b02-q15 in Auto mode.
+2. Configure minAllowed cpu=100m memory=128Mi and maxAllowed cpu=1 memory=1Gi.
+3. Trigger load to produce recommendations and inspect VPA status.
+4. Save recommendation snapshot and resulting pod resources to /course/15/b02-q15-events.log.
+
+---
+
+## Question 16 | Argo Rollouts, Canary
+
+> Instance: `ssh cnpe0216`
+Argo Rollouts manages canary deployment app-b02-q16 in namespace ns-b02-q16.
+
+1. Configure steps: setWeight 10, pause 20s, setWeight 40, pause 30s, setWeight 100.
+2. Update image tag to stable-b02.
+3. Promote rollout to completion and confirm no degraded status.
+4. Save rollout history and current status to /course/16/b02-q16-report.txt.
+
+---
+
+## Question 17 | FluxCD
+
+> Instance: `ssh cnpe0217`
+FluxCD is installed and manages /course/17/repo-b02/flux-app.
+
+1. Force reconcile for source and kustomization related to app-b02-q17.
+2. Introduce a temporary in-cluster drift (replicas +1) on managed deployment.
+3. Verify Flux restores desired state from Git.
+4. Save reconcile and drift-recovery evidence in /course/17/b02-q17-evidence.txt.
+
+---
+
+## Question 18 | Kyverno
+
+> Instance: `ssh cnpe0218`
+Kyverno policies are required for namespace ns-b02-q18.
+
+1. Create ClusterPolicy enforcing label team on Pods.
+2. Add a mutate rule injecting annotation managed-by=kyverno on Deployments.
+3. Test both deny and mutate behavior with sample resources.
+4. Store policy YAML and test results in /course/18/b02-q18-result.yaml and /course/18/b02-q18-report.txt.
+
+---
+
+## Question 19 | Crossplane, CloudNativePG
+
+> Instance: `ssh cnpe0219`
+Crossplane compositions are defined in /course/19/repo-b02/crossplane.
+
+1. Extend existing Composition to provision Deployment plus ClusterIP Service on port 8080.
+2. Ensure patch set maps composite field spec.parameters.size to container resources.
+3. Apply changes and verify existing XR/XRC resources reconcile successfully.
+4. Save rendered managed resources and events to /course/19/b02-q19-events.log.
+5. Add a CloudNativePG Cluster or ClusterClaim example managed through Crossplane composition and verify reconciliation status.
+
+---
+
+## Question 20 | Linkerd, Istio, Gateway API
+
+> Instance: `ssh cnpe0220`
+Linkerd and Gateway API are installed.
+
+1. Configure HTTPRoute for service app-b02-q20 behind Gateway app-b02-q20-gw in namespace ns-b02-q20.
+2. Inject Linkerd sidecars on involved workloads and verify proxies are ready.
+3. Create policy so only traffic from namespace ns-b02-q20-client reaches app-b02-q20.
+4. Validate path and policy behavior, then save results to /course/20/b02-q20-report.txt.
+5. Repeat service-to-service policy validation using Istio AuthorizationPolicy as an alternative implementation and compare outcomes with Linkerd policy.
+
+---
+
