@@ -1,40 +1,50 @@
 # CNPE Simulator - Batteria Specifica Argo Rollouts - Domande
-> Killer Shell style | Kubernetes 1.35 | Focus esclusivo: Argo Rollouts
+> Killer Shell style | Kubernetes 1.35 | Focus: Progressive Delivery con Argo Rollouts
+
+---
+
+## Nota formato esame
+
+- Ogni domanda richiede modifiche minime e verificabili.
+- Usa solo il namespace indicato.
+- Salva sempre una evidenza tecnica nel path richiesto sotto /course.
+- La batteria e stata allineata ai comandi e ai campi ufficiali Argo Rollouts.
 
 ---
 
 ## Indice delle Domande
 
-| Q 1 | Installazione e stato controller Rollouts |
+| Q 1 | Installazione controller e plugin |
 | Q 2 | Migrazione Deployment -> Rollout |
-| Q 3 | Strategia Canary base |
-| Q 4 | Pause e promozione manuale |
-| Q 5 | AnalysisTemplate con Prometheus |
-| Q 6 | Abort e rollback |
-| Q 7 | Blue/Green e Service switching |
-| Q 8 | setWeight progressivo |
-| Q 9 | Canary con traffico HTTPRoute |
-| Q10 | Dashboard plugin kubectl-argo-rollouts |
-| Q11 | Experiment e comparative analysis |
-| Q12 | Notification trigger |
-| Q13 | Anti-affinity e surge tuning |
-| Q14 | ProgressDeadline e failure handling |
-| Q15 | Pause conditions e retry |
-| Q16 | Autoscaling interplay (HPA + Rollout) |
-| Q17 | GitOps sync behavior con Rollouts |
-| Q18 | Security context e policy compliance |
-| Q19 | Troubleshooting stuck rollout |
-| Q20 | End-to-end canary con metric gates |
+| Q 3 | Canary steps base |
+| Q 4 | Pausa manuale e promozione |
+| Q 5 | AnalysisTemplate (job) |
+| Q 6 | Abort e undo |
+| Q 7 | Blue/Green con active/preview service |
+| Q 8 | Set image e history |
+| Q 9 | Retry dopo failure |
+| Q10 | Rollback window |
+| Q11 | maxSurge, maxUnavailable, anti-affinity |
+| Q12 | progressDeadlineSeconds e abort |
+| Q13 | Pause/Resume via CLI |
+| Q14 | HPA su Rollout |
+| Q15 | Plugin get rollout e timeout |
+| Q16 | Restart controllato |
+| Q17 | Experiment step |
+| Q18 | Troubleshooting rollout bloccato |
+| Q19 | Canary end-to-end con gate |
+| Q20 | Checklist finale e raccolta evidenze |
 
 ---
 
-## Question 1 | Installazione e stato controller Rollouts
+## Question 1 | Installazione controller e plugin
 
 > Instance: `ssh cnpe-ar01`
 
-1. Verifica che il controller Argo Rollouts sia installato nel namespace argo-rollouts.
-2. Verifica CRD, Deployment controller e stato Pod Ready.
-3. Salva evidenze in /course/1/ar-rollouts-controller.txt.
+1. Verifica che il namespace argo-rollouts esista.
+2. Verifica CRD rollouts.argoproj.io e deployment controller Ready.
+3. Verifica che il plugin kubectl argo rollouts sia disponibile.
+4. Salva output comandi in /course/1/controller-check.txt.
 
 ---
 
@@ -42,204 +52,247 @@
 
 > Instance: `ssh cnpe-ar02`
 
-1. Converti il Deployment webapp in una risorsa Rollout mantenendo selector e template.
-2. Imposta replicas=3 e strategy canary.
-3. Applica e verifica lo stato con kubectl argo rollouts get rollout.
-4. Salva YAML finale in /course/2/rollout-migrated.yaml.
+Namespace: rollouts-lab
+File iniziale: /course/2/webapp-deployment.yaml
+
+1. Converti il Deployment webapp in kind Rollout.
+2. Mantieni selector e pod template.
+3. Imposta replicas=3 e strategia canary con almeno due step.
+4. Applica il manifest e salva il risultato in /course/2/rollout-migrated.yaml.
 
 ---
 
-## Question 3 | Strategia Canary base
+## Question 3 | Canary steps base
 
 > Instance: `ssh cnpe-ar03`
 
-1. Configura steps: setWeight 20, pause 30s, setWeight 50, pause 30s, setWeight 100.
-2. Aggiorna immagine container a nginx:1.27.
-3. Verifica avanzamento e completa il rollout.
-4. Salva output stato in /course/3/canary-basic.txt.
+Rollout: payments (namespace rollouts-lab)
+
+1. Configura steps: setWeight 20, pausa 15s, setWeight 50, pausa 15s, setWeight 100.
+2. Aggiorna immagine del container app a nginx:1.27.
+3. Verifica avanzamento con watch.
+4. Salva evidenza in /course/3/canary-basic.txt.
 
 ---
 
-## Question 4 | Pause e promozione manuale
+## Question 4 | Pausa manuale e promozione
 
 > Instance: `ssh cnpe-ar04`
 
-1. Inserisci una pausa manuale nella strategia canary dopo il primo step.
-2. Triggera un aggiornamento immagine e lascia il rollout in Paused.
-3. Esegui promozione manuale e verifica il completamento.
-4. Salva evidenza comandi in /course/4/manual-promotion.txt.
+Rollout: payments (namespace rollouts-lab)
+
+1. Inserisci una pausa indefinita nella strategia canary (pause: {}).
+2. Triggera un nuovo update immagine.
+3. Lascia il rollout in Paused e poi promuovilo manualmente.
+4. Salva stato prima/dopo in /course/4/manual-promotion.txt.
 
 ---
 
-## Question 5 | AnalysisTemplate con Prometheus
+## Question 5 | AnalysisTemplate (job)
 
 > Instance: `ssh cnpe-ar05`
 
-1. Crea AnalysisTemplate che controlli error-rate < 2% tramite query Prometheus.
-2. Collega l'analysis alla strategia canary del Rollout payments.
-3. Esegui rollout e verifica che l'analysis venga valutata.
-4. Salva template e risultato in /course/5/analysis-prometheus.yaml.
+Namespace: rollouts-lab
+Starter: /course/5/analysis-template-job.yaml
+
+1. Completa AnalysisTemplate in modo che il job termini con exit 0.
+2. Collega il template al rollout payments come step analysis.
+3. Esegui un update immagine e verifica creazione AnalysisRun.
+4. Salva manifest finale in /course/5/analysis-template-job-final.yaml.
 
 ---
 
-## Question 6 | Abort e rollback
+## Question 6 | Abort e undo
 
 > Instance: `ssh cnpe-ar06`
 
-1. Simula failure metric durante canary e forza stato Degraded.
+Rollout: payments (namespace rollouts-lab)
+
+1. Imposta una immagine volutamente errata per portare il rollout in errore.
 2. Esegui abort del rollout.
-3. Verifica che il traffico torni completamente alla versione stable.
-4. Salva evidenza in /course/6/abort-rollback.txt.
+3. Ripristina versione precedente con undo.
+4. Salva evidenze in /course/6/abort-undo.txt.
 
 ---
 
-## Question 7 | Blue/Green e Service switching
+## Question 7 | Blue/Green con active/preview service
 
 > Instance: `ssh cnpe-ar07`
 
-1. Configura Rollout in modalità blueGreen con activeService e previewService.
-2. Esegui update immagine.
-3. Verifica switch corretto dei Service selectors.
+Rollout: checkout (namespace rollouts-lab)
+
+1. Verifica che activeService e previewService siano configurati.
+2. Aggiorna immagine e controlla che il preview service punti alla nuova revisione.
+3. Promuovi il rollout e verifica lo switch dell active service.
 4. Salva output in /course/7/bluegreen-services.txt.
 
 ---
 
-## Question 8 | setWeight progressivo
+## Question 8 | Set image e history
 
 > Instance: `ssh cnpe-ar08`
 
-1. Definisci una progressione setWeight: 5, 15, 35, 60, 100.
-2. Inserisci pause di 10s tra ogni step.
-3. Verifica history del rollout.
-4. Salva risultato in /course/8/progressive-weights.txt.
+Rollout: inventory (namespace rollouts-lab)
+
+1. Usa kubectl argo rollouts set image per aggiornare il container app.
+2. Verifica revision e replicaSets generate.
+3. Salva stato e revision in /course/8/set-image-history.txt.
 
 ---
 
-## Question 9 | Canary con traffico HTTPRoute
+## Question 9 | Retry dopo failure
 
 > Instance: `ssh cnpe-ar09`
 
-1. Configura trafficRouting con Gateway API HTTPRoute.
-2. Associa il Rollout checkout alla route esistente.
-3. Verifica la distribuzione traffico durante i passaggi canary.
-4. Salva evidenza in /course/9/httproute-canary.txt.
+Rollout: inventory (namespace rollouts-lab)
+
+1. Introduci un errore transitorio (esempio immagine non valida).
+2. Correggi il manifest/immagine.
+3. Usa retry per riprendere il rollout.
+4. Salva output in /course/9/retry.txt.
 
 ---
 
-## Question 10 | Dashboard plugin kubectl-argo-rollouts
+## Question 10 | Rollback window
 
 > Instance: `ssh cnpe-ar10`
 
-1. Usa kubectl argo rollouts dashboard per ispezionare rollout orders.
-2. Verifica stato step, pause conditions e replica sets.
-3. Esporta uno screenshot o descrizione tecnica in /course/10/dashboard-report.md.
+Rollout: inventory (namespace rollouts-lab)
+
+1. Imposta rollbackWindow.revisions a 3.
+2. Esegui almeno due update immagine validi.
+3. Verifica revisionHistory mantenuta.
+4. Salva evidenze in /course/10/rollback-window.txt.
 
 ---
 
-## Question 11 | Experiment e comparative analysis
+## Question 11 | maxSurge, maxUnavailable, anti-affinity
 
 > Instance: `ssh cnpe-ar11`
 
-1. Crea un Experiment con baseline e canary templates.
-2. Esegui test comparativo su latenza (mock o metrica disponibile).
-3. Salva manifest e risultato in /course/11/experiment.yaml.
+Rollout: payments (namespace rollouts-lab)
+
+1. Imposta maxSurge=1 e maxUnavailable=0.
+2. Aggiungi antiAffinity preferred tra vecchia e nuova ReplicaSet.
+3. Esegui update e verifica scheduling.
+4. Salva risultato in /course/11/surge-unavailable-affinity.txt.
 
 ---
 
-## Question 12 | Notification trigger
+## Question 12 | progressDeadlineSeconds e abort
 
 > Instance: `ssh cnpe-ar12`
 
-1. Configura trigger notification su eventi Rollout (progressing, completed, degraded).
-2. Collega almeno un notifier disponibile.
-3. Verifica invocazione trigger durante update.
-4. Salva evidenza in /course/12/notifications.txt.
+Rollout: payments (namespace rollouts-lab)
+
+1. Imposta progressDeadlineSeconds=90.
+2. Abilita progressDeadlineAbort=true.
+3. Simula una condizione che blocchi la progressione.
+4. Salva events e status in /course/12/progress-deadline.txt.
 
 ---
 
-## Question 13 | Anti-affinity e surge tuning
+## Question 13 | Pause/Resume via CLI
 
 > Instance: `ssh cnpe-ar13`
 
-1. Aggiorna il template Pod del Rollout api con podAntiAffinity preferita.
-2. Configura maxSurge=1 e maxUnavailable=0.
-3. Verifica scheduling e comportamento rollout.
-4. Salva output in /course/13/surge-affinity.txt.
+Rollout: search (namespace rollouts-lab)
+
+1. Metti in pausa con CLI.
+2. Verifica pauseConditions nello status.
+3. Riprendi e verifica completamento.
+4. Salva output in /course/13/pause-resume.txt.
 
 ---
 
-## Question 14 | ProgressDeadline e failure handling
+## Question 14 | HPA su Rollout
 
 > Instance: `ssh cnpe-ar14`
 
-1. Imposta progressDeadlineSeconds=120.
-2. Introduci una condizione che blocchi la progressione.
-3. Verifica timeout e stato failure.
-4. Salva eventi e descrizione in /course/14/progress-deadline.txt.
+Rollout: search (namespace rollouts-lab)
+
+1. Crea/aggiorna HPA con targetRef al rollout search.
+2. Imposta minReplicas=2 e maxReplicas=5.
+3. Verifica che HPA legga metriche e target corretto.
+4. Salva in /course/14/hpa-rollout.txt.
 
 ---
 
-## Question 15 | Pause conditions e retry
+## Question 15 | Plugin get rollout e timeout
 
 > Instance: `ssh cnpe-ar15`
 
-1. Metti il rollout inventory in pausa tramite comando CLI.
-2. Riprendi con retry e verifica che riparta dallo step corretto.
-3. Salva stato prima/dopo in /course/15/pause-retry.txt.
+Rollout: payments (namespace rollouts-lab)
+
+1. Usa kubectl argo rollouts get rollout payments -w --timeout-seconds 60.
+2. Interrompi in sicurezza il watch dopo aver ottenuto output utile.
+3. Salva output in /course/15/get-rollout-timeout.txt.
 
 ---
 
-## Question 16 | Autoscaling interplay (HPA + Rollout)
+## Question 16 | Restart controllato
 
 > Instance: `ssh cnpe-ar16`
 
-1. Associa HPA al Rollout search.
-2. Verifica scaling behavior durante una release canary.
-3. Assicurati che non ci siano conflitti tra replicas desired e HPA decisions.
-4. Salva evidenza in /course/16/hpa-rollout.txt.
+Rollout: inventory (namespace rollouts-lab)
+
+1. Esegui restart del rollout.
+2. Verifica restartAt e rotazione pod.
+3. Salva evidenza in /course/16/restart.txt.
 
 ---
 
-## Question 17 | GitOps sync behavior con Rollouts
+## Question 17 | Experiment step
 
 > Instance: `ssh cnpe-ar17`
 
-1. Versiona il manifest Rollout in repository Git locale /course/17/rollouts-git.
-2. Esegui una modifica canary e commit su main.
-3. Verifica sync con controller GitOps installato.
-4. Salva log e commit id in /course/17/gitops-rollout.txt.
+Rollout: payments (namespace rollouts-lab)
+
+1. Inserisci uno step experiment nella canary strategy.
+2. Definisci template baseline e canary con durata breve.
+3. Esegui update e verifica risorsa Experiment.
+4. Salva output in /course/17/experiment.txt.
 
 ---
 
-## Question 18 | Security context e policy compliance
+## Question 18 | Troubleshooting rollout bloccato
 
 > Instance: `ssh cnpe-ar18`
 
-1. Adegua il Rollout worker ai requisiti Pod Security restricted.
-2. Verifica compliance policy (Kyverno/Gatekeeper se presenti).
-3. Applica update e verifica che il rollout completi senza violazioni.
-4. Salva evidenza in /course/18/security-compliance.txt.
+Rollout: stuck-app (namespace rollouts-lab)
+
+1. Identifica la causa del blocco con describe/events/get rollout.
+2. Applica il fix minimo per completare il rollout.
+3. Conferma stato Healthy/Completed.
+4. Scrivi root cause e fix in /course/18/troubleshooting.md.
 
 ---
 
-## Question 19 | Troubleshooting stuck rollout
+## Question 19 | Canary end-to-end con gate
 
 > Instance: `ssh cnpe-ar19`
 
-1. Individua la causa di un rollout bloccato in Progressing.
-2. Risolvi il problema con il fix minimo.
-3. Verifica stato Healthy/Completed.
-4. Scrivi root cause e fix in /course/19/troubleshooting.md.
+Rollout: payments (namespace rollouts-lab)
+
+1. Applica update immagine.
+2. Esegui avanzamento canary con gate analysis configurato.
+3. Promuovi solo dopo analysis positiva.
+4. Salva report in /course/19/e2e-canary-gate.txt.
 
 ---
 
-## Question 20 | End-to-end canary con metric gates
+## Question 20 | Checklist finale e raccolta evidenze
 
 > Instance: `ssh cnpe-ar20`
 
-1. Implementa una pipeline completa: update immagine + canary + analysis metriche + promozione.
-2. Definisci gate su success-rate e latency.
-3. Esegui il rollout end-to-end e verifica outcome.
-4. Salva report finale in /course/20/e2e-canary-report.md.
+1. Verifica che i rollout payments, checkout, inventory, search siano Healthy.
+2. Esporta elenco rollout, replicasets e analysisrun del namespace rollouts-lab.
+3. Salva report finale in /course/20/final-report.txt.
 
 ---
+
+## Verifica online utilizzata per questa batteria
+
+- https://argo-rollouts.readthedocs.io/en/stable/installation/
+- https://argo-rollouts.readthedocs.io/en/stable/features/specification/
+- https://argo-rollouts.readthedocs.io/en/stable/generated/kubectl-argo-rollouts/kubectl-argo-rollouts_get_rollout/
