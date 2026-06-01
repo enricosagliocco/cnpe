@@ -45,6 +45,8 @@ CLUSTER_NAME="cnpe-simulator"
 section "🚀 Avvio Minikube ($MINIKUBE_K8S_VERSION | 4 CPU | 18GB RAM)"
 
 info "Reset cluster '$CLUSTER_NAME': delete + recreate"
+echo "[INFO] Removing any pre-existing minikube clusters/profiles"
+minikube delete --all >/dev/null 2>&1 || true
 minikube delete -p "$CLUSTER_NAME" >/dev/null 2>&1 || true
 minikube start \
   --profile="$CLUSTER_NAME" \

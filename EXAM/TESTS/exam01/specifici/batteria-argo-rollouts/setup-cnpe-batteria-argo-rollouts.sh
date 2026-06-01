@@ -77,6 +77,8 @@ for i in $(seq 1 20); do
   mkdir -p "$COURSE_ROOT/$i"
 done
 
+echo "[INFO] Removing any pre-existing minikube clusters/profiles"
+minikube delete --all >/dev/null 2>&1 || true
 minikube delete -p "$PROFILE" >/dev/null 2>&1 || true
 minikube start \
   --profile="$PROFILE" \

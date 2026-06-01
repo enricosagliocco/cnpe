@@ -5,6 +5,8 @@ K8S_VERSION="v1.35.0"
 for c in minikube kubectl helm git docker; do command -v "$c" >/dev/null 2>&1 || { echo "[ERR] missing command: $c"; exit 1; }; done
 if mkdir -p /course >/dev/null 2>&1; then COURSE_ROOT="/course"; else COURSE_ROOT="$HOME/course"; mkdir -p "$COURSE_ROOT"; fi
 for i in $(seq 1 15); do mkdir -p "$COURSE_ROOT/$i"; done
+echo "[INFO] Removing any pre-existing minikube clusters/profiles"
+minikube delete --all >/dev/null 2>&1 || true
 minikube delete -p "$PROFILE" >/dev/null 2>&1 || true
 minikube start --profile="$PROFILE" --kubernetes-version="$K8S_VERSION" --driver=docker --cpus=4 --memory=10240 --addons=ingress,metrics-server
 kubectl config use-context "$PROFILE" >/dev/null
