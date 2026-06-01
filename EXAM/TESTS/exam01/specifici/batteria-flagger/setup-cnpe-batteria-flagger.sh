@@ -61,7 +61,7 @@ seed_git_repo_to_gitea() {
   git -C "$repo_path" push -u origin main --force >/dev/null 2>&1 || warn "Push to Gitea failed for ${repo_name}"
 }
 
-for cmd in minikube kubectl git curl docker; do
+for cmd in minikube kubectl git curl docker helm; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "[ERR] missing command: $cmd"; exit 1; }
 done
 
@@ -97,14 +97,38 @@ kubectl create namespace flagger-system --dry-run=client -o yaml | kubectl apply
 kubectl create namespace flagger-lab --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 
 info "Installing Flagger (best effort)"
-if ! kubectl apply -k "github.com/fluxcd/flagger//kustomize/flagger?ref=main" >/dev/null 2>&1; then
-  warn "Flagger core install failed"
+if ! kubectl apply -f "https://raw.githubusercontent.com/fluxcd/flagger/main/artifacts/flagger/crd.yaml" >/dev/null 2>&1; then
+  warn "Flagger CRD install failed"
 fi
-if ! kubectl apply -k "github.com/fluxcd/flagger//kustomize/provider/nginx?ref=main" >/dev/null 2>&1; then
-  warn "Flagger nginx provider install failed"
+if ! helm repo add flagger https://flagger.app --force-update >/dev/null 2>&1; then
+  warn "Flagger helm repo add failed"
 fi
+if ! helm repo update >/dev/null 2>&1; then
+  warn "Flagger helm repo update failed"
+fi
+flagger_render_file="$(mktemp)"
+flagger_render_err="$(mktemp)"
+flagger_apply_err="$(mktemp)"
+if ! helm template flagger flagger/flagger \
+  --namespace flagger-system \
+  --set meshProvider=nginx \
+  --set prometheus.install=true >"${flagger_render_file}" 2>"${flagger_render_err}"; then
+  warn "Flagger helm render failed"
+  tail -n 20 "${flagger_render_err}" >&2 || true
+elif ! kubectl apply -f "${flagger_render_file}" >/dev/null 2>"${flagger_apply_err}"; then
+  warn "Flagger apply rendered manifests failed"
+  tail -n 20 "${flagger_apply_err}" >&2 || true
+fi
+rm -f "${flagger_render_file}" >/dev/null 2>&1 || true
+rm -f "${flagger_render_err}" >/dev/null 2>&1 || true
+rm -f "${flagger_apply_err}" >/dev/null 2>&1 || true
 
-kubectl -n flagger-system rollout status deploy/flagger --timeout=180s >/dev/null || warn "flagger deployment not ready yet"
+flagger_deploy_name="$(kubectl -n flagger-system get deploy -l app.kubernetes.io/name=flagger -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)"
+if [[ -n "${flagger_deploy_name}" ]]; then
+  kubectl -n flagger-system rollout status "deploy/${flagger_deploy_name}" --timeout=300s >/dev/null || warn "flagger deployment not ready yet"
+else
+  warn "Flagger deployment not found in flagger-system"
+fi
 
 mkdir -p "$COURSE_ROOT/2/repo-flagger/apps/podinfo"
 
