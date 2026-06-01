@@ -129,7 +129,6 @@ metadata:
 spec:
   metrics:
   - name: smoke-check
-    successCondition: result == 0
     provider:
       job:
         spec:

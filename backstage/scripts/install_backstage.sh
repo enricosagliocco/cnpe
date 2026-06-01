@@ -6,7 +6,9 @@ set -euo pipefail
 
 BACKSTAGE_HOST=${BACKSTAGE_HOST:-192.168.1.60}
 BACKSTAGE_PORT=${BACKSTAGE_PORT:-3000}
-APP_DIR="/home/vagrant/my-backstage"
+VAGRANT_HOME="$(getent passwd vagrant | cut -d: -f6)"
+VAGRANT_HOME="${VAGRANT_HOME:-$(eval echo ~vagrant)}"
+APP_DIR="${VAGRANT_HOME}/my-backstage"
 
 echo "=== Backstage Native Installation (Rocky 9) ==="
 echo "Host: ${BACKSTAGE_HOST}"
@@ -32,7 +34,7 @@ dnf -y install \
 	python3-pip
 
 echo "=== 2) Installazione nvm + Node LTS per utente vagrant ==="
-if [ ! -s /home/vagrant/.nvm/nvm.sh ]; then
+if [ ! -s "${VAGRANT_HOME}/.nvm/nvm.sh" ]; then
 	runuser -l vagrant -c 'bash -lc "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash"'
 fi
 
@@ -83,7 +85,7 @@ if systemctl is-active --quiet firewalld; then
 fi
 
 echo "=== 7) Service systemd Backstage ==="
-cat >/etc/systemd/system/backstage.service <<'EOF'
+cat >/etc/systemd/system/backstage.service <<EOF
 [Unit]
 Description=Backstage Development Service
 After=network.target
@@ -91,9 +93,9 @@ After=network.target
 [Service]
 Type=simple
 User=vagrant
-WorkingDirectory=/home/vagrant/my-backstage
-Environment=HOME=/home/vagrant
-ExecStart=/bin/bash -lc 'export NVM_DIR=/home/vagrant/.nvm; source /home/vagrant/.nvm/nvm.sh; nvm use --lts >/dev/null; yarn start'
+WorkingDirectory=${APP_DIR}
+Environment=HOME=${VAGRANT_HOME}
+ExecStart=/bin/bash -lc 'export NVM_DIR=${VAGRANT_HOME}/.nvm; source ${VAGRANT_HOME}/.nvm/nvm.sh; nvm use --lts >/dev/null; yarn start'
 Restart=always
 RestartSec=5
 

@@ -6,6 +6,8 @@ RKE2_SINGLE_IP="${RKE2_SINGLE_IP:-192.168.1.21}"
 LOCAL_PATH_MANIFEST_URL="${LOCAL_PATH_MANIFEST_URL:-https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml}"
 HELM_VERSION="${HELM_VERSION:-v3.20.2}"
 K9S_VERSION="${K9S_VERSION:-v0.40.10}"
+VAGRANT_HOME="$(getent passwd vagrant | cut -d: -f6)"
+VAGRANT_HOME="${VAGRANT_HOME:-$(eval echo ~vagrant)}"
 
 echo "==> Installo RKE2 server (single instance)"
 curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE="server" sh -
@@ -66,10 +68,10 @@ sudo cp /etc/rancher/rke2/rke2.yaml /root/.kube/config
 sudo chmod 600 /root/.kube/config
 
 if id -u vagrant >/dev/null 2>&1; then
-  sudo mkdir -p /home/vagrant/.kube
-  sudo cp /etc/rancher/rke2/rke2.yaml /home/vagrant/.kube/config
-  sudo chown -R vagrant:vagrant /home/vagrant/.kube
-  sudo chmod 600 /home/vagrant/.kube/config
+  sudo mkdir -p "${VAGRANT_HOME}/.kube"
+  sudo cp /etc/rancher/rke2/rke2.yaml "${VAGRANT_HOME}/.kube/config"
+  sudo chown -R vagrant:vagrant "${VAGRANT_HOME}/.kube"
+  sudo chmod 600 "${VAGRANT_HOME}/.kube/config"
 fi
 
 export KUBECONFIG=/etc/rancher/rke2/rke2.yaml

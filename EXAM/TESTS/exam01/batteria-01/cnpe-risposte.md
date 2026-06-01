@@ -385,7 +385,7 @@ so we do it in our home dir.
 
 
   ➜ candidate@cnpe7683:~$ vim 1.yaml
- # cnpe7683:/home/candidate/1.yaml
+ # cnpe7683:~/1.yaml
  apiVersion: monitoring.killer.sh/v1alpha2              # new version
  kind: TeamMonitoring
  metadata:
@@ -959,7 +959,7 @@ using the applications.argoproj.io resource:
 
 
 
- # cnpe3849:/home/candidate/s3_web-client-testing.yaml
+ # cnpe3849:~/s3_web-client-testing.yaml
  apiVersion: argoproj.io/v1alpha1
  kind: Application
  metadata:
@@ -6160,7 +6160,7 @@ Create a GitRepository pointing to the havel-east Git repository and a Kustomiza
 
 
 
- # cnpe7683: /home/candidate/17.yaml
+ # cnpe7683: ~/17.yaml
  apiVersion: source.toolkit.fluxcd.io/v1
  kind: GitRepository
  metadata:
@@ -6265,7 +6265,7 @@ Step 1: Create the NamespacedMutatingPolicy
 
 
 
- # cnpe4328:/home/candidate/18.yaml
+ # cnpe4328:~/18.yaml
  apiVersion: policies.kyverno.io/v1
  kind: NamespacedMutatingPolicy
  metadata:
@@ -6550,7 +6550,7 @@ Create a Redis resource:
 
 
 
- # cnpe3849: /home/candidate/19.yaml
+ # cnpe3849: ~/19.yaml
  apiVersion: cache.killer.sh/v1alpha1
  kind: Redis
  metadata:
@@ -6852,7 +6852,7 @@ Create Server resources for both frontend and backend on port 80 (as specified i
 
 
 
- # cnpe4328:/home/candidate/20.yaml
+ # cnpe4328:~/20.yaml
  apiVersion: policy.linkerd.io/v1beta3
  kind: Server
  metadata:
@@ -7052,7 +7052,7 @@ Create an HTTPRoute that splits traffic to the backend Service: 10% to backend-v
 
 
 
- # cnpe4328:/home/candidate/20.yaml
+ # cnpe4328:~/20.yaml
  ...
  ---
  apiVersion: gateway.networking.k8s.io/v1

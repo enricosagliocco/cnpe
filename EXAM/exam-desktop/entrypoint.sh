@@ -2,7 +2,8 @@
 set -uo pipefail
 
 SSH_SRC="${SSH_MOUNT_PATH:-/tmp/host-ssh}"
-USER_HOME="/home/headless"
+USER_HOME="$(getent passwd headless | cut -d: -f6)"
+USER_HOME="${USER_HOME:-$(eval echo ~headless)}"
 SSH_DST="${USER_HOME}/.ssh"
 
 # --- Copia le chiavi SSH se disponibili ---

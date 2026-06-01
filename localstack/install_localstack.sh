@@ -3,6 +3,8 @@ set -euo pipefail
 
 LOCALSTACK_URL="${LOCALSTACK_URL:-http://localhost:4566}"
 LOCALSTACK_VERSION="${LOCALSTACK_VERSION:-3.5.0}"
+VAGRANT_HOME="$(getent passwd vagrant | cut -d: -f6)"
+VAGRANT_HOME="${VAGRANT_HOME:-$(eval echo ~vagrant)}"
 
 echo "==> Aggiorno il sistema Rocky Linux 9"
 sudo dnf -y update
@@ -28,17 +30,17 @@ echo "==> Installo AWS CLI"
 sudo pip3 install --upgrade awscli
 
 echo "==> Preparo credenziali demo per la VM"
-sudo -u vagrant mkdir -p /home/vagrant/.aws
-sudo -u vagrant bash -c 'cat > /home/vagrant/.aws/config <<EOF
+sudo -u vagrant mkdir -p "${VAGRANT_HOME}/.aws"
+sudo -u vagrant tee "${VAGRANT_HOME}/.aws/config" >/dev/null <<'EOF'
 [default]
 region = eu-west-1
 output = json
-EOF'
-sudo -u vagrant bash -c 'cat > /home/vagrant/.aws/credentials <<EOF
+EOF
+sudo -u vagrant tee "${VAGRANT_HOME}/.aws/credentials" >/dev/null <<'EOF'
 [default]
 aws_access_key_id = test
 aws_secret_access_key = test
-EOF'
+EOF
 
 echo "==> Preparo cartelle LocalStack"
 sudo mkdir -p /opt/localstack/data
