@@ -12,7 +12,7 @@ warn() { echo "[WARN] $*"; }
 GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
 GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
 GITEA_API="${GITEA_URL%/}/api/v1"
-GITEA_OWNER=""
+GITEA_OWNER="organization"
 
 init_gitea_owner() {
   [[ -n "$GITEA_OWNER" ]] && return 0
@@ -40,7 +40,7 @@ create_gitea_repo_if_missing() {
     return 0
   fi
 
-  post_status="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token $GITEA_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"$repo_name\",\"private\":false,\"auto_init\":false}" "$GITEA_API/user/repos" || true)"
+  post_status="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token $GITEA_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"$repo_name\",\"private\":false,\"auto_init\":false}" "$GITEA_API/orgs/$GITEA_OWNER/repos" || true)"
   if [[ "$post_status" != "201" && "$post_status" != "409" ]]; then
     warn "Gitea repo create failed for $repo_name (HTTP $post_status)"
     return 1

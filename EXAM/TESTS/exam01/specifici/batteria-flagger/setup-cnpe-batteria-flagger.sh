@@ -11,7 +11,11 @@ info() { echo "[INFO] $*"; }
 GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
 GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
 GITEA_API="${GITEA_URL%/}/api/v1"
-GITEA_OWNER=""
+GITEA_OWNER="organization"
+
+gitea_available() {
+  curl -fsS --connect-timeout 3 --max-time 5 -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_API}/user" >/dev/null 2>&1
+}
 
 seed_git_repo_to_gitea() {
   local repo_path="$1"
@@ -25,8 +29,16 @@ seed_git_repo_to_gitea() {
   git -C "$repo_path" add .
   git -C "$repo_path" commit -m "$commit_message" >/dev/null 2>&1 || true
 
+  if ! gitea_available; then
+    warn "Gitea non raggiungibile, salto il push per ${repo_name}"
+    return 0
+  fi
+
   if [[ -z "$GITEA_OWNER" ]]; then
-    GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_API}/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+    if ! GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_API}/user" | sed -n 's/.*"login":"\([^\"]*\)".*/\1/p' | head -n1)"; then
+      warn "Impossibile risolvere l'owner Gitea, salto il push per ${repo_name}"
+      return 0
+    fi
   fi
   if [[ -z "$GITEA_OWNER" ]]; then
     warn "Unable to resolve Gitea owner, skipping push for ${repo_name}"
@@ -35,7 +47,7 @@ seed_git_repo_to_gitea() {
 
   status="$(curl -sS -o /dev/null -w "%{http_code}" -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_API}/repos/${GITEA_OWNER}/${repo_name}" || true)"
   if [[ "$status" != "200" ]]; then
-    post_status="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token ${GITEA_TOKEN}" -H "Content-Type: application/json" -d "{\"name\":\"${repo_name}\",\"private\":false,\"auto_init\":false}" "${GITEA_API}/user/repos" || true)"
+    post_status="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token ${GITEA_TOKEN}" -H "Content-Type: application/json" -d "{\"name\":\"${repo_name}\",\"private\":false,\"auto_init\":false}" "${GITEA_API}/orgs/${GITEA_OWNER}/repos" || true)"
     if [[ "$post_status" != "201" && "$post_status" != "409" ]]; then
       warn "Gitea repo create failed for ${repo_name} (HTTP ${post_status})"
       return 0

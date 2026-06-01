@@ -5,6 +5,8 @@
 
 ## Bootstrap Git da Gitea
 
+> Nota: il bootstrap da Gitea è best-effort; se il server non risponde, il setup salta il seeding remoto e prosegue.
+
 ```bash
 GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
 GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
