@@ -76,7 +76,7 @@ git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-specific-flagger-repo.git" /course
 3. Salva output in /course/7/flagger-hpa.txt.
 
 ## Question 8 | Webhook gate pre-rollout
-
+    
 1. Aggiungi webhook pre-rollout (tipo confirm-rollout).
 2. Usa URL placeholder HTTP interno.
 3. Salva manifest in /course/8/flagger-webhook.yaml.
