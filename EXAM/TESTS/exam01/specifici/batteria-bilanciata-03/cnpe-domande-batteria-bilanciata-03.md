@@ -3,9 +3,21 @@
 
 ---
 
+> Git remoto (Gitea): usare il repository remoto creato dal setup.
+
+```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+mkdir -p /course/1 /course/5
+rm -rf /course/1/repo-gitops /course/5/repo-gitops
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-bilanciata-03-repo-gitops.git" /course/1/repo-gitops
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-bilanciata-03-repo-gitops.git" /course/5/repo-gitops
+```
+
 ## Indice delle Domande
 
-| Q 1 | Argo CD bootstrap da repo locale |
+| Q 1 | Argo CD bootstrap da repo Gitea |
 | Q 2 | Automated sync hardening |
 | Q 3 | Progressive delivery via Git |
 | Q 4 | Flux drift recovery |
@@ -23,9 +35,9 @@
 
 ---
 
-## Question 1 | Argo CD bootstrap da repo locale
+## Question 1 | Argo CD bootstrap da repo Gitea
 > Instance: ssh cnpe-b0301
-1. Crea Application app-b03 da /course/1/repo-gitops.
+1. Crea Application app-b03 dal repo Gitea clonato in /course/1/repo-gitops.
 2. Verifica stato e salva in /course/1/b03-q01.txt.
 
 ## Question 2 | Automated sync hardening

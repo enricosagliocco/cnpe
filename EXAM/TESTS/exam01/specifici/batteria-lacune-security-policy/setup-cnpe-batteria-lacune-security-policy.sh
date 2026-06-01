@@ -35,7 +35,7 @@ helm repo add kyverno https://kyverno.github.io/kyverno >/dev/null 2>&1 || true
 helm repo update >/dev/null 2>&1 || true
 helm upgrade --install kyverno kyverno/kyverno -n kyverno --create-namespace --wait --timeout=600s >/dev/null 2>&1 || warn "Kyverno install failed"
 
-kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml >/dev/null 2>&1 || warn "Gatekeeper install failed"
+kubectl create -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml >/dev/null 2>&1 || warn "Gatekeeper install failed"
 
 for ns in ns-sp01 ns-sp02 ns-sp03 ns-sp04 ns-sp05 ns-sp06 ns-sp07 ns-sp08 ns-sp09 ns-sp10 ns-sp11; do
   kubectl create ns "$ns" --dry-run=client -o yaml | kubectl apply -f - >/dev/null

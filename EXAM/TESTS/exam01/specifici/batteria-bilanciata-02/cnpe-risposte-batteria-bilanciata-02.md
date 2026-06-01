@@ -1,5 +1,16 @@
 # CNPE Specifici - Batteria Bilanciata 02 - Risposte Guida
 
+## Bootstrap Git da Gitea
+
+```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+mkdir -p /course/1
+rm -rf /course/1/repo-gitops
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-bilanciata-02-repo-gitops.git" /course/1/repo-gitops
+```
+
 ## Question 1
 ```bash
 kubectl apply -f /course/1/app-b02.yaml

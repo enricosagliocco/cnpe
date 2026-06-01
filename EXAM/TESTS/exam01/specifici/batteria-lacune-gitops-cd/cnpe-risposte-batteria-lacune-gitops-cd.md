@@ -3,6 +3,19 @@
 
 ---
 
+## Bootstrap Git da Gitea
+
+```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+mkdir -p /course/2 /course/5 /course/8
+rm -rf /course/2/repo-gitops /course/5/repo-flux /course/8/repo-gitops
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-gitops.git" /course/2/repo-gitops
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-flux.git" /course/5/repo-flux
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-gitops.git" /course/8/repo-gitops
+```
+
 ## Question 1
 
 ```bash
@@ -16,6 +29,10 @@
 ## Question 2
 
 ```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+
 cat > /course/2/app-gc02.yaml <<'YAML'
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -25,7 +42,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: file:///course/2/repo-gitops
+    repoURL: __REPLACE_REPO_URL__
     targetRevision: main
     path: manifests/base
   destination:
@@ -35,6 +52,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
 YAML
+sed -i "s#__REPLACE_REPO_URL__#${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-gitops.git#g" /course/2/app-gc02.yaml
 kubectl apply -f /course/2/app-gc02.yaml
 kubectl -n argocd get app app-gc02
 ```
@@ -64,6 +82,10 @@ kubectl -n argocd patch app app-gc02 --type='merge' -p '{"spec":{"syncPolicy":{"
 ## Question 5
 
 ```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+
 cat > /course/5/gc05-flux.yaml <<'YAML'
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
@@ -72,7 +94,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: file:///course/5/repo-flux
+  url: __REPLACE_REPO_URL__
   ref:
     branch: main
 ---
@@ -89,6 +111,7 @@ spec:
     kind: GitRepository
     name: gc05-repo
 YAML
+sed -i "s#__REPLACE_REPO_URL__#${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-flux.git#g" /course/5/gc05-flux.yaml
 kubectl apply -f /course/5/gc05-flux.yaml
 kubectl -n flux-system get gitrepository,kustomization > /course/5/gc05-flux-ready.txt
 ```

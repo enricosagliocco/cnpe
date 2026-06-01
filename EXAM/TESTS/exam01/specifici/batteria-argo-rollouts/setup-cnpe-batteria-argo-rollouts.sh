@@ -95,7 +95,7 @@ kubectl wait --for=condition=Ready node --all --timeout=180s >/dev/null
 kubectl create namespace argo-rollouts --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 kubectl create namespace rollouts-lab --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 
-kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml >/dev/null
+kubectl create -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml >/dev/null
 kubectl -n argo-rollouts rollout status deploy/argo-rollouts --timeout=180s >/dev/null || warn "argo-rollouts controller not ready yet"
 install_rollouts_cli || warn "Argo Rollouts CLI install failed"
 

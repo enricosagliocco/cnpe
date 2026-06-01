@@ -2,6 +2,19 @@
 > Flagger Advanced Only
 > Focus: Flagger bluegreen, canary webhooks, events forensics
 
+## Bootstrap Git da Gitea
+
+```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+for q in 1 3 5 9 10 11 17 19; do
+  mkdir -p /course/${q}
+  rm -rf /course/${q}/repo-b16
+  git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-b16-q${q}.git" "/course/${q}/repo-b16"
+done
+```
+
 ## Metodo rapido
 1. Individua la risorsa principale.
 2. Applica patch minima e reversibile.

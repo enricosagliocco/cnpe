@@ -3,6 +3,20 @@
 
 ---
 
+## Bootstrap Git da Gitea
+
+```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+
+mkdir -p /course/1 /course/3 /course/10
+rm -rf /course/1/team-monitoring /course/3/web-client /course/10/pipelines-repo
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-b01-team-monitoring.git" /course/1/team-monitoring
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-b01-web-client.git" /course/3/web-client
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-b01-pipelines-repo.git" /course/10/pipelines-repo
+```
+
 ## Indice delle Risposte
 
 | Q 1 | Operator Pattern, CRD, Kustomize, Git |

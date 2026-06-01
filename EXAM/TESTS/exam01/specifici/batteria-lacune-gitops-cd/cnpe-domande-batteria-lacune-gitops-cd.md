@@ -3,6 +3,18 @@
 
 ---
 
+> Git remoto (Gitea): usare i repository remoti creati dal setup.
+
+```bash
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_OWNER="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" "${GITEA_URL%/}/api/v1/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+mkdir -p /course/2 /course/5
+rm -rf /course/2/repo-gitops /course/5/repo-flux
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-gitops.git" /course/2/repo-gitops
+git clone "${GITEA_URL%/}/${GITEA_OWNER}/cnpe-lacune-gitops-repo-flux.git" /course/5/repo-flux
+```
+
 ## Indice delle Domande
 
 | Q 1 | Argo CD install e stato |
@@ -34,7 +46,7 @@
 
 > Instance: `ssh cnpe-gc02`
 
-Repo locale: /course/2/repo-gitops
+Repo Gitea (clone locale): /course/2/repo-gitops
 Namespace target: ns-gc-app
 
 1. Crea Application Argo CD app-gc02 puntando a manifests/base su branch main.
@@ -72,10 +84,10 @@ Application: app-gc02
 
 > Instance: `ssh cnpe-gc05`
 
-Repo locale: /course/5/repo-flux
+Repo Gitea (clone locale): /course/5/repo-flux
 Namespace target: flux-system
 
-1. Crea una GitRepository Flux che punti al repo locale.
+1. Crea una GitRepository Flux che punti al repo Gitea.
 2. Crea una Kustomization che applichi overlays/dev.
 3. Verifica Ready condition.
 4. Salva output in /course/5/gc05-flux-ready.txt.

@@ -38,6 +38,38 @@ check_cmd curl
 check_cmd jq
 check_cmd docker
 
+GITEA_URL="${GITEA_URL:-http://158.180.234.164:3000}"
+GITEA_TOKEN="${GITEA_TOKEN:-19e1a2f01f5fc81ec0038e91128c18ed21eb8c4e}"
+GITEA_API="${GITEA_URL%/}/api/v1"
+GITEA_OWNER=""
+
+init_gitea_owner() {
+  [[ -n "$GITEA_OWNER" ]] && return 0
+  [[ -n "$GITEA_TOKEN" ]] || return 1
+  GITEA_OWNER="$(curl -fsS -H "Authorization: token $GITEA_TOKEN" "$GITEA_API/user" | sed -n 's/.*"login":"\([^"]*\)".*/\1/p' | head -n1)"
+  [[ -n "$GITEA_OWNER" ]]
+}
+
+push_repo_to_gitea() {
+  local repo_path="$1"
+  local repo_name="$2"
+  local status post_status push_base push_url
+
+  init_gitea_owner || { warn "Gitea owner not resolved, skip push for $repo_name"; return 0; }
+
+  status="$(curl -sS -o /dev/null -w "%{http_code}" -H "Authorization: token $GITEA_TOKEN" "$GITEA_API/repos/$GITEA_OWNER/$repo_name" || true)"
+  if [[ "$status" != "200" ]]; then
+    post_status="$(curl -sS -o /dev/null -w "%{http_code}" -X POST -H "Authorization: token $GITEA_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"$repo_name\",\"private\":false,\"auto_init\":false}" "$GITEA_API/user/repos" || true)"
+    [[ "$post_status" == "201" || "$post_status" == "409" ]] || { warn "Cannot create Gitea repo $repo_name"; return 0; }
+  fi
+
+  push_base="${GITEA_URL%/}"
+  push_url="${push_base/\/\//\/\/$GITEA_OWNER:$GITEA_TOKEN@}/$GITEA_OWNER/$repo_name.git"
+  git -C "$repo_path" remote remove origin >/dev/null 2>&1 || true
+  git -C "$repo_path" remote add origin "$push_url" >/dev/null 2>&1 || true
+  git -C "$repo_path" push -u origin main --force >/dev/null 2>&1 || warn "Push failed for $repo_name"
+}
+
 MINIKUBE_K8S_VERSION="v1.35.0"
 CLUSTER_NAME="cnpe-simulator"
 
@@ -182,6 +214,7 @@ EOF
 kubectl apply -f /tmp/cnpe/1/team-monitoring/crd.yaml 2>/dev/null || true
 cd /tmp/cnpe/1/team-monitoring
 git add . && git commit -m "init of project" --allow-empty 2>/dev/null || true
+push_repo_to_gitea "/tmp/cnpe/1/team-monitoring" "cnpe-b01-team-monitoring"
 
 kubectl create namespace pacific --dry-run=client -o yaml | kubectl apply -f - 2>/dev/null || true
 log "Q1 setup completato"
@@ -329,6 +362,7 @@ EOF
 
 cd /tmp/cnpe/3/web-client
 git add . && git commit -m "init web-client v1" 2>/dev/null || true
+push_repo_to_gitea "/tmp/cnpe/3/web-client" "cnpe-b01-web-client"
 
 log "Q3 setup completato (ArgoCD, user: admin/admin)"
 
@@ -762,7 +796,7 @@ mkdir -p /tmp/cnpe/9/prom-config/overlays/staging
 mkdir -p /tmp/cnpe/9/prom-config/overlays/production
 
 # Install Prometheus Operator CRDs
-kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml 2>/dev/null || \
+kubectl create -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml 2>/dev/null || \
   warn "PodMonitor CRD: potrebbe già essere installata"
 
 cat > /tmp/cnpe/9/prom-config/base/kustomization.yaml << 'EOF'
@@ -852,6 +886,7 @@ spec:
       storage: 1Gi
 EOF
 git add . && git commit -m "revert pvc size to 1Gi" 2>/dev/null || true
+push_repo_to_gitea "/tmp/cnpe/10/pipelines-repo" "cnpe-b01-pipelines-repo"
 
 log "Q10 setup completato (namespaces caspian-pipeline1/2/3, git history con 100Gi)"
 
@@ -859,7 +894,7 @@ log "Q10 setup completato (namespaces caspian-pipeline1/2/3, git history con 100
 section "🔄 Q11 — Argo Workflows"
 
 kubectl create namespace argo-workflows --dry-run=client -o yaml | kubectl apply -f -
-if ! kubectl apply -n argo-workflows -f https://github.com/argoproj/argo-workflows/releases/latest/download/install.yaml 2>/dev/null; then
+if ! kubectl create -n argo-workflows -f https://github.com/argoproj/argo-workflows/releases/latest/download/install.yaml 2>/dev/null; then
   warn "Argo Workflows manifest apply fallito, provo fallback Helm"
   if kubectl -n argo-workflows get deploy argo-server >/dev/null 2>&1; then
     warn "Argo Workflows risulta gia presente (apply parziale). Skip fallback Helm per evitare conflitti di ownership"
@@ -937,10 +972,10 @@ log "Q11 setup completato (Argo Workflows, WorkflowTemplate greeter con bug)"
 # ─── Q12: Tekton ──────────────────────────────────────────────────────────────
 section "🔧 Q12 — Tekton"
 
-kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml 2>/dev/null || \
-  warn "Tekton Pipelines: install da kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml"
+kubectl create -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml 2>/dev/null || \
+  warn "Tekton Pipelines: install da kubectl create -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml"
 
-kubectl apply -f https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml 2>/dev/null || \
+kubectl create -f https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml 2>/dev/null || \
   warn "Tekton Dashboard: install manuale necessaria"
 
 kubectl create namespace builder --dry-run=client -o yaml | kubectl apply -f -
@@ -1093,7 +1128,7 @@ helm upgrade --install jaeger jaegertracing/jaeger \
   --set allInOne.enabled=true \
   --set storage.type=memory \
   --wait --timeout=300s 2>/dev/null || \
-  kubectl apply -n eyre -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/main/examples/simplest.yaml 2>/dev/null || \
+  kubectl create -n eyre -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/main/examples/simplest.yaml 2>/dev/null || \
   warn "Jaeger: installazione manuale potrebbe essere necessaria"
 
 # Deploy servizi con tag per Jaeger
@@ -1184,7 +1219,7 @@ kubectl create namespace sargasso --dry-run=client -o yaml | kubectl apply -f -
 
 # Install VPA
 VPA_VERSION="1.0.0"
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/vertical-pod-autoscaler/deploy/vpa-v1-crd-gen.yaml 2>/dev/null || \
+kubectl create -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/vertical-pod-autoscaler/deploy/vpa-v1-crd-gen.yaml 2>/dev/null || \
   warn "VPA CRDs: installazione manuale: https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler"
 
 mkdir -p /tmp/cnpe/15
@@ -1243,7 +1278,7 @@ section "🌊 Q16 — Argo Rollouts, Canary"
 kubectl create namespace baltic --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace argo-rollouts --dry-run=client -o yaml | kubectl apply -f -
 
-if ! kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml 2>/dev/null; then
+if ! kubectl create -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml 2>/dev/null; then
   warn "Argo Rollouts manifest apply fallito, provo fallback Helm"
   if kubectl -n argo-rollouts get deploy argo-rollouts >/dev/null 2>&1; then
     warn "Argo Rollouts risulta gia presente (apply parziale). Skip fallback Helm per evitare conflitti di ownership"
@@ -1348,7 +1383,7 @@ if ! command -v flux &>/dev/null; then
 fi
 
 flux install --namespace=flux-system 2>/dev/null || \
-  kubectl apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml 2>/dev/null || \
+  kubectl create -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml 2>/dev/null || \
   warn "FluxCD: installazione manuale necessaria"
 
 kubectl create namespace havel-east --dry-run=client -o yaml | kubectl apply -f -
@@ -1500,7 +1535,7 @@ kubectl create namespace saltlake-app --dry-run=client -o yaml | kubectl apply -
 kubectl annotate namespace saltlake-app linkerd.io/inject=enabled --overwrite 2>/dev/null || true
 
 # Install Gateway API CRDs
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/standard-install.yaml 2>/dev/null || \
+kubectl create -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/standard-install.yaml 2>/dev/null || \
   warn "Gateway API: installazione manuale da https://gateway-api.sigs.k8s.io/guides/"
 
 kubectl apply -n saltlake-app -f - << 'EOF'
