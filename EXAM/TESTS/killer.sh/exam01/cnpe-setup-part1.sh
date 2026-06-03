@@ -392,7 +392,45 @@ spec:
     spec:
       containers:
         - name: app
-          image: nginx:1-alpine
+          image: python:3.12-alpine
+          env:
+            - name: APP_NAME
+              value: "$app"
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat >/tmp/metrics-server.py <<'PY'
+              import os
+              from http.server import BaseHTTPRequestHandler, HTTPServer
+
+              app = os.getenv("APP_NAME", "app")
+              values = {"frontend": 180, "backend": 130, "proxy": 90}
+              value = values.get(app, 50)
+
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      if self.path != "/metrics":
+                          self.send_response(404)
+                          self.end_headers()
+                          return
+                      body = (
+                          "# HELP http_requests_per_minute Simulated request rate\\n"
+                          "# TYPE http_requests_per_minute gauge\\n"
+                          f"http_requests_per_minute{{deployment=\"{app}\"}} {value}\\n"
+                      )
+                      payload = body.encode("utf-8")
+                      self.send_response(200)
+                      self.send_header("Content-Type", "text/plain; version=0.0.4")
+                      self.send_header("Content-Length", str(len(payload)))
+                      self.end_headers()
+                      self.wfile.write(payload)
+
+                  def log_message(self, fmt, *args):
+                      return
+
+              HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+              PY
+              python /tmp/metrics-server.py
           ports:
             - containerPort: 8080
 YAML
@@ -534,7 +572,45 @@ spec:
     spec:
       containers:
         - name: app
-          image: nginx:1-alpine
+          image: python:3.12-alpine
+          env:
+            - name: APP_NAME
+              value: proxy
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat >/tmp/metrics-server.py <<'PY'
+              import os
+              from http.server import BaseHTTPRequestHandler, HTTPServer
+
+              app = os.getenv("APP_NAME", "app")
+              values = {"frontend": 180, "backend": 130, "proxy": 90}
+              value = values.get(app, 50)
+
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      if self.path != "/metrics":
+                          self.send_response(404)
+                          self.end_headers()
+                          return
+                      body = (
+                          "# HELP http_requests_per_minute Simulated request rate\\n"
+                          "# TYPE http_requests_per_minute gauge\\n"
+                          f"http_requests_per_minute{{deployment=\"{app}\"}} {value}\\n"
+                      )
+                      payload = body.encode("utf-8")
+                      self.send_response(200)
+                      self.send_header("Content-Type", "text/plain; version=0.0.4")
+                      self.send_header("Content-Length", str(len(payload)))
+                      self.end_headers()
+                      self.wfile.write(payload)
+
+                  def log_message(self, fmt, *args):
+                      return
+
+              HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+              PY
+              python /tmp/metrics-server.py
           ports:
             - containerPort: 8080
 YAML

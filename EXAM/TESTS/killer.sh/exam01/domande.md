@@ -84,6 +84,25 @@ Flagger è usato per due app nel Namespace `malawi`. È configurato per Blue/Gre
 
 **Per il Deployment `app2`**, modifica l'analisi del Canary:
 1. Aggiungi un webhook `pre-rollout` di base che verifichi se i nuovi Pod rispondono via HTTP, usando il Service canary (usa il template fornito in exam)
+
+Template esplicito:
+
+```yaml
+analysis:
+   interval: 5s
+   iterations: 2
+   metrics: []
+   webhooks:
+      - name: "basic-http-test"
+         type: pre-rollout
+         url: http://TODO # DNS to canary service
+         timeout: 5s
+         metadata:
+            type: "http"
+            method: "GET"
+            expectedStatus: "200"
+```
+
 2. Una volta fatto, avvia un nuovo rollout impostando `APP_VERSION` a `1.0.1`
 
 ---
