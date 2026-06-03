@@ -1,0 +1,47 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "rocky9-updated"
+  config.vm.hostname = "minikube-rocky9"
+  config.vm.network "public_network",
+    ip: "192.168.1.58",
+    bridge: "WLAN"
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = true
+    v.vmx["memsize"] = "24576"
+    v.vmx["numvcpus"] = "6"
+    v.vmx["displayname"] = "minikube-rocky9"
+    v.vmx["ethernet0.pcislotnumber"] = "160"
+  end
+
+  # Gateway e DNS sulla NIC bridged
+  config.vm.provision "shell", inline: <<-SHELL
+    set -euo pipefail
+    BR_IFACE="$(ip -o -4 addr show | awk '$4 ~ /^192\\.168\\.1\\.58\\// {print $2; exit}')"
+    if [ -n "${BR_IFACE}" ]; then
+      BR_CONN="$(nmcli -t -f NAME,DEVICE con show --active | awk -F: -v dev="${BR_IFACE}" '$2==dev {print $1; exit}')"
+      if [ -n "${BR_CONN}" ]; then
+        nmcli con mod "${BR_CONN}" ipv4.gateway "192.168.1.1" ipv4.dns "8.8.8.8" ipv4.route-metric 500 ipv4.method manual || true
+        nmcli con up "${BR_CONN}" || true
+      fi
+    fi
+  SHELL
+
+  config.vm.provision "shell",
+    path: "scripts/install_minikube.sh",
+    env: {
+      "MINIKUBE_PROFILE" => "cnpe",
+      "MINIKUBE_VERSION" => "v1.35.0",
+      "KUBERNETES_VERSION" => "v1.30.0"
+    }
+
+# Primo collegamento:
+# 1) Avvio VM:
+#    vagrant up --provider=vmware_desktop
+# 2) Accesso SSH alla VM:
+#    vagrant ssh
+# 3) Verifica cluster Minikube:
+#    minikube status -p cnpe
+#    kubectl get nodes -o wide
+# 4) Dashboard (opzionale):
+#    minikube dashboard -p cnpe --url
+end

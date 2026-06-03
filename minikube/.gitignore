@@ -1,0 +1,15 @@
+# Vagrant
+.vagrant/
+*.log
+
+# Temp/backups
+*.bak
+*.backup
+*~
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.iml
