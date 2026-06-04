@@ -89,6 +89,10 @@ if ! grep -q "complete -F __start_kubectl k" "${VAGRANT_HOME}/.bashrc"; then
 fi
 chown vagrant:vagrant "${VAGRANT_HOME}/.bashrc"
 
+echo "==> Installazione k9s per gestione cluster"
+curl -sS https://webinstall.dev/k9s | bash
+
+
 echo
 echo "Installazione completata."
 echo "Profilo Minikube: ${MINIKUBE_PROFILE}"

@@ -1,14 +1,11 @@
-Lo script è diviso in 4 file (un entrypoint + 3 parti). Scarica il `.tar.gz`, poi:
+# Le 20 domande dell'esame — CNPE Full Lab (simulatore lab)
 
-```bash
-tar -xzf cnpe-lab-setup.tar.gz
-chmod +x setup-cnpe-lab.sh
-./setup-cnpe-lab.sh
-```
+Scenario deployato da `setup-cnpe-lab.sh`. Manifest in `~/course/`.  
+Lo script è diviso in 3 parti (part1, part2, part3) eseguite dall'entrypoint.
 
----
+**Vincolo:** non disinstallare i tool installati (Prometheus, Argo CD, Flagger, Gatekeeper, OpenTofu, OpenCost, Grafana, Kustomize, Argo Workflows, Tekton, Jaeger, VPA, Argo Rollouts, FluxCD, Kyverno, Crossplane, Linkerd). Puoi modificare configurazioni e risorse applicative ma non i core dei tool.
 
-## Le 20 domande dell'esame (senza risposte)
+Verifica le soluzioni in `risposte.md`.
 
 ---
 
@@ -394,3 +391,30 @@ Il Namespace `saltlake-app` è parte della mesh Linkerd.
 3. Crea un `HTTPRoute` (Gateway API) chiamato `backend-canary` per il Service `backend` che implementi il traffic splitting:
    - `10%` verso `backend-v1`
    - `90%` verso `backend-v2`
+
+---
+
+### Q21 – Verifica finale end-to-end
+
+1. CRD `TeamMonitoring` v1alpha2 applicata con risorsa `general` in `pacific`
+2. Prometheus scrape esteso a Pod `app=proxy` con query eseguita
+3. Argo CD `web-client` e `web-client-testing` sincronizzati con branch corretti
+4. Flagger Canary per `app1` e `app2` con webhook configurato
+5. Gatekeeper ConstraintTemplate e Constraint applicati in `planet-apps`
+6. OpenTofu state aggiornato per `service-black-bean`, `service-green-curry`, `service-red-velvet`
+7. OpenCost pricing model aggiornato con query Prometheus eseguita
+8. Grafana Loki query aggiornata e Pod errori scalati a 0
+9. Kustomize overlay staging e production applicati con valori corretti
+10. ResourceQuota applicato ai Namespace caspian-pipeline con Git history analizzata
+11. Argo Workflows `greeter` e `configurator` eseguiti con successo
+12. Tekton Pipeline `p1-team-onboarding` e `p2-team-scanner` eseguite con successo
+13. Pod Security Standards `restricted` applicato a `ammersee-legacy`
+14. Jaeger trace esportate per `speechai` con Deployment aggiornati
+15. VPA `etcd-vpa` applicato con raccomandazioni
+16. Argo Rollouts `webapp` promosso con analysis template configurato
+17. FluxCD Kustomization `havel-west` e `havel-east` sincronizzate
+18. Kyverno NamespacedMutatingPolicy `security-check` applicata con test Pod
+19. Crossplane Composition estesa con Service per Redis
+20. Linkerd Server e HTTPRoute configurati con traffic splitting funzionante
+
+---
