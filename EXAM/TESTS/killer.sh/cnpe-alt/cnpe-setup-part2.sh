@@ -197,6 +197,7 @@ terraform {
 
 provider "kubernetes" {
   host = "${KUBE_HOST}"
+  insecure = true
   cluster_ca_certificate = base64decode("${KUBE_CA}")
   client_certificate     = base64decode("${KUBE_CERT}")
   client_key             = base64decode("${KUBE_KEY}")
@@ -496,16 +497,48 @@ helm repo update
 
 kubectl create ns monitoring --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 
-# Install Loki (single binary mode)
-helm upgrade --install loki grafana/loki \
-  --namespace monitoring \
-  --set loki.auth_enabled=false \
-  --set loki.commonConfig.replication_factor=1 \
-  --set loki.storage.type=filesystem \
-  --set singleBinary.replicas=1 \
-  --wait --timeout=300s 2>/dev/null || \
+# Provision the logging dashboard through Grafana's dashboard sidecar.
+kubectl apply -f - <<'YAML'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-logging
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  logging.json: |
+    {
+      "title": "logging",
+      "panels": [
+        {
+          "type": "logs",
+          "title": "App Logs",
+          "datasource": "Loki",
+          "targets": [
+            {
+              "expr": "{namespace=\"arctic-workload\"}"
+            }
+          ],
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 24,
+            "h": 8
+          }
+        }
+      ],
+      "schemaVersion": 30
+    }
+YAML
+
+# Install Loki with a version compatible with Grafana's datasource health check.
+# The loki-stack chart defaults to Loki 2.6.1, which cannot parse vector().
 helm upgrade --install loki grafana/loki-stack \
+  --version 2.10.2 \
   --namespace monitoring \
+  --set loki.image.tag=2.9.10 \
+  --set promtail.enabled=true \
   --set grafana.enabled=false \
   --set prometheus.enabled=false \
   --wait --timeout=300s
@@ -518,6 +551,7 @@ helm upgrade --install grafana grafana/grafana \
   --set 'service.nodePort=30080' \
   --set "grafana\.ini.auth.anonymous.enabled=true" \
   --set "grafana\.ini.auth.anonymous.org_role=Admin" \
+  --set sidecar.dashboards.enabled=true \
   --set 'datasources.datasources\.yaml.apiVersion=1' \
   --set 'datasources.datasources\.yaml.datasources[0].name=Loki' \
   --set 'datasources.datasources\.yaml.datasources[0].type=loki' \
@@ -628,8 +662,6 @@ spec:
               done
 YAML
 
-# Grafana Dashboard for logging
-DASHBOARD_JSON='{"title":"logging","panels":[{"type":"logs","title":"App Logs","datasource":"Loki","targets":[{"expr":"{namespace=\"arctic-workload\"}"}],"gridPos":{"x":0,"y":0,"w":24,"h":8}}],"schemaVersion":30}'
 success "Q8 ready"
 
 # ============================================================

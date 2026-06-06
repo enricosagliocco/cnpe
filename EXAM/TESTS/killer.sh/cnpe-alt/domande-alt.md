@@ -1,205 +1,380 @@
-# CNPE Alternative Simulator — 20 task lab
+# CNPE Alternative Simulator - 20 domande
 
-Setup: `./setup-cnpe-alt-lab.sh`. Directory: `~/course-alt`.
+Scenario creato da `setup-cnpe-alt-lab.sh`. I file sono in `~/course-alt`.
 
-## Domain coverage
-- Platform Architecture and Infrastructure: Q1, Q4, Q8, Q10, Q17, Q18
-- GitOps and Continuous Delivery: Q3, Q5, Q6, Q7, Q20
-- Platform APIs and Self-Service: Q1, Q8, Q9, Q10
-- Observability and Operations: Q2, Q11, Q12, Q17, Q18, Q20
-- Security and Policy Enforcement: Q13, Q14, Q15, Q16, Q20
+**Vincolo:** non disinstallare i tool installati. Puoi modificare configurazioni,
+manifest e risorse applicative, ma non rimuovere i componenti core.
 
 ---
 
-### Q1 — CRD evolution, Kustomize, Git
-Path: `~/course-alt/1/platform-service`.
+### Q1 - CRD, Kustomize e Git
 
-The `PlatformService` CRD is installed from a local Kustomize Git repository.
+La CRD `PlatformService` è installata dal repository
+`~/course-alt/1/platform-service`.
 
-Tasks:
-1. Add version `v1alpha2`.
-2. In `v1alpha2`, add `spec.tier` as string enum `bronze|silver|gold` and `spec.exposure` as object with string properties `hostname` and `path`.
-3. Make `v1alpha2` the storage version and keep `v1alpha1` served but not storage.
-4. Apply with Kustomize.
-5. Commit locally on branch `main`.
-6. Create a `PlatformService` named `payments` in namespace `selfservice-alt` with tier `gold`, hostname `payments.internal`, path `/api`.
+1. Aggiungi la versione `v1alpha2`.
+2. In `v1alpha2`, aggiungi:
+   - `spec.tier`, string enum `bronze`, `silver`, `gold`;
+   - `spec.exposure`, oggetto con proprietà string `hostname` e `path`.
+3. Mantieni `v1alpha1` servita ma non storage; imposta `v1alpha2` come storage.
+4. Applica la CRD con Kustomize.
+5. Fai commit e push sul branch `main`.
+6. Crea nel Namespace `selfservice-alt` una `PlatformService` chiamata
+   `payments`, con `tier: gold`, hostname `payments.internal` e path `/api`.
 
-### Q2 — Prometheus scrape and scaling decision
-Namespace: `atlas`.
+---
 
-Prometheus is installed by the base setup. Two apps exist: `checkout` and `proxy`.
+### Q2 - Prometheus
 
-Tasks:
-1. Extend Prometheus scraping so that `proxy` pods are scraped too.
-2. Reload or restart Prometheus safely.
-3. Query request metrics and identify the highest traffic workload.
-4. Scale the selected deployment to 2 replicas.
-5. Save commands and output in `~/course-alt/2/prometheus-report.txt`.
+Prometheus è nel Namespace `prometheus`. Nel Namespace `atlas` esistono i
+Deployment `checkout` e `proxy`, che espongono `/metrics` sulla porta `8080`.
+La configurazione attuale non include `atlas`.
 
-### Q3 — Argo CD branch promotion
-Path: `~/course-alt/3/portal-client`.
+1. Modifica il ConfigMap `prometheus-server` aggiungendo uno scrape job
+   `atlas-apps`:
+   - Namespace: `atlas`;
+   - Pod label `app` corrispondente a `checkout|proxy`;
+   - target `<pod-ip>:8080`;
+   - path `/metrics`.
+2. Ricarica Prometheus tramite `POST /-/reload` oppure riavvia lo StatefulSet.
+3. Esegui la query:
+   ```promql
+   http_requests_per_minute{namespace="atlas"}
+   ```
+4. Scala a 2 repliche il Deployment con il valore maggiore.
+5. Salva query, risultato e comando di scaling in
+   `~/course-alt/2/prometheus-report.txt`.
 
-Tasks:
-1. Update `portal-client` labels from `version: v1` to `version: v2`, commit and push.
-2. Create branch `staging`, set label `version: v3`, commit and push.
-3. Create Argo CD application `portal-client-staging` from branch `staging` into namespace `baltic-staging`.
-4. Sync and verify health.
+---
 
-### Q4 — Progressive delivery pre-check
-Namespace: `delivery-alt`.
+### Q3 - Argo CD e branch Git
 
-Deployment `catalog` has `APP_VERSION=1.0.0`.
+Il repository `~/course-alt/3/portal-client` è usato dall'Application Argo CD
+`portal-client`, branch `main`, Namespace `baltic`.
 
-Tasks:
-1. Convert or prepare the workload for progressive delivery using the installed progressive delivery tool available in the cluster.
-2. Add a pre-rollout HTTP check against the canary/preview service.
-3. Bump `APP_VERSION` to `1.0.1`.
-4. Save canary/rollout events to `~/course-alt/4/catalog-events.log`.
+1. Sul branch `main`, cambia la label Pod `version` da `v1` a `v2`, fai commit
+   e push.
+2. Crea il branch `staging`, cambia la label a `version: v3`, fai commit e push.
+3. Crea l'Application `portal-client-staging`:
+   - project `lagoon`;
+   - stesso repository di `portal-client`;
+   - path `manifests`;
+   - branch `staging`;
+   - Namespace destinazione `baltic-staging`;
+   - sync automatica con prune e self-heal.
+4. Verifica che `portal-client` esponga `version=v2` e
+   `portal-client-staging` esponga `version=v3`.
 
-### Q5 — Argo Rollouts analysis gate
-Namespace: `delivery-alt`.
+---
 
-Tasks:
-1. Create a Rollout for a workload named `frontend-rollout` using a canary strategy.
-2. Add an analysis step that checks success rate or an HTTP endpoint.
-3. Pause before full promotion.
-4. Promote only after the analysis is successful.
+### Q4 - Flagger pre-rollout webhook
 
-### Q6 — Tekton pipeline repair
-Path: `~/course-alt/6/tekton-api/pipeline.yaml`. Namespace: `cicd-alt`.
+Nel Namespace `delivery-alt` esistono Deployment `catalog` e Canary `catalog`.
+Il Deployment ha `APP_VERSION=1.0.0`.
 
-Tasks:
-1. Complete the empty Tekton Pipeline with a `git-clone` task and a second task that prints the commit SHA.
-2. Create a PipelineRun using the Gitea repo URL.
-3. Verify task status with `tkn` or `kubectl`.
-4. Commit and push the fixed pipeline.
+1. Aggiungi al Canary un webhook:
+   - name `catalog-http-check`;
+   - type `pre-rollout`;
+   - URL `http://catalog-canary.delivery-alt`;
+   - timeout `5s`;
+   - metodo `GET`;
+   - status atteso `200`.
+2. Imposta `APP_VERSION=1.0.1` nel Deployment.
+3. Attendi la conclusione del rollout.
+4. Salva gli eventi del Canary in `~/course-alt/4/catalog-events.log`.
 
-### Q7 — Flux GitOps source and Kustomization
-Path: `~/course-alt/7/flux-platform`.
+---
 
-Tasks:
-1. Add a simple Deployment and Service under `clusters/dev/apps/demo`.
-2. Update `clusters/dev/apps/kustomization.yaml` to include it.
-3. Create Flux `GitRepository` and `Kustomization` objects pointing to this repo.
-4. Verify reconciliation and Ready=True.
+### Q5 - Argo Rollouts e AnalysisTemplate
 
-### Q8 — Crossplane platform API
-Path: `~/course-alt/8/platform-api`.
+Nel Namespace `delivery-alt` il Rollout `frontend-rollout` usa una strategia
+canary con una pausa al 50%. Il file
+`~/course-alt/5/analysis-template.yaml` contiene un URL incompleto.
 
-Tasks:
-1. Extend the XRD with claim field `spec.databaseName` and `spec.storageSize`.
-2. Complete the Composition so a claim creates a Kubernetes ConfigMap with those values.
-3. Apply the XRD and Composition.
-4. Create a claim named `orders-db` in namespace `selfservice-alt`.
+1. Imposta l'URL del metric provider a:
+   `http://frontend-rollout-canary.delivery-alt`.
+2. Applica l'AnalysisTemplate `frontend-http-check`.
+3. Nel Rollout sostituisci il passo `pause` con:
+   ```yaml
+   - analysis:
+       templates:
+         - templateName: frontend-http-check
+   ```
+4. Avvia un nuovo rollout impostando `VERSION=2.0.0`.
+5. Promuovi il Rollout solo se l'AnalysisRun termina con stato `Successful`.
 
-### Q9 — Backstage software template
-Path: `~/course-alt/9/backstage-template/template.yaml`.
+---
 
-Tasks:
-1. Add parameters `serviceName`, `owner`, and `namespace`.
-2. Add steps to create Kubernetes YAML for Namespace, Deployment, and Service.
-3. Add output links to the generated repo or files.
-4. Validate YAML structure.
+### Q6 - Tekton Pipeline
 
-### Q10 — OpenTofu Kubernetes provider
-Path: `~/course-alt/10/tofu-k8s`.
+Il file `~/course-alt/6/tekton-api/pipeline.yaml` contiene due Task completi,
+ma la Pipeline `api-build` non li usa.
 
-Tasks:
-1. Add a ConfigMap and ServiceAccount managed by OpenTofu in namespace `team-a`.
-2. Run init/plan/apply.
-3. Import or reference one pre-existing Kubernetes object.
-4. Save output in `~/course-alt/10/tofu-output.txt`.
+1. Aggiungi alla Pipeline il Task `clone` con `taskRef: api-git-clone`.
+2. Passa `repo-url` e il workspace `source`.
+3. Aggiungi `print-sha` con `taskRef: api-print-sha`, stesso workspace e
+   `runAfter: [clone]`.
+4. Applica il file nel Namespace `cicd-alt`.
+5. Applica `~/course-alt/6/tekton-api/pipelinerun.yaml`.
+6. Verifica che il log contenga un commit SHA di 40 caratteri.
+7. Fai commit e push della Pipeline corretta sul branch `main`.
 
-### Q11 — OpenTelemetry endpoint fix
-Namespace: `obs-alt`.
+---
 
-Deployment `telemetry-api` points to a wrong OTLP endpoint.
+### Q7 - FluxCD
 
-Tasks:
-1. Find the available collector/Jaeger endpoint in the cluster.
-2. Patch `OTEL_EXPORTER_OTLP_ENDPOINT` to a valid endpoint.
-3. Restart the workload.
-4. Verify traces or collector connectivity.
+Il repository `~/course-alt/7/flux-platform` contiene
+`clusters/dev/apps/demo`, ma il `kustomization.yaml` padre non lo include.
+Il GitRepository Flux `flux-platform` usa inoltre il branch inesistente
+`develop`.
 
-### Q12 — Logs and dashboard triage
-Namespace: `obs-alt`.
+1. Aggiungi `demo` a `clusters/dev/apps/kustomization.yaml`.
+2. Fai commit e push sul branch `main`.
+3. Correggi il GitRepository `flux-platform` affinché usi `main`.
+4. Verifica la Kustomization `flux-platform`:
+   - path `./clusters/dev/apps`;
+   - target Namespace `flux-platform`;
+   - `prune: true`;
+   - stato `Ready=True`.
+5. Verifica Deployment e Service `demo`.
 
-Tasks:
-1. Generate logs from `telemetry-api`.
-2. Ensure logs are queryable from the installed log stack if available.
-3. Create a short troubleshooting note with exact `kubectl` and query commands in `~/course-alt/12/log-triage.md`.
+---
 
-### Q13 — Gatekeeper owner label policy
-Path: `~/course-alt/13/gatekeeper/template.yaml`.
+### Q8 - Crossplane platform API
 
-Tasks:
-1. Replace the TODO message.
-2. Create a Constraint that requires label `owner` on Deployments only in namespace `security-alt`.
-3. Prove one invalid Deployment is denied and one valid Deployment is accepted.
+In `~/course-alt/8/platform-api` sono presenti XRD, Composition e XR
+incompleti.
 
-### Q14 — Kyverno non-root policy
-Path: `~/course-alt/14/kyverno/policy.yaml`.
+1. Nell'XRD aggiungi allo schema:
+   - `spec.databaseName`, string;
+   - `spec.storageSize`, string.
+2. Completa la Composition affinché crei un ConfigMap `postgres-config` nel
+   Namespace dell'XR con:
+   - `data.databaseName` da `spec.databaseName`;
+   - `data.storageSize` da `spec.storageSize`.
+3. Applica XRD e Composition.
+4. Completa e applica l'XR `orders-db` in `selfservice-alt` con:
+   - `databaseName: orders`;
+   - `storageSize: 10Gi`.
+5. Verifica il ConfigMap generato.
 
-Tasks:
-1. Complete a Kyverno ClusterPolicy requiring containers to run as non-root.
-2. Change action from Audit to Enforce.
-3. Exclude namespace `kube-system`.
-4. Test against a bad Pod manifest and a good Pod manifest.
+---
 
-### Q15 — Pod Security Standards remediation
-Namespace: `security-alt`.
+### Q9 - Backstage Software Template
 
-Deployment `legacy-worker` violates baseline security.
+Completa `~/course-alt/9/backstage-template/template.yaml`.
 
-Tasks:
-1. Make it compliant with namespace Pod Security labels.
-2. Avoid privileged containers.
-3. Set `allowPrivilegeEscalation: false`, drop capabilities and set `seccompProfile: RuntimeDefault`.
-4. Verify rollout status.
+1. Crea un unico gruppo di parametri con i campi obbligatori:
+   - `serviceName`, string;
+   - `owner`, string;
+   - `namespace`, string.
+2. Aggiungi uno step `fetch-template` con action `fetch:template`:
+   - `url: ./skeleton`;
+   - valori presi dai tre parametri.
+3. Aggiungi uno step `publish` con action `publish:gitea`:
+   - `repoUrl: gitea.local?repo=${{ parameters.serviceName }}&owner=organization`;
+   - description `Generated platform service`.
+4. Nell'output aggiungi il link `Repository` da
+   `${{ steps.publish.output.remoteUrl }}`.
+5. Verifica che il file sia YAML valido.
 
-### Q16 — RBAC least privilege
-Namespace: `security-alt`.
+---
 
-ServiceAccount `report-reader` exists.
+### Q10 - OpenTofu Kubernetes provider
 
-Tasks:
-1. Create a Role allowing only get/list/watch on Pods and ConfigMaps.
-2. Bind it to `report-reader`.
-3. Verify with `kubectl auth can-i`.
-4. Confirm it cannot delete Pods.
+Il Namespace `team-a` esiste già. Il file
+`~/course-alt/10/tofu-k8s/main.tf` contiene solo il provider.
 
-### Q17 — KEDA scaling object
-Path: `~/course-alt/17/keda/scaledobject.yaml`. Namespace: `data-alt`.
+1. Dichiara `kubernetes_namespace.team` con nome `team-a`.
+2. Importa il Namespace nello state:
+   ```bash
+   tofu import kubernetes_namespace.team team-a
+   ```
+   Usa `terraform` se `tofu` non è disponibile.
+3. Aggiungi nel Namespace `team-a`:
+   - ConfigMap `platform-settings` con `environment = "training"`;
+   - ServiceAccount `automation`.
+4. Esegui init, plan e apply.
+5. Salva l'output finale in `~/course-alt/10/tofu-output.txt`.
 
-Tasks:
-1. Complete the ScaledObject for `queue-worker` using a CPU or cron trigger supported by your installed KEDA.
-2. Apply it.
-3. Verify HPA creation.
-4. Save status output.
+---
 
-### Q18 — OpenCost / cost visibility
-Namespace: `cost-alt`.
+### Q11 - OpenTelemetry endpoint
 
-Tasks:
-1. Find the installed OpenCost service.
-2. Port-forward it.
-3. Query allocation/cost API or UI endpoint.
-4. Save the access command and one useful endpoint in `~/course-alt/18/opencost.txt`.
+Il Deployment `telemetry-api` nel Namespace `obs-alt` usa
+`OTEL_EXPORTER_OTLP_ENDPOINT=http://wrong-collector:4317`.
+Il collector disponibile è `jaeger-collector.obs-alt:4317`.
 
-### Q19 — Linkerd/service mesh check
-Namespace: `mesh-alt`.
+1. Correggi la variabile con:
+   `http://jaeger-collector.obs-alt:4317`.
+2. Riavvia il Deployment.
+3. Verifica dal Pod che DNS e porta TCP `4317` siano raggiungibili.
+4. Salva la verifica in `~/course-alt/11/otel-check.txt`.
 
-Tasks:
-1. Deploy a simple client/server app.
-2. Inject the namespace or manifests with Linkerd if available.
-3. Verify proxy sidecars.
-4. Run a connectivity test from client to server.
+---
 
-### Q20 — Final integrated incident
-A platform team reports that delivery, policy and observability are all partially broken.
+### Q12 - Grafana e Loki
 
-Tasks:
-1. Fix one GitOps sync issue from Q3 or Q7.
-2. Fix one policy issue from Q13-Q15.
-3. Fix one observability issue from Q11-Q12.
-4. Write `~/course-alt/20/final/report.md` with: root cause, commands used, verification, and rollback plan.
+Grafana è su `http://<node>:30080`; Loki è la datasource predefinita.
+Il Deployment `telemetry-api` genera log `INFO` e `ERROR`.
+
+1. Esegui in Explore:
+   ```logql
+   {namespace="obs-alt", pod=~"telemetry-api.*"} |= "ERROR"
+   ```
+2. Nel dashboard `observability-alt`, sostituisci la query del pannello con:
+   ```logql
+   count_over_time({namespace="obs-alt", pod=~"telemetry-api.*"} |= "ERROR" [5m])
+   ```
+3. Imposta `Maximum lines` della datasource Loki a `200`.
+4. Salva in `~/course-alt/12/log-triage.md` query, Pod trovato e comando
+   `kubectl logs` equivalente.
+
+---
+
+### Q13 - Gatekeeper owner label
+
+In `~/course-alt/13/gatekeeper` sono presenti template, Constraint e due
+Deployment di test.
+
+1. Completa lo schema con parametro `label` di tipo string.
+2. Modifica la policy affinché usi `input.parameters.label`.
+3. Il messaggio deve essere:
+   `Deployment is missing required label: <label>`.
+4. Completa `require-owner.yaml` per richiedere `owner` soltanto ai Deployment
+   nel Namespace `security-alt`, con `enforcementAction: deny`.
+5. Verifica che `deployment-bad.yaml` sia negato e `deployment-good.yaml`
+   accettato.
+
+---
+
+### Q14 - Kyverno runAsNonRoot
+
+Completa `~/course-alt/14/kyverno/policy.yaml`.
+
+1. Usa `validationFailureAction: Enforce`.
+2. Applica la regola soltanto ai Pod nel Namespace `security-alt`.
+3. Escludi il Namespace `kube-system`.
+4. Richiedi:
+   ```yaml
+   spec:
+     securityContext:
+       runAsNonRoot: true
+   ```
+5. Verifica che `pod-bad.yaml` sia negato e `pod-good.yaml` accettato.
+
+---
+
+### Q15 - Pod Security Standards restricted
+
+Il Namespace `security-alt` non applica ancora Pod Security Standards e
+contiene il Deployment non conforme `legacy-worker`. Il manifest è
+`~/course-alt/15/pod-security/legacy-worker.yaml`.
+
+1. Configura il Namespace con:
+   - `pod-security.kubernetes.io/enforce=restricted`;
+   - `pod-security.kubernetes.io/enforce-version=latest`.
+2. Correggi Pod e container impostando:
+
+- `runAsNonRoot: true`;
+- `runAsUser: 1000`;
+- `seccompProfile.type: RuntimeDefault`;
+- `allowPrivilegeEscalation: false`;
+- `capabilities.drop: ["ALL"]`;
+- container non privilegiato.
+
+3. Applica il file, riavvia il Deployment e verifica il rollout.
+
+---
+
+### Q16 - RBAC least privilege
+
+Nel Namespace `security-alt` esiste il ServiceAccount `report-reader`.
+Completa `~/course-alt/16/rbac/rbac.yaml`:
+
+1. Role `report-reader`:
+   - apiGroup core;
+   - risorse `pods` e `configmaps`;
+   - verbi `get`, `list`, `watch`.
+2. RoleBinding `report-reader` associato al ServiceAccount omonimo.
+3. Verifica:
+   - può listare Pod e ConfigMap;
+   - non può eliminare Pod;
+   - non può leggere Secret.
+4. Salva i risultati in `~/course-alt/16/rbac/auth-check.txt`.
+
+---
+
+### Q17 - KEDA cron scaling
+
+KEDA è installato. Nel Namespace `data-alt` esiste il Deployment
+`queue-worker`. Completa `~/course-alt/17/keda/scaledobject.yaml`.
+
+Configura un trigger `cron` con:
+
+- timezone `Europe/Rome`;
+- start `0 8 * * 1-5`;
+- end `0 18 * * 1-5`;
+- desiredReplicas `"3"`;
+- minReplicaCount `0`;
+- maxReplicaCount `5`.
+
+Applica il file, verifica la creazione dell'HPA e salva ScaledObject e HPA in
+`~/course-alt/17/keda/status.txt`.
+
+---
+
+### Q18 - OpenCost API
+
+OpenCost è installato nel Namespace `opencost`.
+
+1. Esegui:
+   ```bash
+   kubectl -n opencost port-forward svc/opencost 9003:9003
+   ```
+2. Interroga:
+   ```text
+   http://127.0.0.1:9003/allocation/compute?window=1h&aggregate=namespace
+   ```
+3. Salva la risposta JSON in `~/course-alt/18/opencost/allocation.json`.
+4. Scrivi comando di port-forward e URL in
+   `~/course-alt/18/opencost/access.txt`.
+
+---
+
+### Q19 - Linkerd
+
+Nel Namespace `mesh-alt` esistono Deployment `mesh-server`, Deployment
+`mesh-client` e Service `mesh-server`, ma il Namespace non è annotato per
+l'injection.
+
+1. Annota `mesh-alt` con `linkerd.io/inject=enabled`.
+2. Riavvia entrambi i Deployment.
+3. Verifica che ogni Pod abbia due container (`app` e `linkerd-proxy`).
+4. Dal Pod client esegui:
+   ```bash
+   wget -qO- http://mesh-server
+   ```
+   Il risultato deve essere `mesh-server-ok`.
+5. Salva verifica proxy e output HTTP in
+   `~/course-alt/19/linkerd/verification.txt`.
+
+---
+
+### Q20 - Verifica finale
+
+Completa la verifica integrata e scrivi
+`~/course-alt/20/final/report.md`.
+
+Il report deve dimostrare:
+
+1. Argo CD `portal-client` e `portal-client-staging` sincronizzati sui branch
+   corretti.
+2. Flux `flux-platform` in stato `Ready=True`.
+3. Gatekeeper nega un Deployment senza label `owner` in `security-alt`.
+4. Kyverno nega un Pod senza `runAsNonRoot: true`.
+5. `telemetry-api` usa `jaeger-collector.obs-alt:4317`.
+6. La query Loki della Q12 restituisce log `ERROR`.
+7. I Pod in `mesh-alt` hanno il proxy Linkerd e comunicano correttamente.
+
+Per ogni punto includi comando, risultato e rollback.

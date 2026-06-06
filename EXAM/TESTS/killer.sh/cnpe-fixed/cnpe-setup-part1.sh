@@ -804,7 +804,7 @@ metadata:
   name: app1
   namespace: malawi
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: app1
@@ -847,7 +847,7 @@ metadata:
   name: app2
   namespace: malawi
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: app2

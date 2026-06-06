@@ -185,7 +185,7 @@ spec:
     spec:
       containers:
         - name: jaeger
-          image: jaegertracing/all-in-one:latest
+          image: jaegertracing/all-in-one:1.76.0
           env:
             - name: COLLECTOR_ZIPKIN_HOST_PORT
               value: ":9411"
@@ -194,6 +194,8 @@ spec:
               name: ui
             - containerPort: 14268
               name: collector
+            - containerPort: 9411
+              name: zipkin
             - containerPort: 6831
               protocol: UDP
               name: agent
@@ -215,6 +217,9 @@ spec:
     - name: collector
       port: 14268
       targetPort: 14268
+    - name: zipkin
+      port: 9411
+      targetPort: 9411
 YAML
 
 # Trace-generating apps in eyre
@@ -247,8 +252,13 @@ spec:
           args:
             - |
               while true; do
-                curl -s -X POST http://jaeger.eyre:14268/api/traces \
-                  -H 'Content-Type: application/x-thrift' 2>/dev/null || true;
+                TRACE_ID="\$(cat /proc/sys/kernel/random/uuid | tr -d '-' | cut -c1-32)"
+                SPAN_ID="\$(cat /proc/sys/kernel/random/uuid | tr -d '-' | cut -c1-16)"
+                TIMESTAMP="\$(date +%s)000000"
+                curl -sS -X POST http://jaeger.eyre:9411/api/v2/spans \
+                  -H 'Content-Type: application/json' \
+                  --data "[{\"traceId\":\"\${TRACE_ID}\",\"id\":\"\${SPAN_ID}\",\"name\":\"request\",\"timestamp\":\${TIMESTAMP},\"duration\":1000,\"localEndpoint\":{\"serviceName\":\"\${SERVICE_NAME}\"},\"tags\":{\"ai.model\":\"\${AI_MODEL}\",\"access.public\":\"\${ACCESS_PUBLIC}\"}}]" \
+                  >/dev/null || true;
                 sleep 5;
               done
           env:
@@ -262,28 +272,6 @@ spec:
               value: "http://jaeger.eyre:14268/api/traces"
 YAML
 done
-
-# Trace injection script (sends real traces to Jaeger)
-kubectl apply -f - <<'YAML'
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trace-sender
-  namespace: eyre
-data:
-  send.sh: |
-    #!/bin/sh
-    # Sends Thrift-encoded spans to Jaeger HTTP collector
-    JAEGER="http://jaeger.eyre:14268/api/traces"
-    SERVICE=${SERVICE_NAME:-unknown}
-    AI_MODEL=${AI_MODEL:-unknown}
-    ACCESS_PUBLIC=${ACCESS_PUBLIC:-false}
-    while true; do
-      TRACE_ID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null | tr -d '-' | head -c 16)
-      SPAN_ID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null | tr -d '-' | head -c 8)
-      sleep 5
-    done
-YAML
 
 success "Q14 ready"
 

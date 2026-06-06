@@ -2,6 +2,10 @@
 
 This is a second CNPE-focused simulator based on the previous Minikube/Gitea package.
 
+Unlike a free-form sandbox, every question names the existing resource, starter
+file, required values and verification result. The setup deliberately creates
+the incomplete or broken state described by each exercise.
+
 ## Run
 
 ```bash
@@ -22,5 +26,4 @@ The lab files are created under `~/course-alt` by default.
 - `setup-cnpe-alt-lab.sh`: entrypoint. Runs the base setup and then creates the alternative scenario overlay.
 - `cnpe-setup-part1.sh`, `cnpe-setup-part2.sh`, `cnpe-setup-part3.sh`: reused base setup scripts.
 - `domande-alt.md`: 20 alternative CNPE-style questions.
-- `CNPE-COVERAGE.md`: domain coverage matrix.
 - `wipe_gitea_repos_orgs.sh`: optional cleanup utility.

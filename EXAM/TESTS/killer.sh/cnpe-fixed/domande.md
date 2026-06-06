@@ -5,8 +5,6 @@ Lo script è diviso in 3 parti (part1, part2, part3) eseguite dall'entrypoint.
 
 **Vincolo:** non disinstallare i tool installati (Prometheus, Argo CD, Flagger, Gatekeeper, OpenTofu, OpenCost, Grafana, Kustomize, Argo Workflows, Tekton, Jaeger, VPA, Argo Rollouts, FluxCD, Kyverno, Crossplane, Linkerd). Puoi modificare configurazioni e risorse applicative ma non i core dei tool.
 
-Verifica le soluzioni in `risposte.md`.
-
 ---
 
 ### Q1 – Operator Pattern, CRD, Kustomize, Git
@@ -52,9 +50,21 @@ kubectl -n argocd port-forward --address 0.0.0.0 svc/argocd-server 30030:443
 
 Credenziali:
 - User: `admin`
-- Password iniziale (se non cambiata):
+- Password come sotto:
 
 ```bash
+# Genera l'hash della nuova password (sostituisci "nuovapassword" con la tua)
+NEW_PASSWORD="admin"
+BCRYPT=$(htpasswd -bnBC 10 "" "$NEW_PASSWORD" | tr -d ':\n' | sed 's/$2y/$2a/')
+
+kubectl -n argocd patch secret argocd-secret \
+  -p "{\"stringData\": {\"admin.password\": \"$BCRYPT\", \"admin.passwordMtime\": \"$(date +%FT%T%Z)\"}}"
+
+# Riavvia il server
+kubectl -n argocd rollout restart deployment argocd-server
+
+
+
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo
 ```
 
@@ -86,18 +96,18 @@ Template esplicito:
 
 ```yaml
 analysis:
-   interval: 5s
-   iterations: 2
-   metrics: []
-   webhooks:
-      - name: "basic-http-test"
-         type: pre-rollout
-         url: http://TODO # DNS to canary service
-         timeout: 5s
-         metadata:
-            type: "http"
-            method: "GET"
-            expectedStatus: "200"
+  interval: 5s
+  iterations: 2
+  metrics: []
+  webhooks:
+    - name: "basic-http-test"
+      type: pre-rollout
+      url: http://TODO # DNS to canary service
+      timeout: 5s
+      metadata:
+        type: "http"
+        method: "GET"
+        expectedStatus: "200"
 ```
 
 2. Una volta fatto, avvia un nuovo rollout impostando `APP_VERSION` a `1.0.1`
@@ -183,7 +193,7 @@ kubectl -n monitoring get secret grafana -o jsonpath='{.data.admin-password}' | 
    ```
    count(rate({pod=~"connection.*"}[5m]))
    ```
-3. Due Pod stanno producendo log di errore. Esegui la query Loki `{job=~"loki.*"} |= "ERROR"` per localizzarli, poi scala a 0 i rispettivi controller
+3. Due Pod stanno producendo log di errore. Esegui la query Loki `{namespace="arctic-workload"} |= "ERROR"` per localizzarli, poi scala a 0 i rispettivi controller
 
 ---
 
@@ -350,7 +360,7 @@ FluxCD è installato e la CLI `flux` è disponibile.
 
 1. Riprendi la Kustomization `havel-west` per correggere il drift del repository `/course/17/havel-west`
 2. Deploya `/course/17/havel-east`:
-   - Crea il GitRepository `havel-east` che punta a `http://192.168.100.21:3000/projects/havel-east.git` branch `main`
+   - Crea il GitRepository `havel-east` che punta al repository `${GITEA_URL}/${GITEA_ORG}/havel-east.git`, branch `main`
    - Crea la Kustomization `havel-east` che deploya dal GitRepository `havel-east` al Namespace `havel-east`
 
 ---
