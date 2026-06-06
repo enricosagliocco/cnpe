@@ -1,0 +1,26 @@
+# CNPE Alternative Simulator
+
+This is a second CNPE-focused simulator based on the previous Minikube/Gitea package.
+
+## Run
+
+```bash
+export GITEA_URL="http://192.168.1.56:3000/"
+export GITEA_TOKEN="d2fcd54b7a8e2762920d929bfd4456db208659e4"
+export GITEA_USER="cnpe-user"
+export GITEA_PASS="cnpe-pass"
+export GITEA_ORG="organization"
+
+chmod +x *.sh
+./setup-cnpe-alt-lab.sh
+```
+
+The lab files are created under `~/course-alt` by default.
+
+## Files
+
+- `setup-cnpe-alt-lab.sh`: entrypoint. Runs the base setup and then creates the alternative scenario overlay.
+- `cnpe-setup-part1.sh`, `cnpe-setup-part2.sh`, `cnpe-setup-part3.sh`: reused base setup scripts.
+- `domande-alt.md`: 20 alternative CNPE-style questions.
+- `CNPE-COVERAGE.md`: domain coverage matrix.
+- `wipe_gitea_repos_orgs.sh`: optional cleanup utility.
