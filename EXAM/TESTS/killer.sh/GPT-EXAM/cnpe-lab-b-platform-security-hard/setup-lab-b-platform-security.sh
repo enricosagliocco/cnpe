@@ -2,30 +2,22 @@
 # =============================================================================
 # CNPE Lab B — Platform APIs + Self-Service + Security Hard
 #
-# Focus lacune ufficiali:
-#   Platform APIs and Self-Service Capabilities 25%
-#   Security and Policy Enforcement 15%
-#
-# Componenti:
-#   - CRD custom PlatformApp
-#   - mini-controller script come Job/CronJob simulato
-#   - Crossplane-like XRD/Composition semplificati con CRD/claim custom
-#   - Gatekeeper
-#   - Kyverno
-#   - RBAC
-#   - cert-manager
-#   - Tekton security gate
+# Versione corretta/robusta:
+#   - Kubernetes default v1.32.0, compatibile con minikube 1.35.x
+#   - Le CRD del lab vengono create PRIMA degli addon pesanti
+#   - Tekton non blocca tutto il setup se le immagini sono lente
+#   - wait più tolleranti e controlli finali espliciti
 #
 # Uso:
-#   chmod +x setup-lab-b-platform-security.sh
-#   ./setup-lab-b-platform-security.sh
-#   ./setup-lab-b-platform-security.sh --cleanup
+#   chmod +x setup-lab-b-platform-security-fixed.sh
+#   ./setup-lab-b-platform-security-fixed.sh
+#   ./setup-lab-b-platform-security-fixed.sh --cleanup
 # =============================================================================
 
 set -euo pipefail
 
 PROFILE="${MINIKUBE_PROFILE:-cnpe-lab-b-platform-security}"
-K8S_VERSION="${K8S_VERSION:-v1.33.0}"
+K8S_VERSION="${K8S_VERSION:-v1.32.0}"
 CPUS="${MINIKUBE_CPUS:-4}"
 MEMORY="${MINIKUBE_MEMORY:-12000}"
 DRIVER="${MINIKUBE_DRIVER:-docker}"
@@ -39,6 +31,7 @@ CALLER_HOME="${HOME}"
 if [ -n "${SUDO_USER:-}" ] && [ "${SUDO_USER}" != "root" ]; then
   CALLER_HOME="$(getent passwd "${SUDO_USER}" | cut -d: -f6)"
 fi
+
 LAB_DIR="${LAB_DIR:-${CALLER_HOME}/course/lab-b-platform-security}"
 
 info(){ echo "[INFO] $*"; }
@@ -48,25 +41,51 @@ die(){ echo "[ERR] $*"; exit 1; }
 have(){ command -v "$1" >/dev/null 2>&1; }
 
 cleanup(){
-  kubectl delete ns "$LAB_NS" "$TENANT_NS" "$SEC_NS" "$CI_NS" gatekeeper-system kyverno cert-manager tekton-pipelines --ignore-not-found --timeout=240s 2>/dev/null || true
-  kubectl delete crd platformapps.platform.cnpe.io databaseclaims.platform.cnpe.io --ignore-not-found 2>/dev/null || true
-  kubectl delete constrainttemplate k8srequiredlabels k8srequiredresources k8sdisallowedimages --ignore-not-found 2>/dev/null || true
+  warn "cleanup risorse lab"
+  kubectl delete ns "$LAB_NS" "$TENANT_NS" "$SEC_NS" "$CI_NS" gatekeeper-system kyverno cert-manager tekton-pipelines tekton-pipelines-resolvers --ignore-not-found --timeout=240s 2>/dev/null || true
+
+  kubectl delete crd \
+    platformapps.platform.cnpe.io \
+    databaseclaims.platform.cnpe.io \
+    --ignore-not-found 2>/dev/null || true
+
+  kubectl delete constrainttemplate \
+    k8srequiredlabels \
+    k8srequiredresources \
+    k8sdisallowedimages \
+    --ignore-not-found 2>/dev/null || true
+
   kubectl delete K8sRequiredLabels required-labels --ignore-not-found 2>/dev/null || true
   kubectl delete K8sRequiredResources required-resources --ignore-not-found 2>/dev/null || true
   kubectl delete K8sDisallowedImages disallowed-images --ignore-not-found 2>/dev/null || true
+
   kubectl delete clusterpolicy mutate-owner generate-deny-all --ignore-not-found 2>/dev/null || true
   kubectl delete clusterissuer platform-selfsigned --ignore-not-found 2>/dev/null || true
+
   rm -rf "$LAB_DIR"
   ok "cleanup completato"
   exit 0
 }
+
 [ "${1:-}" = "--cleanup" ] && cleanup
 
-for c in minikube kubectl helm curl; do have "$c" || die "$c non trovato"; done
+for c in minikube kubectl helm curl; do
+  have "$c" || die "$c non trovato"
+done
+
 mkdir -p "$LAB_DIR"
 
+info "start minikube profile=${PROFILE}, k8s=${K8S_VERSION}"
 if ! minikube status -p "$PROFILE" >/dev/null 2>&1; then
-  minikube start -p "$PROFILE" --driver="$DRIVER" --cpus="$CPUS" --memory="${MEMORY}mb" --disk-size=50g --kubernetes-version="$K8S_VERSION" --force
+  minikube start -p "$PROFILE" \
+    --driver="$DRIVER" \
+    --cpus="$CPUS" \
+    --memory="${MEMORY}mb" \
+    --disk-size=50g \
+    --kubernetes-version="$K8S_VERSION" \
+    --force
+else
+  ok "minikube profile già attivo"
 fi
 
 export KUBECONFIG
@@ -77,23 +96,12 @@ for ns in "$LAB_NS" "$TENANT_NS" "$SEC_NS" "$CI_NS"; do
   kubectl create ns "$ns" --dry-run=client -o yaml | kubectl apply -f -
 done
 
-info "install Gatekeeper"
-helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts >/dev/null 2>&1 || true
-helm repo update >/dev/null
-helm upgrade --install gatekeeper gatekeeper/gatekeeper --namespace gatekeeper-system --create-namespace --wait --timeout=300s --set validatingWebhookConfiguration.timeoutSeconds=15
-
-info "install Kyverno"
-helm repo add kyverno https://kyverno.github.io/kyverno/ >/dev/null 2>&1 || true
-helm repo update >/dev/null
-helm upgrade --install kyverno kyverno/kyverno --namespace kyverno --create-namespace --wait --timeout=300s
-
-info "install cert-manager"
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
-kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout=300s
-
-info "install Tekton"
-kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
-kubectl -n tekton-pipelines wait --for=condition=Available deployment --all --timeout=300s
+# =============================================================================
+# 00 - CRD PlatformApp + DatabaseClaim
+# Nota: PlatformApp è volutamente "broken": manca spec.size.
+# Serve per la domanda Q1:
+#   Aggiungi spec.size enum small/medium/large.
+# =============================================================================
 
 cat > "$LAB_DIR/00-crds-broken.yaml" <<'YAML'
 apiVersion: apiextensions.k8s.io/v1
@@ -124,7 +132,14 @@ spec:
                 type: string
               replicas:
                 type: integer
-              # BUG: manca spec.size richiesto dalle domande
+              # BUG intenzionale per Q1:
+              # manca spec.size:
+              # size:
+              #   type: string
+              #   enum:
+              #   - small
+              #   - medium
+              #   - large
               port:
                 type: integer
           status:
@@ -178,6 +193,16 @@ spec:
       status: {}
 YAML
 
+# Applica subito le CRD, così la domanda Q1 funziona anche se addon successivi sono lenti.
+kubectl apply -f "$LAB_DIR/00-crds-broken.yaml"
+kubectl wait --for=condition=Established crd/platformapps.platform.cnpe.io --timeout=120s
+kubectl wait --for=condition=Established crd/databaseclaims.platform.cnpe.io --timeout=120s
+ok "CRD lab create"
+
+# =============================================================================
+# 01 - RBAC controller volutamente incompleto
+# =============================================================================
+
 cat > "$LAB_DIR/01-platform-controller-rbac-broken.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
@@ -193,7 +218,10 @@ rules:
 - apiGroups: ["platform.cnpe.io"]
   resources: ["platformapps", "databaseclaims"]
   verbs: ["get", "list", "watch"]
-# BUG: mancano update status
+# BUG intenzionale: mancano i permessi su status:
+# - apiGroups: ["platform.cnpe.io"]
+#   resources: ["platformapps/status", "databaseclaims/status"]
+#   verbs: ["get", "patch", "update"]
 - apiGroups: ["apps"]
   resources: ["deployments"]
   verbs: ["get", "list", "create", "patch"]
@@ -215,6 +243,10 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 YAML
 
+# =============================================================================
+# 02 - Claims volutamente incomplete
+# =============================================================================
+
 cat > "$LAB_DIR/02-claims-broken.yaml" <<'YAML'
 apiVersion: platform.cnpe.io/v1alpha1
 kind: PlatformApp
@@ -225,7 +257,7 @@ spec:
   image: nginx:latest
   replicas: 1
   port: 80
-  # BUG: manca size quando verrà resa obbligatoria/logica
+  # BUG intenzionale: manca size quando Q1 lo aggiunge allo schema.
 ---
 apiVersion: platform.cnpe.io/v1alpha1
 kind: DatabaseClaim
@@ -237,6 +269,10 @@ spec:
   storage: 1Gi
   databaseName: appdb
 YAML
+
+# =============================================================================
+# 03 - Controller Job volutamente incompleto
+# =============================================================================
 
 cat > "$LAB_DIR/03-controller-job-broken.yaml" <<'YAML'
 apiVersion: batch/v1
@@ -251,7 +287,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: reconcile
-        image: bitnami/kubectl:1.33
+        image: bitnami/kubectl:1.32
         command: [sh, -c]
         args:
         - |
@@ -261,6 +297,7 @@ spec:
               image=$(kubectl -n "$ns" get platformapp "$app" -o jsonpath='{.spec.image}')
               replicas=$(kubectl -n "$ns" get platformapp "$app" -o jsonpath='{.spec.replicas}')
               port=$(kubectl -n "$ns" get platformapp "$app" -o jsonpath='{.spec.port}')
+
               cat <<EOF | kubectl apply -f -
           apiVersion: apps/v1
           kind: Deployment
@@ -305,10 +342,76 @@ spec:
             - port: $port
               targetPort: $port
           EOF
-              # BUG: status non aggiornato
+
+              # BUG intenzionale: status non aggiornato.
             done
           done
 YAML
+
+kubectl apply -f "$LAB_DIR/01-platform-controller-rbac-broken.yaml"
+kubectl apply -f "$LAB_DIR/02-claims-broken.yaml"
+kubectl apply -f "$LAB_DIR/03-controller-job-broken.yaml"
+
+# =============================================================================
+# Addon: Gatekeeper
+# =============================================================================
+
+info "install Gatekeeper"
+helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts >/dev/null 2>&1 || true
+helm repo update >/dev/null
+
+helm upgrade --install gatekeeper gatekeeper/gatekeeper \
+  --namespace gatekeeper-system \
+  --create-namespace \
+  --wait \
+  --timeout=600s \
+  --set validatingWebhookConfiguration.timeoutSeconds=15
+
+# =============================================================================
+# Addon: Kyverno
+# =============================================================================
+
+info "install Kyverno"
+helm repo add kyverno https://kyverno.github.io/kyverno/ >/dev/null 2>&1 || true
+helm repo update >/dev/null
+
+helm upgrade --install kyverno kyverno/kyverno \
+  --namespace kyverno \
+  --create-namespace \
+  --wait \
+  --timeout=600s
+
+# =============================================================================
+# Addon: cert-manager
+# =============================================================================
+
+info "install cert-manager"
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+
+kubectl -n cert-manager wait --for=condition=Available deployment/cert-manager --timeout=600s
+kubectl -n cert-manager wait --for=condition=Available deployment/cert-manager-cainjector --timeout=600s
+kubectl -n cert-manager wait --for=condition=Available deployment/cert-manager-webhook --timeout=600s
+
+# =============================================================================
+# Addon: Tekton
+# =============================================================================
+
+info "install Tekton"
+kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+
+# Non usare "deployment --all" con set -e, perché se il pull immagini è lento
+# il lab si interrompe e non applica più le CRD/esercizi.
+for dep in tekton-pipelines-controller tekton-pipelines-webhook tekton-events-controller; do
+  if kubectl -n tekton-pipelines wait --for=condition=Available "deployment/${dep}" --timeout=900s; then
+    ok "Tekton deployment ${dep} Available"
+  else
+    warn "Tekton deployment ${dep} non ancora Available; continuo comunque il setup"
+  fi
+done
+
+# =============================================================================
+# 04 - Gatekeeper policies volutamente problematiche
+# =============================================================================
 
 cat > "$LAB_DIR/04-security-policy-broken.yaml" <<'YAML'
 apiVersion: templates.gatekeeper.sh/v1
@@ -332,6 +435,7 @@ spec:
   - target: admission.k8s.gatekeeper.sh
     rego: |
       package k8srequiredlabels
+
       violation[{"msg": msg}] {
         input.review.kind.kind == "Pod"
         required := input.parameters.labels[_]
@@ -352,9 +456,10 @@ spec:
   - target: admission.k8s.gatekeeper.sh
     rego: |
       package k8srequiredresources
+
       violation[{"msg": msg}] {
         input.review.kind.kind == "Deployment"
-        c := input.review.object.spec.containers[_]
+        c := input.review.object.spec.template.spec.containers[_]
         not c.resources.limits.cpu
         msg := sprintf("missing cpu limit %v", [c.name])
       }
@@ -372,9 +477,10 @@ spec:
   - target: admission.k8s.gatekeeper.sh
     rego: |
       package k8sdisallowedimages
+
       violation[{"msg": msg}] {
-        input.review.kind.kind == "Pod"
-        c := input.review.object.spec.containers[_]
+        input.review.kind.kind == "Deployment"
+        c := input.review.object.spec.template.spec.containers[_]
         endswith(c.image, "latest")
         msg := sprintf("latest not allowed: %v", [c.image])
       }
@@ -420,6 +526,17 @@ spec:
     namespaces:
     - tenant-a
 YAML
+
+kubectl apply -f "$LAB_DIR/04-security-policy-broken.yaml"
+
+sleep 10
+for ct in k8srequiredlabels k8srequiredresources k8sdisallowedimages; do
+  kubectl wait --for=jsonpath='{.status.created}'=true constrainttemplate/"$ct" --timeout=180s || true
+done
+
+# =============================================================================
+# 05 - Kyverno + cert-manager volutamente problematici
+# =============================================================================
 
 cat > "$LAB_DIR/05-kyverno-cert-tekton-broken.yaml" <<'YAML'
 apiVersion: kyverno.io/v1
@@ -490,6 +607,12 @@ spec:
     kind: ClusterIssuer
 YAML
 
+kubectl apply -f "$LAB_DIR/05-kyverno-cert-tekton-broken.yaml"
+
+# =============================================================================
+# 06 - Tekton security pipeline volutamente problematica
+# =============================================================================
+
 cat > "$LAB_DIR/06-tekton-security-broken.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
@@ -514,7 +637,11 @@ spec:
     script: |
       #!/bin/sh
       set -eu
-      if echo "$(params.image)" | grep -q "latest"; then echo 3 | tee "$(results.critical.path)"; else echo 0 | tee "$(results.critical.path)"; fi
+      if echo "$(params.image)" | grep -q "latest"; then
+        echo 3 | tee "$(results.critical.path)"
+      else
+        echo 0 | tee "$(results.critical.path)"
+      fi
 ---
 apiVersion: tekton.dev/v1
 kind: Task
@@ -551,7 +678,7 @@ spec:
     script: |
       #!/bin/sh
       set -eu
-      # BUG: non fallisce con critical > 0
+      # BUG intenzionale: non fallisce con critical > 0.
       echo "critical=$(params.critical)"
 ---
 apiVersion: tekton.dev/v1
@@ -600,19 +727,16 @@ spec:
     value: nginx:latest
 YAML
 
-kubectl apply -f "$LAB_DIR/00-crds-broken.yaml"
-kubectl apply -f "$LAB_DIR/01-platform-controller-rbac-broken.yaml"
-kubectl apply -f "$LAB_DIR/02-claims-broken.yaml"
-kubectl apply -f "$LAB_DIR/03-controller-job-broken.yaml"
+# Applica Tekton task/pipeline solo se la CRD Task esiste.
+if kubectl get crd tasks.tekton.dev >/dev/null 2>&1; then
+  kubectl apply -f "$LAB_DIR/06-tekton-security-broken.yaml" || warn "Tekton CR apply fallita; controlla webhook/pods Tekton"
+else
+  warn "CRD tasks.tekton.dev non trovata; salto 06-tekton-security-broken.yaml"
+fi
 
-kubectl apply -f "$LAB_DIR/04-security-policy-broken.yaml"
-sleep 10
-for ct in k8srequiredlabels k8srequiredresources k8sdisallowedimages; do
-  kubectl wait --for=jsonpath='{.status.created}'=true constrainttemplate/"$ct" --timeout=180s || true
-done
-
-kubectl apply -f "$LAB_DIR/05-kyverno-cert-tekton-broken.yaml"
-kubectl apply -f "$LAB_DIR/06-tekton-security-broken.yaml"
+# =============================================================================
+# README
+# =============================================================================
 
 cat > "$LAB_DIR/README.txt" <<EOF
 CNPE Lab B — Platform APIs + Security
@@ -624,18 +748,56 @@ Namespaces:
   ci
 
 Files:
-  /course/lab-b-platform-security/00-crds-broken.yaml
-  /course/lab-b-platform-security/01-platform-controller-rbac-broken.yaml
-  /course/lab-b-platform-security/02-claims-broken.yaml
-  /course/lab-b-platform-security/03-controller-job-broken.yaml
-  /course/lab-b-platform-security/04-security-policy-broken.yaml
-  /course/lab-b-platform-security/05-kyverno-cert-tekton-broken.yaml
-  /course/lab-b-platform-security/06-tekton-security-broken.yaml
+  $LAB_DIR/00-crds-broken.yaml
+  $LAB_DIR/01-platform-controller-rbac-broken.yaml
+  $LAB_DIR/02-claims-broken.yaml
+  $LAB_DIR/03-controller-job-broken.yaml
+  $LAB_DIR/04-security-policy-broken.yaml
+  $LAB_DIR/05-kyverno-cert-tekton-broken.yaml
+  $LAB_DIR/06-tekton-security-broken.yaml
+
+Q1:
+  kubectl get crd platformapps.platform.cnpe.io
+  kubectl edit crd platformapps.platform.cnpe.io
+
+Aggiungere sotto:
+  spec.versions[0].schema.openAPIV3Schema.properties.spec.properties
+
+  size:
+    type: string
+    enum:
+    - small
+    - medium
+    - large
 EOF
 
+# =============================================================================
+# Final checks
+# =============================================================================
+
+echo
+info "CHECK CRD platform"
 kubectl get crd platformapps.platform.cnpe.io databaseclaims.platform.cnpe.io
-kubectl -n tenant-a get platformapp,databaseclaim
-kubectl -n ci get task,pipeline
+
+echo
+info "CHECK custom resources"
+kubectl -n tenant-a get platformapp,databaseclaim || true
+
+echo
+info "CHECK addons"
+kubectl get pods -n gatekeeper-system || true
+kubectl get pods -n kyverno || true
+kubectl get pods -n cert-manager || true
+kubectl get pods -n tekton-pipelines || true
+
+echo
+info "CHECK policy resources"
 kubectl get constrainttemplate 2>/dev/null || true
 kubectl get clusterpolicy 2>/dev/null || true
+
+echo
 ok "Lab B pronto: $LAB_DIR"
+echo
+echo "Per Q1:"
+echo "  kubectl edit crd platformapps.platform.cnpe.io"
+echo "  kubectl get crd platformapps.platform.cnpe.io -o yaml | grep -A10 size"
