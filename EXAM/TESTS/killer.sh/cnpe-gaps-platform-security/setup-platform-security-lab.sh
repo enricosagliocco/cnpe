@@ -24,6 +24,13 @@ if [ "$INSTALL_TOOLS" = "true" ]; then
   helm repo add crossplane-stable https://charts.crossplane.io/stable >/dev/null 2>&1 || true
   helm repo update >/dev/null
   helm upgrade --install crossplane crossplane-stable/crossplane -n crossplane-system --create-namespace --wait
+  kubectl apply -f - <<'YAML'
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata: {name: function-patch-and-transform}
+spec:
+  package: xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.8.2
+YAML
 fi
 
 cat > "$COURSE_DIR/01/crd.yaml" <<'YAML'
@@ -167,6 +174,57 @@ spec:
           image: busybox:1.36
           command: [sh, -c, "sleep 3600"]
           securityContext: {privileged: true}
+YAML
+kubectl apply -f "$COURSE_DIR/14/deployment.yaml" >/dev/null
+
+kubectl apply -f - <<'YAML'
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: frontend, namespace: tenant-a}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: frontend}}
+  template:
+    metadata: {labels: {app: frontend}}
+    spec:
+      containers:
+        - name: client
+          image: busybox:1.36
+          command: [sh, -c, "sleep 3600"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: backend, namespace: tenant-a}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: backend}}
+  template:
+    metadata: {labels: {app: backend}}
+    spec:
+      containers:
+        - name: server
+          image: nginx:1-alpine
+          ports: [{containerPort: 8080}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: backend, namespace: tenant-a}
+spec:
+  selector: {app: backend}
+  ports: [{port: 8080, targetPort: 80}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: unallocated-cost, namespace: tenant-a}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: unallocated-cost}}
+  template:
+    metadata: {labels: {app: unallocated-cost}}
+    spec:
+      containers:
+        - name: app
+          image: registry.k8s.io/pause:3.10
 YAML
 
 cat > "$COURSE_DIR/15/template.yaml" <<'YAML'

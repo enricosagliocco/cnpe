@@ -22,6 +22,7 @@ metadata: {name: function-patch-and-transform}
 spec:
   package: xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.8.2
 YAML
+kubectl wait --for=condition=Healthy function/function-patch-and-transform --timeout=300s
 kubectl create ns platform-team --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 mkdir -p "$COURSE_DIR"
 for n in $(seq -w 1 20); do mkdir -p "$COURSE_DIR/$n"; done
@@ -45,7 +46,82 @@ spec:
           properties:
             spec: {type: object, properties: {}} # TODO
 YAML
-for n in 01 02 03 15; do cp "$COURSE_DIR/base-xrd.yaml" "$COURSE_DIR/$n/xrd.yaml"; done
+cp "$COURSE_DIR/base-xrd.yaml" "$COURSE_DIR/01/xrd.yaml"
+cat > "$COURSE_DIR/02/xrd.yaml" <<'YAML'
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata: {name: apps.platform.example.io}
+spec:
+  scope: Namespaced
+  group: platform.example.io
+  names: {kind: App, plural: apps}
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec: {type: object, properties: {}} # TODO schema
+YAML
+cat > "$COURSE_DIR/03/xrd.yaml" <<'YAML'
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata: {name: apps.platform.example.io}
+spec:
+  scope: Namespaced
+  group: platform.example.io
+  names: {kind: App, plural: apps}
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            spec:
+              type: object
+              required: [image, environment]
+              properties:
+                image: {type: string}
+                replicas: {type: integer, minimum: 1, maximum: 10}
+                environment: {type: string, enum: [dev, staging, prod]}
+            status: {type: object, properties: {}} # TODO url and readyReplicas
+YAML
+cat > "$COURSE_DIR/15/xrd.yaml" <<'YAML'
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata: {name: apps.platform.example.io}
+spec:
+  scope: Namespaced
+  group: platform.example.io
+  names: {kind: App, plural: apps}
+  # TODO defaultCompositionUpdatePolicy: Manual
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            spec:
+              type: object
+              required: [image, environment]
+              properties:
+                image: {type: string}
+                replicas: {type: integer, minimum: 1, maximum: 10, default: 1}
+                environment: {type: string, enum: [dev, staging, prod]}
+            status:
+              type: object
+              properties:
+                url: {type: string}
+                readyReplicas: {type: integer}
+YAML
 cat > "$COURSE_DIR/02/valid.yaml" <<'YAML'
 apiVersion: platform.example.io/v1alpha1
 kind: App
@@ -58,6 +134,10 @@ kind: App
 metadata: {name: invalid, namespace: platform-team}
 spec: {replicas: 0, environment: qa}
 YAML
+
+# Install the valid prerequisite used by the Composition exercises.
+kubectl apply -f "$COURSE_DIR/03/xrd.yaml"
+kubectl wait --for=condition=Established crd/apps.platform.example.io --timeout=120s
 
 cat > "$COURSE_DIR/base-composition.yaml" <<'YAML'
 apiVersion: apiextensions.crossplane.io/v1

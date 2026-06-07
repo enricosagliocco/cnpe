@@ -1,4 +1,4 @@
-# OPA Gatekeeper Lab - 20 domande
+# Le 20 domande dell'esame — OPA Gatekeeper Lab (simulatore lab)
 
 Scenario creato da `setup-gatekeeper-lab.sh`. I file si trovano in
 `~/course-gatekeeper`.
@@ -17,6 +17,12 @@ Vincoli:
   precedente interferisce con un test successivo, portala temporaneamente a
   `dryrun` invece di cancellare il ConstraintTemplate.
 
+Ogni domanda contiene almeno uno starter incompleto e workload di test
+positivi o negativi. Devi applicare ConstraintTemplate e Constraint, attendere
+la CRD generata, eseguire realmente i workload e verificare admission e audit.
+La sola compilazione del Rego o la modifica del file non completa
+l'esercizio.
+
 Comandi utili:
 
 ```bash
@@ -28,9 +34,24 @@ kubectl -n gatekeeper-system logs deploy/gatekeeper-controller-manager
 kubectl -n gatekeeper-system logs deploy/gatekeeper-audit
 ```
 
+Accesso GUI:
+
+Gatekeeper non include una dashboard web dedicata. Usa Lens/OpenLens con il
+kubeconfig corrente. In **Custom Resources** cerca `ConstraintTemplate` e i
+kind dei Constraint; usa **Events** e **Pod Logs** per controller e audit.
+
+```bash
+kubectl config current-context
+kubectl config view --minify --raw
+```
+
+Non sono richieste credenziali ulteriori rispetto al kubeconfig. Mantieni il
+terminale per applicare i file starter e per i test di admission positivi e
+negativi richiesti dalle tracce.
+
 ---
 
-### Q1 - RequiredAnnotations parametrica
+### Q1 – RequiredAnnotations parametrica
 
 Percorso: `~/course-gatekeeper/01`.
 
@@ -59,7 +80,7 @@ Il primo comando deve essere negato con un messaggio contenente
 
 ---
 
-### Q2 - RequiredLabels con array
+### Q2 – RequiredLabels con array
 
 Percorso: `~/course-gatekeeper/02`.
 
@@ -74,10 +95,11 @@ Crea `require-app-team-labels` per Pod e Deployment in `apps`; richiedi
 
 Usa `pod-bad.yaml` e `deployment-good.yaml`. Il Pod deve essere negato con
 entrambe le label nel messaggio; il Deployment deve essere accettato.
+Verifica inoltre che la Constraint compaia in `kubectl get constraints`.
 
 ---
 
-### Q3 - Repository immagini consentiti
+### Q3 – Repository immagini consentiti
 
 Percorso: `~/course-gatekeeper/03`.
 
@@ -98,10 +120,11 @@ Testa i manifest allowed e denied forniti.
 `pod-allowed.yaml` deve essere creato. `pod-denied.yaml` deve essere negato e
 il messaggio deve contenere container `web` e immagine
 `docker.io/library/httpd:2-alpine`.
+Verifica infine che il Pod consentito non compaia nelle violazioni audit.
 
 ---
 
-### Q4 - Numero minimo di repliche
+### Q4 – Numero minimo di repliche
 
 Percorso: `~/course-gatekeeper/04`.
 
@@ -118,23 +141,23 @@ La policy deve gestire anche `spec.replicas` assente, considerandolo uguale a
 
 ---
 
-### Q5 - Match ed esclusioni
+### Q5 – Match ed esclusioni
 
 Percorso: `~/course-gatekeeper/05`.
 
-Usa il template `requiredannotations` della Q1 e completa `constraint.yaml`
-per richiedere l'annotation `cost-center` ai Deployment in `dev`, `staging`,
-`prod` e `legacy`, ma:
-
-- escludi il Namespace `legacy` tramite `excludedNamespaces`;
-- non applicare la policy a Pod o Service.
-
-Applica nell'ordine `dev-deployment.yaml`, `legacy-deployment.yaml` e
-`dev-pod.yaml`: solo il Deployment in `dev` deve essere negato.
+1. Usa il template `requiredannotations` della Q1 e completa
+   `constraint.yaml` per richiedere l'annotation `cost-center` ai Deployment
+   in `dev`, `staging`, `prod` e `legacy`.
+2. Configura il match in modo che:
+   - il Namespace `legacy` sia escluso tramite `excludedNamespaces`;
+   - la policy non si applichi a Pod o Service.
+3. Applica nell'ordine `dev-deployment.yaml`, `legacy-deployment.yaml` e
+   `dev-pod.yaml`.
+4. Verifica che solo il Deployment in `dev` venga negato.
 
 ---
 
-### Q6 - Audit con enforcement dryrun
+### Q6 – Audit con enforcement dryrun
 
 Percorso: `~/course-gatekeeper/06`.
 
@@ -152,56 +175,57 @@ la label mancante.
 
 ---
 
-### Q7 - Enforcement warn
+### Q7 – Enforcement warn
 
 Percorso: `~/course-gatekeeper/07`.
 
-Crea `warn-missing-environment` usando il template della Q2:
-
-- `enforcementAction: warn`
-- richiede la label `environment`
-- si applica ai Pod in `dev`
-
-Esegui `kubectl apply` sul Pod fornito e salva warning e output in
-`warning.txt`. Il Pod `warning-demo` deve essere creato e l'output deve
-contenere il nome della Constraint `warn-missing-environment`.
+1. Crea `warn-missing-environment` usando il template della Q2 con:
+   - `enforcementAction: warn`;
+   - label richiesta `environment`;
+   - match sui Pod nel Namespace `dev`.
+2. Esegui `kubectl apply` sul Pod fornito.
+3. Salva warning e output in `warning.txt`.
+4. Verifica che il Pod `warning-demo` venga creato e che l'output contenga il
+   nome della Constraint `warn-missing-environment`.
 
 ---
 
-### Q8 - Namespace selector
+### Q8 – Namespace selector
 
 Percorso: `~/course-gatekeeper/08`.
 
-Crea una Constraint che richieda l'annotation `owner` ai Deployment nei
-Namespace con label:
+1. Crea una Constraint che richieda l'annotation `owner` ai Deployment nei
+   Namespace con label:
 
 ```yaml
 policy.gatekeeper/enabled: "true"
 ```
 
-Non usare una lista statica `namespaces`. Verifica che:
-
-- `staging` e `prod` siano inclusi;
-- `exempt` non sia incluso.
-
-Usa `staging-bad.yaml`, `prod-good.yaml` ed `exempt-bad.yaml`. Il primo deve
-essere negato; gli altri due devono essere accettati.
+2. Non usare una lista statica `namespaces`.
+3. Verifica che:
+   - `staging` e `prod` siano inclusi;
+   - `exempt` non sia incluso.
+4. Usa `staging-bad.yaml`, `prod-good.yaml` ed `exempt-bad.yaml`.
+5. Verifica che il primo venga negato e gli altri due accettati.
 
 ---
 
-### Q9 - Vietare Service NodePort
+### Q9 – Vietare Service NodePort
 
 Percorso: `~/course-gatekeeper/09`.
 
-Completa `disallowedservicetypes` con parametro `types`, array di stringhe.
-Crea `no-nodeport-services` per vietare `NodePort` e `LoadBalancer` in `prod`.
-
-Verifica prima che `public-api.yaml` venga negato. Correggi lo stesso file
-rimuovendo `nodePort` e impostando `type: ClusterIP`; deve poi essere accettato.
+1. Completa `disallowedservicetypes` con il parametro `types`, array di
+   stringhe.
+2. Crea `no-nodeport-services` per vietare `NodePort` e `LoadBalancer` in
+   `prod`.
+3. Verifica che `public-api.yaml` venga inizialmente negato.
+4. Correggi lo stesso file rimuovendo `nodePort` e impostando
+   `type: ClusterIP`.
+5. Verifica che il file corretto venga accettato.
 
 ---
 
-### Q10 - Host Ingress univoci con inventory
+### Q10 – Host Ingress univoci con inventory
 
 Percorso: `~/course-gatekeeper/10`.
 
@@ -217,60 +241,58 @@ existing-shared-host exercise=updated --overwrite` abbia successo.
 
 ---
 
-### Q11 - Resource requests e limits
+### Q11 – Resource requests e limits
 
 Percorso: `~/course-gatekeeper/11`.
 
-Completa `requiredresources` affinche ogni container e initContainer abbia:
-
-- request CPU;
-- request memory;
-- limit CPU;
-- limit memory.
-
-Applica la policy ai Pod in `apps`. Correggi `worker.yaml` senza rimuovere
-l'initContainer. Usa per entrambi i container:
-
-- requests CPU `10m` e memory `16Mi`;
-- limits CPU `100m` e memory `64Mi`.
-
-Il primo apply deve essere negato; dopo la correzione il Pod deve essere
-creato.
+1. Completa `requiredresources` affinché ogni container e initContainer abbia:
+   - request CPU;
+   - request memory;
+   - limit CPU;
+   - limit memory.
+2. Applica la policy ai Pod nel Namespace `apps`.
+3. Verifica che il primo apply di `worker.yaml` venga negato.
+4. Correggi `worker.yaml` senza rimuovere l'initContainer usando per entrambi
+   i container:
+   - requests CPU `10m` e memory `16Mi`;
+   - limits CPU `100m` e memory `64Mi`.
+5. Verifica che dopo la correzione il Pod venga creato.
 
 ---
 
-### Q12 - Security context
+### Q12 – Security context
 
 Percorso: `~/course-gatekeeper/12`.
 
-Crea `securepods` con parametri booleani per vietare:
-
-- `hostNetwork`;
-- container privilegiati;
-- `allowPrivilegeEscalation: true`.
-
-Applica la Constraint a `prod`. Il messaggio deve indicare esattamente quale
-campo viola la policy. Imposta tutti i tre parametri della Constraint a
-`false`. `pod.yaml` deve inizialmente produrre tre violazioni; correggilo con
-`hostNetwork: false`, `privileged: false` e
-`allowPrivilegeEscalation: false`.
+1. Crea `securepods` con parametri booleani per vietare:
+   - `hostNetwork`;
+   - container privilegiati;
+   - `allowPrivilegeEscalation: true`.
+2. Applica la Constraint al Namespace `prod`.
+3. Imposta tutti e tre i parametri della Constraint a `false`.
+4. Assicurati che il messaggio indichi esattamente quale campo viola la
+   policy.
+5. Verifica che `pod.yaml` produca inizialmente tre violazioni.
+6. Correggilo con `hostNetwork: false`, `privileged: false` e
+   `allowPrivilegeEscalation: false`.
 
 ---
 
-### Q13 - Service type parametrico
+### Q13 – Service type parametrico
 
 Percorso: `~/course-gatekeeper/13`.
 
-Completa `allowedservicetypes`, che deve accettare `parameters.allowedTypes`.
-Consenti in `dev` soltanto `ClusterIP` e `ExternalName`.
-
-La policy deve trattare un Service senza `spec.type` come `ClusterIP`.
-Usa i file `service-default.yaml`, `service-external.yaml` e
-`service-nodeport.yaml`: i primi due devono essere accettati, il terzo negato.
+1. Completa `allowedservicetypes`, che deve accettare
+   `parameters.allowedTypes`.
+2. Consenti nel Namespace `dev` soltanto `ClusterIP` e `ExternalName`.
+3. Tratta un Service senza `spec.type` come `ClusterIP`.
+4. Applica `service-default.yaml`, `service-external.yaml` e
+   `service-nodeport.yaml`.
+5. Verifica che i primi due vengano accettati e il terzo negato.
 
 ---
 
-### Q14 - Label immutabile durante UPDATE
+### Q14 – Label immutabile durante UPDATE
 
 Percorso: `~/course-gatekeeper/14`.
 
@@ -288,56 +310,49 @@ Applica `deployment.yaml`, quindi:
 
 ---
 
-### Q15 - Container, initContainer ed ephemeralContainer
+### Q15 – Container, initContainer ed ephemeralContainer
 
 Percorso: `~/course-gatekeeper/15`.
 
-Estendi il template `allowedrepos` della Q3:
-
-- controlla `containers`;
-- controlla `initContainers`;
-- controlla `ephemeralContainers` quando presenti;
-- gestisce in modo sicuro i campi assenti.
-
-La Constraint deve consentire solo `registry.k8s.io/` in `prod`.
-
-Usa `pod-init-denied.yaml` e `pod-all-allowed.yaml`. Il primo deve essere
-negato per l'initContainer `init`; il secondo deve essere accettato. Il Rego
-deve inoltre iterare in sicurezza su `ephemeralContainers` quando il campo è
-presente, senza assumere che esista.
+1. Estendi il template `allowedrepos` della Q3 affinché:
+   - controlli `containers`;
+   - controlli `initContainers`;
+   - controlli `ephemeralContainers` quando presenti;
+   - gestisca in modo sicuro i campi assenti.
+2. Configura la Constraint per consentire solo `registry.k8s.io/` in `prod`.
+3. Applica `pod-init-denied.yaml` e verifica che venga negato per
+   l'initContainer `init`.
+4. Applica `pod-all-allowed.yaml` e verifica che venga accettato.
+5. Verifica che il Rego iteri in sicurezza su `ephemeralContainers` senza
+   assumere che il campo esista.
 
 ---
 
-### Q16 - ExpansionTemplate
+### Q16 – ExpansionTemplate
 
 Percorso: `~/course-gatekeeper/16`.
 
-Completa `expansion.yaml` per espandere Deployment in Pod usando
-`spec.template`.
-
-Crea poi una policy Pod che richieda:
+1. Completa `expansion.yaml` per espandere Deployment in Pod usando
+   `spec.template` con:
+   - `applyTo`: gruppo `apps`, versione `v1`, kind `Deployment`;
+   - `templateSource: spec.template`;
+   - `generatedGVK`: gruppo vuoto, versione `v1`, kind `Pod`.
+2. Crea una policy Pod che richieda:
 
 ```yaml
 securityContext:
   runAsNonRoot: true
 ```
 
-La creazione di `deployment-bad.yaml` deve essere negata anche se la Constraint
-seleziona esclusivamente `Pod`.
-
-Completa `expansion.yaml` con:
-
-- `applyTo`: gruppo `apps`, versione `v1`, kind `Deployment`;
-- `templateSource: spec.template`;
-- `generatedGVK`: gruppo vuoto, versione `v1`, kind `Pod`.
-
-Il messaggio di violazione deve essere `Pod must set
-spec.securityContext.runAsNonRoot to true`. Verifica anche che
-`deployment-good.yaml` venga accettato.
+3. Imposta il messaggio di violazione a
+   `Pod must set spec.securityContext.runAsNonRoot to true`.
+4. Verifica che `deployment-bad.yaml` venga negato anche se la Constraint
+   seleziona esclusivamente `Pod`.
+5. Verifica che `deployment-good.yaml` venga accettato.
 
 ---
 
-### Q17 - Troubleshooting ConstraintTemplate
+### Q17 – Troubleshooting ConstraintTemplate
 
 Percorso: `~/course-gatekeeper/17`.
 
@@ -355,56 +370,54 @@ dimostrare che il kind generato funziona.
 
 ---
 
-### Q18 - Schema avanzato dei parametri
+### Q18 – Schema avanzato dei parametri
 
 Percorso: `~/course-gatekeeper/18`.
 
-Completa lo schema di `workloadstandards`:
-
-- `requiredLabels`: array di stringhe, almeno un elemento;
-- `allowedEnvironments`: array di stringhe con valori ammessi `dev`,
-  `staging`, `prod`;
-- `minimumReplicas`: integer, minimo 1;
-- tutti i tre campi sono obbligatori;
-- nessuna proprieta aggiuntiva.
-
-Dimostra che Kubernetes rifiuta la Constraint `invalid-parameters.yaml` prima
-che arrivi al motore Rego. L'errore deve riferirsi almeno a:
-
-- `requiredLabels`, che non è un array;
-- `production`, valore non ammesso;
-- `minimumReplicas`, inferiore a 1;
-- proprietà `unexpected`, non consentita.
-
-`valid-parameters.yaml` deve invece essere accettato.
+1. Completa lo schema di `workloadstandards`:
+   - `requiredLabels`: array di stringhe, almeno un elemento;
+   - `allowedEnvironments`: array di stringhe con valori ammessi `dev`,
+     `staging`, `prod`;
+   - `minimumReplicas`: integer, minimo 1;
+   - tutti e tre i campi obbligatori;
+   - nessuna proprietà aggiuntiva.
+2. Dimostra che Kubernetes rifiuta `invalid-parameters.yaml` prima che arrivi
+   al motore Rego.
+3. Verifica che l'errore faccia riferimento almeno a:
+   - `requiredLabels`, che non è un array;
+   - `production`, valore non ammesso;
+   - `minimumReplicas`, inferiore a 1;
+   - proprietà `unexpected`, non consentita.
+4. Verifica che `valid-parameters.yaml` venga accettato.
 
 ---
 
-### Q19 - Policy bundle con Kustomize
+### Q19 – Policy bundle con Kustomize
 
 Percorso: `~/course-gatekeeper/19/policy-bundle`.
 
-Correggi il bundle Kustomize affinche installi:
-
-- template e Constraint RequiredAnnotations;
-- template e Constraint RequiredLabels;
-- Namespace `bundle-test`;
-- due workload di test.
-
-Le Constraint devono chiamarsi `bundle-required-owner` e
-`bundle-required-labels`, applicarsi ai Deployment in `bundle-test` e
-richiedere rispettivamente annotation `owner` e label `app`, `team`.
-
-Completa anche `install.sh`: deve applicare prima i ConstraintTemplate,
-attendere la creazione delle CRD generate e poi applicare con Kustomize
-Namespace e Constraint. Deve infine applicare separatamente
-`workload-good.yaml` e `workload-bad.yaml`, salvando l'output in
-`result.txt`. L'esecuzione deve essere ripetibile: il workload conforme deve
-essere accettato e quello non conforme negato.
+1. Correggi il bundle Kustomize affinché installi:
+   - template e Constraint RequiredAnnotations;
+   - template e Constraint RequiredLabels;
+   - Namespace `bundle-test`;
+   - due workload di test.
+2. Configura le Constraint con i nomi `bundle-required-owner` e
+   `bundle-required-labels`.
+3. Applicale ai Deployment in `bundle-test`, richiedendo rispettivamente:
+   - annotation `owner`;
+   - label `app` e `team`.
+4. Completa `install.sh` affinché:
+   - applichi prima i ConstraintTemplate;
+   - attenda la creazione delle CRD generate;
+   - applichi con Kustomize Namespace e Constraint;
+   - applichi separatamente `workload-good.yaml` e `workload-bad.yaml`;
+   - salvi l'output in `result.txt`.
+5. Verifica che l'esecuzione sia ripetibile, che il workload conforme venga
+   accettato e quello non conforme negato.
 
 ---
 
-### Q20 - Incident finale
+### Q20 – Incident finale
 
 Percorso: `~/course-gatekeeper/20`.
 

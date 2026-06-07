@@ -16,3 +16,12 @@ chmod +x setup-platform-security-lab.sh
 I file vengono creati in `~/course-platform-security`; Gatekeeper e Crossplane
 vengono installati automaticamente. Usare `INSTALL_TOOLS=false` se sono già
 presenti.
+
+## Accesso GUI
+
+Importa il kubeconfig corrente in Lens/OpenLens. Le risorse Crossplane e
+Gatekeeper sono disponibili in **Custom Resources** e non richiedono
+credenziali diverse da quelle Kubernetes.
+
+Il setup crea workload non conformi e starter incompleti per verifiche reali
+di CRD, multi-tenancy, NetworkPolicy, RBAC, Pod Security e admission.

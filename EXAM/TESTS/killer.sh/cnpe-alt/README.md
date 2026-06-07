@@ -27,3 +27,10 @@ The lab files are created under `~/course-alt` by default.
 - `cnpe-setup-part1.sh`, `cnpe-setup-part2.sh`, `cnpe-setup-part3.sh`: reused base setup scripts.
 - `domande-alt.md`: 20 alternative CNPE-style questions.
 - `wipe_gitea_repos_orgs.sh`: optional cleanup utility.
+
+## GUI
+
+`domande-alt.md` contiene una tabella con URL, port-forward e credenziali per
+Prometheus, Argo CD, OpenCost, Grafana, Argo Workflows, Tekton, Jaeger e Argo
+Rollouts. Per le risorse Kubernetes senza dashboard nativa usa Lens/OpenLens
+con il kubeconfig corrente.

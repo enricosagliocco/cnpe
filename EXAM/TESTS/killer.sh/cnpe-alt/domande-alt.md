@@ -1,13 +1,46 @@
-# CNPE Alternative Simulator - 20 domande
+# Le 20 domande dell'esame — CNPE Alternative Lab (simulatore lab)
 
 Scenario creato da `setup-cnpe-alt-lab.sh`. I file sono in `~/course-alt`.
 
 **Vincolo:** non disinstallare i tool installati. Puoi modificare configurazioni,
 manifest e risorse applicative, ma non rimuovere i componenti core.
 
+Ogni domanda parte da una risorsa running non conforme, da un controller in
+errore o da un file starter incompleto creato dal setup. Devi prima osservare
+o riprodurre il problema, poi modificare e applicare la soluzione e infine
+verificare il risultato nel cluster. Commit, report o file locali richiesti
+sono evidenze aggiuntive e non sostituiscono la verifica runtime.
+
+## Accesso GUI
+
+Le interfacce principali sono esposte sul nodo del cluster:
+
+| Prodotto | URL | Port-forward alternativo |
+|---|---|---|
+| Prometheus | `http://<node>:30020` | `kubectl -n prometheus port-forward --address 0.0.0.0 svc/prometheus-server 30020:9090` |
+| Argo CD | `https://<node>:30030` | `kubectl -n argocd port-forward --address 0.0.0.0 svc/argocd-server 30030:443` |
+| OpenCost | `http://<node>:30070` | `kubectl -n opencost port-forward --address 0.0.0.0 svc/opencost-nodeport 30070:9090` |
+| Grafana | `http://<node>:30080` | `kubectl -n monitoring port-forward --address 0.0.0.0 svc/grafana 30080:80` |
+| Argo Workflows | `http://<node>:30110` | `kubectl -n argo port-forward --address 0.0.0.0 svc/argo-server 30110:2746` |
+| Tekton | `http://<node>:30120` | `kubectl -n tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 30120:9097` |
+| Jaeger | `http://<node>:30014` | `kubectl -n eyre port-forward --address 0.0.0.0 svc/jaeger 30014:16686` |
+| Argo Rollouts | `http://<node>:30160` | `kubectl -n argo-rollouts port-forward --address 0.0.0.0 svc/argo-rollouts-dashboard 30160:3100` |
+
+Credenziali:
+
+- Argo CD: utente `admin`; password con
+  `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo`.
+- Grafana: utente `admin`, password `admin`; e abilitato anche l'accesso anonimo.
+- Le altre GUI normalmente non richiedono login nel lab.
+
+Usa le GUI per query, sincronizzazioni, log, trace e avanzamento dei rollout.
+Per CRD, Crossplane, policy e risorse Kubernetes usa Lens/OpenLens con il
+kubeconfig corrente. Mantieni il terminale per modificare e applicare i file
+starter e per salvare gli output richiesti.
+
 ---
 
-### Q1 - CRD, Kustomize e Git
+### Q1 – CRD, Kustomize e Git
 
 La CRD `PlatformService` è installata dal repository
 `~/course-alt/1/platform-service`.
@@ -21,10 +54,11 @@ La CRD `PlatformService` è installata dal repository
 5. Fai commit e push sul branch `main`.
 6. Crea nel Namespace `selfservice-alt` una `PlatformService` chiamata
    `payments`, con `tier: gold`, hostname `payments.internal` e path `/api`.
+7. Verifica la versione storage della CRD e la risorsa `payments` dal cluster.
 
 ---
 
-### Q2 - Prometheus
+### Q2 – Prometheus
 
 Prometheus è nel Namespace `prometheus`. Nel Namespace `atlas` esistono i
 Deployment `checkout` e `proxy`, che espongono `/metrics` sulla porta `8080`.
@@ -44,10 +78,11 @@ La configurazione attuale non include `atlas`.
 4. Scala a 2 repliche il Deployment con il valore maggiore.
 5. Salva query, risultato e comando di scaling in
    `~/course-alt/2/prometheus-report.txt`.
+6. Verifica il nuovo numero di repliche e che entrambi i target restino UP.
 
 ---
 
-### Q3 - Argo CD e branch Git
+### Q3 – Argo CD e branch Git
 
 Il repository `~/course-alt/3/portal-client` è usato dall'Application Argo CD
 `portal-client`, branch `main`, Namespace `baltic`.
@@ -67,7 +102,7 @@ Il repository `~/course-alt/3/portal-client` è usato dall'Application Argo CD
 
 ---
 
-### Q4 - Flagger pre-rollout webhook
+### Q4 – Flagger pre-rollout webhook
 
 Nel Namespace `delivery-alt` esistono Deployment `catalog` e Canary `catalog`.
 Il Deployment ha `APP_VERSION=1.0.0`.
@@ -82,10 +117,11 @@ Il Deployment ha `APP_VERSION=1.0.0`.
 2. Imposta `APP_VERSION=1.0.1` nel Deployment.
 3. Attendi la conclusione del rollout.
 4. Salva gli eventi del Canary in `~/course-alt/4/catalog-events.log`.
+5. Verifica Canary `Succeeded` e Deployment stabile alla nuova versione.
 
 ---
 
-### Q5 - Argo Rollouts e AnalysisTemplate
+### Q5 – Argo Rollouts e AnalysisTemplate
 
 Nel Namespace `delivery-alt` il Rollout `frontend-rollout` usa una strategia
 canary con una pausa al 50%. Il file
@@ -102,10 +138,11 @@ canary con una pausa al 50%. Il file
    ```
 4. Avvia un nuovo rollout impostando `VERSION=2.0.0`.
 5. Promuovi il Rollout solo se l'AnalysisRun termina con stato `Successful`.
+6. Verifica Rollout `Healthy` e AnalysisRun `Successful`.
 
 ---
 
-### Q6 - Tekton Pipeline
+### Q6 – Tekton Pipeline
 
 Il file `~/course-alt/6/tekton-api/pipeline.yaml` contiene due Task completi,
 ma la Pipeline `api-build` non li usa.
@@ -121,7 +158,7 @@ ma la Pipeline `api-build` non li usa.
 
 ---
 
-### Q7 - FluxCD
+### Q7 – FluxCD
 
 Il repository `~/course-alt/7/flux-platform` contiene
 `clusters/dev/apps/demo`, ma il `kustomization.yaml` padre non lo include.
@@ -140,7 +177,7 @@ Il GitRepository Flux `flux-platform` usa inoltre il branch inesistente
 
 ---
 
-### Q8 - Crossplane platform API
+### Q8 – Crossplane platform API
 
 In `~/course-alt/8/platform-api` sono presenti XRD, Composition e XR
 incompleti.
@@ -160,7 +197,7 @@ incompleti.
 
 ---
 
-### Q9 - Backstage Software Template
+### Q9 – Backstage Software Template
 
 Completa `~/course-alt/9/backstage-template/template.yaml`.
 
@@ -180,7 +217,7 @@ Completa `~/course-alt/9/backstage-template/template.yaml`.
 
 ---
 
-### Q10 - OpenTofu Kubernetes provider
+### Q10 – OpenTofu Kubernetes provider
 
 Il Namespace `team-a` esiste già. Il file
 `~/course-alt/10/tofu-k8s/main.tf` contiene solo il provider.
@@ -196,10 +233,11 @@ Il Namespace `team-a` esiste già. Il file
    - ServiceAccount `automation`.
 4. Esegui init, plan e apply.
 5. Salva l'output finale in `~/course-alt/10/tofu-output.txt`.
+6. Verifica Namespace importato, ConfigMap e ServiceAccount nel cluster.
 
 ---
 
-### Q11 - OpenTelemetry endpoint
+### Q11 – OpenTelemetry endpoint
 
 Il Deployment `telemetry-api` nel Namespace `obs-alt` usa
 `OTEL_EXPORTER_OTLP_ENDPOINT=http://wrong-collector:4317`.
@@ -213,7 +251,7 @@ Il collector disponibile è `jaeger-collector.obs-alt:4317`.
 
 ---
 
-### Q12 - Grafana e Loki
+### Q12 – Grafana e Loki
 
 Grafana è su `http://<node>:30080`; Loki è la datasource predefinita.
 Il Deployment `telemetry-api` genera log `INFO` e `ERROR`.
@@ -229,10 +267,11 @@ Il Deployment `telemetry-api` genera log `INFO` e `ERROR`.
 3. Imposta `Maximum lines` della datasource Loki a `200`.
 4. Salva in `~/course-alt/12/log-triage.md` query, Pod trovato e comando
    `kubectl logs` equivalente.
+5. Verifica che dashboard e datasource mantengano le modifiche dopo reload.
 
 ---
 
-### Q13 - Gatekeeper owner label
+### Q13 – Gatekeeper owner label
 
 In `~/course-alt/13/gatekeeper` sono presenti template, Constraint e due
 Deployment di test.
@@ -248,7 +287,7 @@ Deployment di test.
 
 ---
 
-### Q14 - Kyverno runAsNonRoot
+### Q14 – Kyverno runAsNonRoot
 
 Completa `~/course-alt/14/kyverno/policy.yaml`.
 
@@ -265,7 +304,7 @@ Completa `~/course-alt/14/kyverno/policy.yaml`.
 
 ---
 
-### Q15 - Pod Security Standards restricted
+### Q15 – Pod Security Standards restricted
 
 Il Namespace `security-alt` non applica ancora Pod Security Standards e
 contiene il Deployment non conforme `legacy-worker`. Il manifest è
@@ -287,7 +326,7 @@ contiene il Deployment non conforme `legacy-worker`. Il manifest è
 
 ---
 
-### Q16 - RBAC least privilege
+### Q16 – RBAC least privilege
 
 Nel Namespace `security-alt` esiste il ServiceAccount `report-reader`.
 Completa `~/course-alt/16/rbac/rbac.yaml`:
@@ -305,26 +344,25 @@ Completa `~/course-alt/16/rbac/rbac.yaml`:
 
 ---
 
-### Q17 - KEDA cron scaling
+### Q17 – KEDA cron scaling
 
 KEDA è installato. Nel Namespace `data-alt` esiste il Deployment
 `queue-worker`. Completa `~/course-alt/17/keda/scaledobject.yaml`.
 
-Configura un trigger `cron` con:
-
-- timezone `Europe/Rome`;
-- start `0 8 * * 1-5`;
-- end `0 18 * * 1-5`;
-- desiredReplicas `"3"`;
-- minReplicaCount `0`;
-- maxReplicaCount `5`.
-
-Applica il file, verifica la creazione dell'HPA e salva ScaledObject e HPA in
-`~/course-alt/17/keda/status.txt`.
+1. Configura un trigger `cron` con:
+   - timezone `Europe/Rome`;
+   - start `0 8 * * 1-5`;
+   - end `0 18 * * 1-5`;
+   - desiredReplicas `"3"`;
+   - minReplicaCount `0`;
+   - maxReplicaCount `5`.
+2. Applica il file.
+3. Verifica la creazione dell'HPA.
+4. Salva ScaledObject e HPA in `~/course-alt/17/keda/status.txt`.
 
 ---
 
-### Q18 - OpenCost API
+### Q18 – OpenCost API
 
 OpenCost è installato nel Namespace `opencost`.
 
@@ -339,10 +377,11 @@ OpenCost è installato nel Namespace `opencost`.
 3. Salva la risposta JSON in `~/course-alt/18/opencost/allocation.json`.
 4. Scrivi comando di port-forward e URL in
    `~/course-alt/18/opencost/access.txt`.
+5. Verifica risposta HTTP 200 e JSON valido con almeno un'allocazione.
 
 ---
 
-### Q19 - Linkerd
+### Q19 – Linkerd
 
 Nel Namespace `mesh-alt` esistono Deployment `mesh-server`, Deployment
 `mesh-client` e Service `mesh-server`, ma il Namespace non è annotato per
@@ -361,7 +400,7 @@ l'injection.
 
 ---
 
-### Q20 - Verifica finale
+### Q20 – Verifica finale
 
 Completa la verifica integrata e scrivi
 `~/course-alt/20/final/report.md`.

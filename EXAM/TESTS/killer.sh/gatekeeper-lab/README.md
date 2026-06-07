@@ -58,3 +58,10 @@ kubectl delete ns apps dev staging prod exempt legacy team-a team-b --ignore-not
 kubectl delete -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.22.2/deploy/gatekeeper.yaml
 rm -rf ~/course-gatekeeper
 ```
+
+## Accesso GUI
+
+Apri il cluster in Lens/OpenLens usando il kubeconfig corrente. I
+ConstraintTemplate e i Constraint sono disponibili in **Custom Resources**;
+eventi e log di audit sono visibili dai workload in `gatekeeper-system`.
+Gatekeeper non espone una dashboard web propria.
