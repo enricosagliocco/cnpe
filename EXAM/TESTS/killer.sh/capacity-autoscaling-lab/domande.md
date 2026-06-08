@@ -1,140 +1,133 @@
-# CNPE Capacity and Autoscaling Lab
+# Le 20 domande dell'esame — Capacity and Autoscaling Lab (simulatore lab)
 
 Scenario creato da `setup-capacity-autoscaling-lab.sh`. Gli starter sono in
 `~/course-capacity-autoscaling/`.
 
-## Vincolo d'esame
+**Vincolo:** non modificare i Deployment installati dal setup e non
+disinstallare Metrics Server, VPA o KEDA. Puoi modificare ResourceQuota,
+LimitRange, VPA, HPA, ScaledObject e i Pod di test forniti.
 
-**Non modificare i Deployment installati dal setup.** Non usare `kubectl edit`,
-`kubectl patch`, `kubectl set resources` o `kubectl scale` sui workload.
-
-Puoi modificare esclusivamente:
-
-- ResourceQuota;
-- LimitRange;
-- VerticalPodAutoscaler;
-- HorizontalPodAutoscaler;
-- ScaledObject KEDA;
-- Pod di test e generatori di carico forniti.
-
-Non modificare o disinstallare Metrics Server, VPA o KEDA.
+Le domande sono progressive a gruppi di quattro. Applica ogni modifica e
+salva le evidenze nei file presenti nella directory indicata.
 
 ---
 
-### Q1 – ResourceQuota e Pod mancanti
+### Q1 – Diagnosi ResourceQuota
 
-Nel Namespace `quota-lab`, il Deployment `quota-api` richiede due repliche ma
-non riesce a renderle entrambe disponibili.
+Nel Namespace `quota-lab`, individua perché `quota-api` non raggiunge due
+repliche. Analizza Deployment, ReplicaSet, eventi e quota e salva la causa in
+`01/diagnosi.txt`.
 
-1. Analizza Deployment, ReplicaSet, eventi e stato della ResourceQuota.
-2. Spiega in `01/diagnosi.txt` perché una replica viene negata.
-3. Correggi soltanto `01/resourcequota.yaml` impostando:
-   - `requests.cpu: "1"`;
-   - `requests.memory: 1Gi`;
-   - `limits.cpu: "2"`;
-   - `limits.memory: 2Gi`;
-   - `pods: "5"`.
-4. Applica la quota senza modificare o riavviare il Deployment.
-5. Verifica che il controller crei automaticamente la replica mancante e che
-   il Deployment diventi disponibile `2/2`.
-6. Salva utilizzo e limiti finali della quota in `01/diagnosi.txt`.
+### Q2 – Correzione ResourceQuota
 
----
+Completa `01/resourcequota.yaml` con request `1 CPU/1Gi`, limit `2 CPU/2Gi` e
+massimo `5` Pod. Applica il file senza riavviare il Deployment.
 
-### Q2 – LimitRange e default eccessivi
+### Q3 – Accounting della quota
 
-Il Pod `defaults-demo` non viene creato nel Namespace `limits-lab`. Il suo
-manifest non specifica risorse e non deve essere modificato.
+Verifica che `quota-api` diventi disponibile `2/2`. Registra hard, used,
+request e limit effettivi in `01/diagnosi.txt`.
 
-1. Riproduci il rifiuto applicando `02/pod.yaml`.
-2. Confronta LimitRange e ResourceQuota presenti nel Namespace.
-3. Correggi soltanto `02/limitrange.yaml`:
-   - default request CPU `100m`;
-   - default request memory `128Mi`;
-   - default limit CPU `500m`;
-   - default limit memory `512Mi`;
-   - massimo CPU `1`;
-   - massimo memory `1Gi`.
-4. Applica il LimitRange e quindi `02/pod.yaml`.
-5. Verifica nello spec del Pod ammesso che request e limit siano stati
-   aggiunti automaticamente.
-6. Salva errore iniziale e risorse finali in `02/diagnosi.txt`.
+### Q4 – Test di saturazione quota
+
+Prova a creare Pod aggiuntivi fino al superamento del limite. Documenta il
+rifiuto admission e rimuovi soltanto i Pod di test.
 
 ---
 
-### Q3 – VPA senza raccomandazioni
+### Q5 – Riproduzione errore LimitRange
 
-Il VPA `recommendation-api` esiste ma non produce raccomandazioni per il
-Deployment nel Namespace `vpa-lab`.
+Applica `02/pod.yaml`, acquisisci il messaggio di rifiuto e confronta
+LimitRange e ResourceQuota in `limits-lab`.
 
-1. Analizza `TargetRef`, condizioni ed eventi del VPA.
-2. Correggi soltanto `03/vpa.yaml` affinché punti al Deployment
-   `recommendation-api`.
-3. Mantieni `updateMode: "Off"`: il VPA deve osservare e raccomandare, senza
-   cambiare o ricreare i Pod.
-4. Mantieni i limiti minimi e massimi già presenti per CPU e memoria.
-5. Attendi che `.status.recommendation.containerRecommendations` sia
-   valorizzato.
-6. Salva in `03/recommendation.txt` target, lower bound, recommendation,
-   upper bound e uncapped target.
+### Q6 – Default request e limit
 
----
+Correggi `02/limitrange.yaml` con request `100m/128Mi` e limit
+`500m/512Mi`, senza modificare `02/pod.yaml`.
 
-### Q4 – HPA CPU non funzionante
+### Q7 – Limiti massimi container
 
-Nel Namespace `hpa-lab` il Deployment `hpa-api` è pronto, ma lo starter HPA
-non può scalarlo correttamente.
+Imposta nel LimitRange massimo `1 CPU/1Gi`. Applica il file e verifica che il
+Pod riceva automaticamente request e limit.
 
-1. Verifica che Metrics Server esponga metriche per il Pod.
-2. Correggi `04/hpa.yaml`:
-   - target Deployment `hpa-api`;
-   - minimo `1`;
-   - massimo `5`;
-   - utilizzo CPU medio target `50`.
-3. Applica l'HPA e verifica che il target non sia `<unknown>`.
-4. Applica `04/load-generator.yaml`.
-5. Osserva HPA e Deployment finché il numero di repliche supera `1`.
-6. Elimina il Pod `load-generator` e osserva il successivo scale down.
-7. Salva in `04/result.txt` metriche, condizioni HPA e numero massimo di
-   repliche osservato.
+### Q8 – Test positivo e negativo LimitRange
 
-Non associare un VPA CPU allo stesso Deployment.
+Dimostra che `defaults-demo` viene ammesso e che un Pod di test oltre il
+massimo viene rifiutato. Salva entrambe le prove in `02/diagnosi.txt`.
 
 ---
 
-### Q5 – KEDA e HPA generato
+### Q9 – Diagnosi VPA
 
-Il Deployment `queue-worker` nel Namespace `keda-lab` parte da zero repliche.
-Lo ScaledObject starter non controlla il target corretto.
+Analizza `TargetRef`, condizioni ed eventi del VPA in `vpa-lab`. Registra
+perché non produce raccomandazioni.
 
-1. Analizza errori, condizioni e target dello ScaledObject.
-2. Correggi soltanto `05/scaledobject.yaml` affinché controlli
-   `queue-worker`.
-3. Mantieni:
-   - minimo `0`;
-   - massimo `4`;
-   - cron timezone `Europe/Rome`;
-   - finestra giornaliera `00:00`–`23:59`;
-   - `desiredReplicas: "3"`.
-4. Applica lo ScaledObject e verifica condizioni `Ready=True` e
-   `Active=True`.
-5. Identifica l'HPA creato e gestito da KEDA.
-6. Verifica che il Deployment raggiunga tre repliche durante la finestra.
-7. Salva ScaledObject, HPA generato e Deployment in `05/status.txt`.
+### Q10 – Correzione TargetRef VPA
 
-Non creare manualmente un secondo HPA per `queue-worker`.
+Correggi `03/vpa.yaml` affinché punti al Deployment `recommendation-api`,
+mantenendo `updateMode: "Off"` e i limiti min/max esistenti.
+
+### Q11 – Lettura raccomandazioni VPA
+
+Attendi una recommendation e salva target, lower bound, recommendation,
+upper bound e uncapped target in `03/recommendation.txt`.
+
+### Q12 – Verifica modalità recommendation-only
+
+Dimostra che il VPA non modifica né ricrea i Pod. Spiega perché VPA e HPA CPU
+non devono controllare contemporaneamente lo stesso workload.
 
 ---
 
-### Verifica finale
+### Q13 – Diagnosi HPA
+
+Verifica metriche Pod e condizioni dello starter HPA in `hpa-lab`. Individua
+target e configurazioni errate.
+
+### Q14 – Configurazione HPA CPU
+
+Correggi `04/hpa.yaml`: Deployment `hpa-api`, minimo `1`, massimo `5`, CPU
+media target `50%`. Verifica che la metrica non sia `<unknown>`.
+
+### Q15 – Scale-up sotto carico
+
+Applica `04/load-generator.yaml`, osserva HPA e Deployment finché le repliche
+superano uno e salva il massimo osservato in `04/result.txt`.
+
+### Q16 – Stabilizzazione e scale-down
+
+Elimina il generatore, osserva il ritorno al minimo e registra condizioni,
+tempi e comportamento di stabilizzazione.
+
+---
+
+### Q17 – Diagnosi ScaledObject
+
+In `keda-lab`, analizza condizioni, eventi e target dello ScaledObject.
+Spiega perché `queue-worker` resta a zero.
+
+### Q18 – Correzione KEDA
+
+Correggi `05/scaledobject.yaml` per controllare `queue-worker`, con minimo
+`0`, massimo `4`, timezone `Europe/Rome`, finestra `00:00–23:59` e desired
+replicas `3`.
+
+### Q19 – HPA gestito da KEDA
+
+Identifica l'HPA generato automaticamente, verifica ownership e condizioni
+`Ready=True` e `Active=True`. Non creare un secondo HPA.
+
+### Q20 – Verifica finale autoscaling
+
+Verifica quota, default, recommendation VPA, scale-up/down HPA e scaling KEDA:
 
 ```bash
 kubectl -n quota-lab get resourcequota,deploy,pods
-kubectl -n limits-lab get limitrange,resourcequota,pod
+kubectl -n limits-lab get limitrange,resourcequota,pods
 kubectl -n vpa-lab get vpa,deploy,pods
 kubectl -n hpa-lab get hpa,deploy,pods
 kubectl -n keda-lab get scaledobject,hpa,deploy,pods
 ```
 
-La prova è completa quando tutti e cinque gli esercizi soddisfano i risultati
-richiesti senza modifiche ai Deployment.
+Completa tutti i file di evidenza e conferma che nessun Deployment sia stato
+modificato direttamente.

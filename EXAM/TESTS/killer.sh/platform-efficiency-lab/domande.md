@@ -1,163 +1,116 @@
-# CNPE Platform Architecture and Efficiency Lab
+# Le 20 domande dell'esame — Platform Architecture and Efficiency Lab
 
 Scenario creato da `setup-platform-efficiency-lab.sh`. Gli starter sono in
 `~/course-platform-efficiency/`.
 
-## Vincoli d'esame
-
-- Non modificare i componenti OpenCost o Prometheus.
-- Non rimuovere label topology dai Node.
-- Non usare `nodeName` nei workload.
-- Mantieni isolamento e limiti distinti per ciascun tenant.
-- Ogni modifica deve essere verificata sul cluster, non soltanto validata
-  come YAML.
+**Vincolo:** non modificare OpenCost o Prometheus, non rimuovere label
+topology dai Node e non usare `nodeName`. Mantieni isolamento e limiti
+distinti per tenant.
 
 ---
 
-### Q1 – Networking multi-tenant
+### Q1 – Diagnosi networking multi-tenant
 
-Il Service `shared-api.shared-services.svc` deve essere raggiungibile da
-`tenant-a`, ma non da `tenant-b`. Le NetworkPolicy starter bloccano tutto.
+Testa `tenant-a-client` e `tenant-b-client` verso `shared-api` e analizza le
+NetworkPolicy starter.
 
-Completa `01/network-policies.yaml`:
+### Q2 – Ingress shared service
 
-1. consenti ingress TCP 80 verso `shared-api` soltanto dai Pod del Namespace
-   con label `tenant=tenant-a`;
-2. nel Namespace `tenant-a`, consenti egress:
-   - DNS UDP/TCP 53 verso `kube-system`;
-   - TCP 80 verso `shared-services` e i Pod `app=shared-api`;
-3. non consentire altro egress dai Pod di tenant-a.
+Consenti TCP 80 verso `shared-api` soltanto dal Namespace
+`tenant=tenant-a`.
 
-Verifica:
+### Q3 – Egress tenant-a
 
-- `tenant-a-client` risolve il DNS e riceve risposta HTTP;
-- `tenant-b-client` non raggiunge il Service;
-- tenant-a non raggiunge endpoint esterni non consentiti.
+Consenti a tenant-a DNS UDP/TCP 53 e TCP 80 esclusivamente verso
+`shared-api`.
 
-Salva comandi e risultati in `01/connectivity.txt`.
+### Q4 – Verifica isolamento
+
+Dimostra tenant-a consentito, tenant-b negato ed egress esterno bloccato.
+Salva in `01/connectivity.txt`.
 
 ---
 
-### Q2 – Storage architecture
+### Q5 – Diagnosi storage locale
 
-Completa `02/storage.yaml` applicando le best practice per volumi locali:
+Analizza StorageClass, PV, PVC, Pod e topology dei Node in
+`02/storage.yaml`.
 
-1. StorageClass `architecture-local` con:
-   - provisioner `kubernetes.io/no-provisioner`;
-   - `volumeBindingMode: WaitForFirstConsumer`;
-   - reclaim policy `Retain`;
-   - `allowVolumeExpansion: false`, perché il provisioner statico locale non
-     implementa l'espansione;
-2. sostituisci `TODO_NODE` con il nome di un Node worker schedulabile;
-3. applica StorageClass, PV, PVC e Pod;
-4. verifica PVC e PV `Bound`;
-5. verifica che il Pod sia schedulato sul Node indicato dalla node affinity;
-6. verifica il contenuto `/data/status`.
+### Q6 – StorageClass
 
-Spiega in `02/storage-check.txt` perché `WaitForFirstConsumer` evita decisioni
-di binding incompatibili con lo scheduling e perché `Retain` è appropriato
-per dati persistenti.
+Imposta `WaitForFirstConsumer`, reclaim `Retain` ed espansione disabilitata.
 
----
+### Q7 – PV e node affinity
 
-### Q3 – Compute resilience e scheduling
+Sostituisci `TODO_NODE` con un worker schedulabile e verifica affinity,
+capacità e access mode.
 
-Il Deployment `resilient-api` richiede tre repliche, ma usa una topology key
-inesistente. Il PDB inoltre impedisce qualsiasi disruption volontaria.
+### Q8 – Binding e scheduling
 
-Correggi `03/compute.yaml`:
-
-1. distribuisci i Pod usando `topology.kubernetes.io/zone`;
-2. mantieni `maxSkew: 1` e `DoNotSchedule`;
-3. aggiungi preferred pod anti-affinity su `kubernetes.io/hostname`;
-4. imposta il PDB con `minAvailable: 2`.
-
-Verifica:
-
-- Deployment disponibile `3/3`;
-- Pod distribuiti tra le zone disponibili;
-- skew massimo pari a uno;
-- un drain di un Node worker rispetta il PDB e mantiene almeno due repliche
-  disponibili;
-- dopo `uncordon`, il Deployment torna allo stato atteso.
-
-Salva distribuzione, eventi e risultato del drain in `03/scheduling.txt`.
+Verifica PV/PVC Bound, Pod sul Node corretto e `/data/status`. Documenta in
+`02/storage-check.txt`.
 
 ---
 
-### Q4 – OpenCost e right-sizing
+### Q9 – Diagnosi topology spread
 
-Il Deployment `overprovisioned-api` richiede molte più risorse rispetto ai
-campioni in `04/usage.csv`.
+Individua topology key errata e causa dello scheduling incompleto di
+`resilient-api`.
 
-1. Accedi all'API OpenCost:
+### Q10 – Spread e anti-affinity
 
-   ```bash
-   kubectl -n opencost port-forward svc/opencost 9003:9003
-   ```
+Usa `topology.kubernetes.io/zone`, maxSkew 1, DoNotSchedule e preferred
+anti-affinity hostname.
 
-2. Esporta l'allocazione del Namespace `tenant-a` in
-   `04/allocation-before.json`.
-3. Calcola:
-   - request CPU uguale al valore massimo osservato più 20%, arrotondato ai
-     10m superiori;
-   - request memory uguale al massimo più 20%, arrotondato ai 16Mi superiori;
-   - limit CPU e memory pari a due volte le request.
-4. Documenta il calcolo in `04/calculation.txt`.
-5. Completa e applica `04/right-sized-deployment.yaml`.
-6. Attendi il rollout e verifica le risorse nei Pod.
-7. Dopo una nuova finestra di raccolta, esporta l'allocazione in
-   `04/allocation-after.json`.
-8. Confronta request cost, efficienza CPU/memory e costo allocato.
+### Q11 – PodDisruptionBudget
 
-Non ridurre le repliche e non rimuovere la label `cost-center=payments`.
+Imposta `minAvailable: 2` e verifica Deployment disponibile `3/3`.
+
+### Q12 – Test drain
+
+Esegui drain di un worker, verifica due repliche disponibili, quindi uncordon
+e salva eventi in `03/scheduling.txt`.
 
 ---
 
-### Q5 – Ottimizzazione multi-tenancy
+### Q13 – Baseline OpenCost
 
-Il Namespace `tenant-a` non ha limiti generali né default per container. La
-quota associata alla PriorityClass `tenant-standard` consente un solo Pod,
-quindi il Deployment `tenant-worker` non può raggiungere due repliche.
+Esporta l'allocazione tenant-a in `04/allocation-before.json` e analizza costi
+ed efficienza.
 
-1. Applica inizialmente `05/workload.yaml` e verifica che venga creato un solo
-   Pod.
-2. Elimina il Deployment di test prima di applicare i controlli corretti.
+### Q14 – Calcolo right-sizing
 
-Completa `05/tenant-controls.yaml`:
+Da `04/usage.csv`, calcola request massimo +20%, arrotondamenti richiesti e
+limit doppi. Scrivi in `04/calculation.txt`.
 
-3. ResourceQuota generale:
-   - requests.cpu `2`;
-   - requests.memory `2Gi`;
-   - limits.cpu `4`;
-   - limits.memory `4Gi`;
-   - pods `10`;
-   - PVC `3`;
-4. LimitRange:
-   - default request `100m/128Mi`;
-   - default limit `500m/512Mi`;
-   - massimo container `2 CPU/2Gi`;
-5. quota scoped alla PriorityClass `tenant-standard`:
-   - pods `4`;
-   - requests.cpu `1`;
-   - requests.memory `1Gi`.
+### Q15 – Applicazione right-sizing
 
-Applica i controlli e quindi ricrea `05/workload.yaml`.
+Completa `04/right-sized-deployment.yaml`, mantenendo repliche e label
+`cost-center=payments`, quindi verifica il rollout.
 
-Verifica:
+### Q16 – Confronto costi
 
-- Deployment disponibile `2/2`;
-- request e limit inseriti automaticamente;
-- quota generale e quota scoped contabilizzano i Pod;
-- un quinto Pod con `tenant-standard` viene rifiutato;
-- un Pod senza PriorityClass non consuma la quota scoped;
-- tenant-b non consuma le quote di tenant-a.
-
-Salva tutti i controlli in `05/tenant-checks.txt`.
+Esporta `04/allocation-after.json` e confronta request cost ed efficienza
+CPU/memory.
 
 ---
 
-### Verifica finale
+### Q17 – Diagnosi quote tenant
+
+Applica `05/workload.yaml`, osserva il Pod mancante e confronta quota generale
+e scoped quota.
+
+### Q18 – ResourceQuota e LimitRange
+
+Configura quota `2 CPU/2Gi` request, `4 CPU/4Gi` limit, 10 Pod, 3 PVC e
+default `100m/128Mi`, `500m/512Mi`.
+
+### Q19 – Scoped quota
+
+Per `tenant-standard` consenti 4 Pod e request `1 CPU/1Gi`; verifica quinto
+Pod negato e Pod senza PriorityClass escluso.
+
+### Q20 – Verifica finale efficienza
 
 ```bash
 kubectl get nodes -L topology.kubernetes.io/zone
@@ -167,6 +120,5 @@ kubectl -n tenant-a get resourcequota,limitrange,deploy,pods
 kubectl -n opencost get pods,svc
 ```
 
-La prova è completa quando networking, storage e compute rispettano i vincoli
-architetturali, OpenCost mostra allocazioni attribuibili al cost center e le
-risorse dei tenant sono limitate senza impedire il normale funzionamento.
+Completa `05/tenant-checks.txt` verificando isolamento, resilienza,
+right-sizing e accounting separato.

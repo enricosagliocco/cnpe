@@ -1,128 +1,117 @@
-# CNPE Observability, Efficiency and Incident Response Lab
+# Le 20 domande dell'esame — Observability and Incident Response Lab
 
 Scenario creato da `setup-observability-incident-lab.sh`. Gli starter sono in
 `~/course-observability-incident/`.
 
-## Vincoli d'esame
-
-- Non modificare Prometheus, Loki, Promtail, Grafana o Jaeger per nascondere
-  i sintomi.
-- Non eliminare metriche, log o trace che dimostrano l'incidente.
-- Ogni remediation deve includere una verifica runtime e un rollback.
-- Usa label a bassa cardinalita; non usare `trace_id` come label Prometheus.
-- Non modificare il Deployment `incident-api` nella prova finale.
+**Vincolo:** non modificare i componenti core Prometheus, Loki, Promtail,
+Grafana o Jaeger per nascondere i sintomi. Ogni remediation deve includere
+evidenza runtime e rollback. Non usare `trace_id` come label Prometheus.
 
 ---
 
-### Q1 – Monitoring e alerting
+### Q1 – Diagnosi target Prometheus
 
-`incident-api` espone `/metrics`, ma il ServiceMonitor non trova il target.
+Analizza Service, ServiceMonitor e target discovery di `incident-api`.
 
-Correggi `01/monitoring.yaml`:
+### Q2 – Correzione ServiceMonitor
 
-1. seleziona il Namespace `observability-app`;
-2. seleziona il Service con label `app=incident-api`;
-3. usa la porta `metrics`;
-4. crea un alert quando il rapporto tra failure e richieste supera il 5% per
-   5 minuti;
-5. usa severity `critical` e un summary informativo.
+Seleziona Namespace `observability-app`, label `app=incident-api`, porta
+`metrics`, path `/metrics`.
 
-Verifica target `UP`, query, regola caricata e stato dell'alert. Salva output
-ed eventi in `01/monitoring-check.txt`.
+### Q3 – PromQL error rate
 
----
+Scrivi la query del rapporto failure/request e verifica che restituisca una
+serie valida.
 
-### Q2 – Logging centralizzato
+### Q4 – Alerting
 
-La ConfigMap di provisioning della datasource Loki è errata. Correggi
-`02/loki-datasource.yaml` usando:
-
-- URL `http://loki.monitoring.svc:3100`;
-- accesso `proxy`;
-- datasource predefinita.
-
-Completa `02/queries.txt` con LogQL per:
-
-1. trovare i log JSON `ERROR` di `incident-api`;
-2. contarli su 5 minuti raggruppandoli per Pod;
-3. estrarre `trace_id` tramite parser JSON.
-
-Verifica la health della datasource, identifica il Pod con più errori e salva
-query e risultati in `02/logging-check.txt`.
+Completa l'alert oltre 5% per 5 minuti, severity critical, e salva target,
+query e stato in `01/monitoring-check.txt`.
 
 ---
 
-### Q3 – Distributed tracing
+### Q5 – Diagnosi datasource Loki
 
-Il collector OpenTelemetry non ascolta sulla rete del Pod, esporta verso un
-host inesistente e non ha una traces pipeline.
+Analizza la ConfigMap `02/loki-datasource.yaml` e la health della datasource.
 
-Correggi `03/otel-collector.yaml`:
+### Q6 – Correzione datasource
 
-1. receiver OTLP gRPC su `0.0.0.0:4317`;
-2. exporter OTLP verso `jaeger-collector.tracing-lab.svc:4317`;
-3. TLS insecure per il traffico interno del lab;
-4. pipeline `traces` con receiver `otlp` ed exporter `otlp`.
+Imposta URL `http://loki.monitoring.svc:3100`, accesso proxy e default true.
 
-Applica il collector, crea il Job da `03/trace-generator.yaml` e verifica in
-Jaeger 10 trace del servizio `checkout-api`. Salva log, trace ID, durata e
-numero di span in `03/tracing-check.txt`.
+### Q7 – Query LogQL
 
----
+Completa `02/queries.txt` per errori, conteggio 5m per Pod ed estrazione JSON
+di `trace_id`.
 
-### Q4 – Efficienza e indicatori della piattaforma
+### Q8 – Evidenza logging
 
-Le metriche `platform_deployments_total`,
-`platform_measurement_window_days`,
-`platform_deployment_failures_total`,
-`platform_deployment_lead_time_seconds_*` e
-`platform_incident_recovery_seconds_*` sono esposte da `incident-api`.
-
-Completa `04/platform-kpis.yaml` con recording rule per:
-
-1. deployment frequency;
-2. change failure rate;
-3. lead time medio;
-4. MTTR medio.
-
-Compila `04/baseline.md` includendo anche l'availability ricavata dalle
-metriche HTTP. Confronta ogni valore con il target, individua il principale
-collo di bottiglia e proponi tre azioni misurabili.
-
-Verifica le recording rule in Prometheus e salva query e risultati in
-`04/kpi-check.txt`.
+Identifica il Pod con più errori e salva query, risultato e trace ID in
+`02/logging-check.txt`.
 
 ---
 
-### Q5 – Diagnosi e remediation dell'incidente
+### Q9 – Diagnosi collector OTLP
 
-`incident-api` risponde `503`, genera errori e trace fallite. Non modificare
-il Deployment.
+Analizza receiver, exporter e pipeline mancanti in `03/otel-collector.yaml`.
 
-1. genera almeno 20 richieste al Service;
-2. usa Prometheus per quantificare error rate e impatto;
-3. usa Loki per trovare il backend guasto ed estrarre un `trace_id`;
-4. apri lo stesso trace in Jaeger e identifica lo span in errore;
-5. determina la root cause;
-6. correggi soltanto `05/incident-api-config.yaml`;
-7. applica la modifica e riavvia il rollout per ricaricare il ConfigMap;
-8. verifica HTTP 200, riduzione dei nuovi errori e trace senza errore;
-9. documenta rollback e azione preventiva.
+### Q10 – Receiver ed exporter
 
-Compila `05/runbook.md` e salva comandi e output in
-`05/incident-check.txt`.
+Configura OTLP gRPC su `0.0.0.0:4317` ed exporter verso Jaeger 4317 insecure.
+
+### Q11 – Traces pipeline
+
+Configura pipeline traces con receiver ed exporter OTLP e verifica i log del
+collector.
+
+### Q12 – Generazione e ricerca trace
+
+Esegui `03/trace-generator.yaml`, trova 10 trace `checkout-api` e salva ID,
+durata e span in `03/tracing-check.txt`.
 
 ---
 
-### Verifica finale
+### Q13 – Deployment frequency
+
+Crea la recording rule per deployment giornalieri usando totale e finestra
+di misurazione.
+
+### Q14 – Change failure rate
+
+Crea la recording rule failure/deployment e confrontala con target 15%.
+
+### Q15 – Lead time e MTTR
+
+Crea le due medie da sum/count e compila i valori in `04/baseline.md`.
+
+### Q16 – Availability e piano miglioramento
+
+Calcola availability HTTP, individua il KPI peggiore e definisci tre azioni
+misurabili. Salva query in `04/kpi-check.txt`.
+
+---
+
+### Q17 – Triage incidente
+
+Genera 20 richieste e quantifica error rate, Pod coinvolti e blast radius con
+Prometheus.
+
+### Q18 – Correlazione log-trace
+
+Da Loki estrai backend e trace ID; apri lo stesso trace in Jaeger e identifica
+lo span in errore.
+
+### Q19 – Remediation
+
+Correggi soltanto `05/incident-api-config.yaml`, riavvia i Pod per ricaricare
+la ConfigMap e verifica HTTP 200, nuovi log e trace sane.
+
+### Q20 – Verifica finale incident response
+
+Completa `05/runbook.md` con detection, timeline, root cause, remediation,
+rollback e prevenzione. Allega verifiche:
 
 ```bash
 kubectl -n monitoring get servicemonitors,prometheusrules
-kubectl -n monitoring get pods,services
 kubectl -n tracing-lab get deployments,jobs,pods,services
 kubectl -n observability-app get deployments,pods,services,configmaps
 ```
-
-La prova è completa quando metriche, alert, log e trace descrivono lo stesso
-incidente, gli indicatori di efficienza sono misurabili e la remediation
-ripristina il servizio con evidenze verificabili.

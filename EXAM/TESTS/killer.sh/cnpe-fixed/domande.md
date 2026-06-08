@@ -404,7 +404,7 @@ Il Namespace `saltlake-app` è parte della mesh Linkerd.
 
 ---
 
-### Q21 – Verifica finale end-to-end
+### Verifica finale end-to-end
 
 1. CRD `TeamMonitoring` v1alpha2 applicata con risorsa `general` in `pacific`
 2. Prometheus scrape esteso a Pod `app=proxy` con query eseguita

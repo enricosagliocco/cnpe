@@ -1,163 +1,115 @@
-# CNPE GitOps, CI/CD and Progressive Delivery Lab
+# Le 20 domande dell'esame — GitOps and Progressive Delivery Lab
 
 Scenario creato da `setup-gitops-progressive-delivery-lab.sh`. Gli starter
 sono in `~/course-gitops-progressive-delivery/`.
 
-## Vincoli d'esame
-
-- Non modificare i controller nei Namespace `argocd`, `flux-system`,
-  `tekton-pipelines` e `argo-rollouts`.
-- La pipeline CI non deve eseguire `kubectl apply` sui workload applicativi.
-- Il desired state deve provenire da Git e deve essere riconciliato da Argo CD
-  o Flux.
-- Non saltare pause, verifiche o fasi preview dei Rollout.
+**Vincolo:** non modificare i controller Argo CD, Flux, Tekton o Argo
+Rollouts. La pipeline non deve applicare workload direttamente: il desired
+state deve provenire da Git.
 
 ---
 
-### Q1 – Argo CD application delivery
+### Q1 – Diagnosi Argo CD Application
 
-L'Application `guestbook` usa repository corretto, ma branch e path
-inesistenti.
+Analizza condizioni ed eventi di `guestbook` e individua branch e path errati
+in `01/application.yaml`.
 
-Correggi `01/application.yaml`:
+### Q2 – Source e destination Argo CD
 
-1. `targetRevision: master`;
-2. `path: guestbook`;
-3. Namespace destinazione `gitops-apps`;
-4. sync automatica con `prune: true` e `selfHeal: true`;
-5. creazione automatica del Namespace tramite sync option.
+Imposta branch `master`, path `guestbook` e Namespace `gitops-apps`.
 
-Verifica:
+### Q3 – Sync policy
 
-- Application `Synced` e `Healthy`;
-- Deployment e Service creati in `gitops-apps`;
-- modifica manualmente il numero di repliche del Deployment;
-- dimostra che self-heal ripristina il valore dichiarato in Git;
-- salva stato, history ed evento di riconciliazione in `01/status.txt`.
+Configura sync automatica con `prune`, `selfHeal` e
+`CreateNamespace=true`. Applica e verifica `Synced/Healthy`.
+
+### Q4 – Drift e self-heal
+
+Modifica manualmente le repliche, osserva il ripristino e salva history,
+condizioni ed eventi in `01/status.txt`.
 
 ---
 
-### Q2 – Flux per infrastruttura e drift
+### Q5 – Diagnosi Flux Source
 
-GitRepository e Kustomization `platform-infra` puntano a branch e path
-inesistenti.
+Analizza il GitRepository `platform-infra` e documenta perché non scarica
+alcun artifact.
 
-Correggi:
+### Q6 – Correzione GitRepository
 
-`02/source.yaml`:
+Imposta branch `main` e interval `1m` in `02/source.yaml`, quindi forza una
+reconcile.
 
-- branch `main`;
-- interval `1m`;
-- URL invariato.
+### Q7 – Correzione Kustomization
 
-`02/kustomization.yaml`:
+Imposta path `./clusters/staging`, target Namespace `gitops-infra`, interval
+`5m`, `prune: true`, wait e health check.
 
-- path `./clusters/staging`;
-- target Namespace `gitops-infra`;
-- interval `5m`;
-- `prune: true`;
-- dipendenza dal GitRepository già definito;
-- health check e wait abilitati.
+### Q8 – Flux drift remediation
 
-Verifica:
-
-- Source e Kustomization `Ready=True`;
-- inventory popolato;
-- risorse create nel Namespace corretto;
-- elimina manualmente una risorsa gestita e forza una reconcile;
-- verifica che Flux la ricrei;
-- salva revision, conditions, inventory ed eventi in `02/reconcile.txt`.
+Verifica `Ready=True`, elimina una risorsa gestita, forza reconcile e salva
+revision, inventory ed eventi in `02/reconcile.txt`.
 
 ---
 
-### Q3 – Pipeline CI integrata con GitOps
+### Q9 – Dipendenze Pipeline
 
-La Pipeline `application-ci` contiene clone, test e preparazione della
-promozione, ma manca il wiring tra i Task.
+In `03/pipeline.yaml`, fai eseguire `test` dopo `clone` e
+`prepare-promotion` dopo `test`.
 
-Completa `03/pipeline.yaml`:
+### Q10 – Workspace condiviso
 
-1. `test` deve eseguire dopo `clone` e usare il workspace `source`;
-2. `prepare-promotion` deve eseguire dopo `test` e usare lo stesso workspace;
-3. mantieni il result Pipeline `promotion-file`;
-4. nessun Task deve applicare risorse al cluster;
-5. il file prodotto deve impostare l'immagine ricevuta dal parametro
-   `image`.
+Collega il workspace `source` ai tre Task e verifica che il repository
+clonato sia disponibile al test.
 
-Applica Pipeline e PipelineRun, quindi verifica:
+### Q11 – Artefatto di promozione
 
-- tre TaskRun riusciti nell'ordine corretto;
-- test eseguito sul repository clonato;
-- result Pipeline `promotion/image-patch.yaml`;
-- artefatto YAML valido;
-- assenza di `kubectl apply`, credenziali cluster o deploy imperativi.
+Verifica che `prepare-promotion` produca `promotion/image-patch.yaml` con
+l'immagine parametrica e che il Pipeline result esponga il path.
 
-Salva TaskRun, result e contenuto dell'artefatto in
-`03/pipeline-result.txt`. Spiega come il file verrebbe committato tramite pull
-request nel repository GitOps prima della riconciliazione.
+### Q12 – Esecuzione GitOps CI
+
+Esegui il PipelineRun, salva ordine, result e artefatto in
+`03/pipeline-result.txt` e dimostra l'assenza di deploy imperativi.
 
 ---
 
-### Q4 – Canary delivery
+### Q13 – Service canary
 
-Completa `04/canary-rollout.yaml`:
+Completa `04/canary-rollout.yaml` con Service stable `canary-stable` e canary
+`canary-preview`.
 
-1. stable Service `canary-stable`;
-2. canary Service `canary-preview`;
-3. step:
-   - peso 25%;
-   - pausa 20 secondi;
-   - peso 50%;
-   - pausa manuale;
-   - peso 100%.
+### Q14 – Canary steps
 
-Applica il Rollout e attendi lo stato Healthy. Avvia una nuova revisione
-portando `VERSION` a `v2`.
+Configura peso 25%, pausa 20 secondi, peso 50%, pausa manuale e peso 100%.
 
-Verifica:
+### Q15 – Promozione canary
 
-- ReplicaSet stable e canary distinti;
-- selettori dei Service aggiornati dal controller;
-- avanzamento 25% e 50%;
-- pausa manuale osservabile;
-- promozione esplicita;
-- Rollout finale Healthy.
+Avvia `VERSION=v2`, osserva ReplicaSet e selettori Service a ogni step e
+promuovi esplicitamente.
 
-Avvia poi una revisione con immagine inesistente, osserva il fallimento e
-annulla l'update mantenendo disponibile la revisione stabile.
+### Q16 – Rollback canary
 
-Salva eventi, revisioni, pause, promozione e rollback in `04/events.txt`.
+Avvia una revisione con immagine inesistente, osserva il fallimento, esegui
+abort/undo e salva eventi e revisioni in `04/events.txt`.
 
 ---
 
-### Q5 – Blue/Green delivery
+### Q17 – Configurazione Blue/Green
 
-Completa `05/bluegreen-rollout.yaml`:
+Completa `05/bluegreen-rollout.yaml` con active `bluegreen-active`, preview
+`bluegreen-preview`, promozione manuale e delay 30 secondi.
 
-1. active Service `bluegreen-active`;
-2. preview Service `bluegreen-preview`;
-3. `autoPromotionEnabled: false`;
-4. `scaleDownDelaySeconds: 30`.
+### Q18 – Preview verification
 
-Applica il Rollout e avvia una nuova revisione con `VERSION=v2`.
+Avvia `VERSION=v2` e verifica che active resti su v1 mentre preview espone v2.
 
-Prima della promozione verifica:
+### Q19 – Promotion e abort
 
-- active Service ancora sulla versione v1;
-- preview Service sulla versione v2;
-- entrambe le revisioni disponibili;
-- Rollout in pausa.
-
-Promuovi la preview e verifica lo switch atomico dell'active Service. Avvia
-poi `VERSION=v3`, esegui un test negativo sulla preview e usa abort senza
+Promuovi v2, poi avvia v3, simula un test preview negativo e usa abort senza
 spostare il traffico active.
 
-Salva selettori dei Service, revisioni, promozione e abort in
-`05/promotion.txt`.
-
----
-
-### Verifica finale
+### Q20 – Verifica finale delivery
 
 ```bash
 kubectl -n argocd get applications
@@ -166,7 +118,5 @@ kubectl -n ci-pipeline get pipeline,pipelinerun,taskrun
 kubectl -n progressive-delivery get rollouts,replicasets,services
 ```
 
-La prova è completa quando Argo CD e Flux riconciliano da Git, Tekton produce
-un artefatto di promozione senza deploy imperativo e i Rollout canary e
-blue/green completano promozione e rollback mantenendo il servizio
-disponibile.
+Completa `05/promotion.txt` e conferma riconciliazione GitOps, CI senza deploy
+imperativo e disponibilità durante canary e blue/green.

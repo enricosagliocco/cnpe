@@ -1,94 +1,122 @@
-# CNPE Storage Troubleshooting Lab
+# Le 20 domande dell'esame — Storage Troubleshooting Lab (simulatore lab)
 
 Scenario creato da `setup-storage-troubleshooting-lab.sh`. I file modificabili
-sono in `~/course-storage-troubleshooting/01/`; le risorse applicative sono nel
-Namespace `storage-lab`.
+sono in `~/course-storage-troubleshooting/01/`; le risorse sono nel Namespace
+`storage-lab`.
 
-## Vincolo d'esame
+**Vincolo:** non modificare, sostituire o scalare il Deployment `orders-app`
+e lo StatefulSet `database`. Non usare `kubectl edit`, `patch`, `set`,
+`scale` o `rollout restart` su questi controller. Puoi correggere soltanto
+ConfigMap e PV ed eliminare i Pod per farli ricreare.
 
-**Non modificare, sostituire o scalare il Deployment `orders-app` e lo
-StatefulSet `database`.** Non usare `kubectl edit`, `kubectl patch`, `kubectl
-set`, `kubectl scale` o `kubectl rollout restart` su questi controller.
-
-Puoi:
-
-- modificare e applicare le ConfigMap fornite;
-- correggere e applicare il PersistentVolume fornito;
-- eliminare esclusivamente i Pod per farli ricreare dai controller;
-- usare comandi di osservazione, log, eventi e debug.
-
-La soluzione deve mantenere i nomi delle risorse esistenti.
+Le domande descrivono un unico incidente progressivo. Conserva comandi,
+output e conclusioni in `01/diagnosi.txt`.
 
 ---
 
-Il team segnala che l'applicazione ordini non diventa Ready. Anche il database
-non parte e il PVC resta in `Pending`.
+### Q1 – Triage dei workload
 
-Risolvi l'intero incidente senza modificare Deployment e StatefulSet.
+Elenca Pod, Deployment, StatefulSet, PVC e PV e identifica tutti gli stati
+anomali senza effettuare modifiche.
 
----
+### Q2 – Eventi del database
 
-### Q1 – Diagnosi iniziale
+Descrivi `database-0` e il PVC `data-database-0`. Salva eventi e messaggi di
+scheduling rilevanti.
 
-1. Individua perché il Pod del database non viene schedulato.
-2. Confronta richiesta del PVC, PersistentVolume disponibile, StorageClass,
-   access mode, capacità e selector.
-3. Individua perché l'init container dell'applicazione fallisce.
-4. Salva in `01/diagnosi.txt`:
-   - output rilevante di `kubectl get`;
-   - eventi del PVC;
-   - log dell'init container applicativo;
-   - causa radice dei tre guasti.
+### Q3 – Analisi PVC
 
----
+Rileva richiesta storage, access mode, StorageClass e selector del PVC senza
+modificarne lo spec.
 
-### Q2 – Binding PV/PVC
+### Q4 – Analisi PV
 
-Correggi `01/database-pv.yaml` affinché soddisfi il PVC creato dallo
-StatefulSet.
-
-Requisiti finali:
-
-- PV `cnpe-database-pv`;
-- capacità `1Gi`;
-- access mode `ReadWriteOnce`;
-- StorageClass `cnpe-manual`;
-- reclaim policy `Retain`;
-- label compatibile con il selector del PVC;
-- PVC `data-database-0` in stato `Bound`.
-
-Non eliminare il PVC e non modificare il suo spec.
+Confronta `01/database-pv.yaml` con il PVC e documenta ogni incompatibilità
+che impedisce il binding.
 
 ---
 
-### Q3 – Configurazione del database
+### Q5 – Capacità e access mode
 
-Dopo il binding, il Pod `database-0` raggiunge l'init container ma non parte.
+Correggi il PV con capacità `1Gi` e access mode `ReadWriteOnce`.
 
-1. Analizza i log di `verify-volume-config`.
-2. Correggi soltanto `01/database-config.yaml`.
-3. Il valore `data-path` deve indicare esattamente il path sul quale il PVC è
-   montato dallo StatefulSet.
-4. Applica la ConfigMap ed elimina il solo Pod `database-0`.
-5. Attendi che lo StatefulSet ricrei il Pod e che il database sia `Ready`.
+### Q6 – StorageClass e selector
 
----
+Imposta StorageClass `cnpe-manual` e una label compatibile con il selector
+del PVC.
 
-### Q4 – Configurazione dell'applicazione
+### Q7 – Reclaim policy
 
-L'app continua a non partire perché usa un endpoint database errato.
+Configura `persistentVolumeReclaimPolicy: Retain` e spiega perché è adatta ai
+dati del database.
 
-1. Analizza ConfigMap, Service e log di `wait-for-database`.
-2. Correggi soltanto `01/app-config.yaml`.
-3. Usa il nome DNS Kubernetes del Service database e conserva la porta 5432.
-4. Applica la ConfigMap ed elimina il solo Pod dell'applicazione.
-5. Verifica che il Deployment torni disponibile senza modificarne lo spec.
+### Q8 – Verifica binding
+
+Applica il PV e verifica PV e PVC `Bound` senza eliminare il claim. Registra
+claimRef, capacità e StorageClass.
 
 ---
 
-### Q5 – Verifica finale end-to-end
+### Q9 – Log init container database
 
-Lo scenario è risolto quando:
+Analizza i log di `verify-volume-config` e identifica il valore di
+configurazione errato.
+
+### Q10 – Mount path effettivo
+
+Ispeziona lo StatefulSet in sola lettura e determina il path esatto sul quale
+il PVC è montato.
+
+### Q11 – Correzione ConfigMap database
+
+Correggi soltanto `01/database-config.yaml` impostando `data-path` al mount
+path rilevato e applica il file.
+
+### Q12 – Ricreazione database
+
+Elimina soltanto `database-0`, attendi la ricreazione e verifica Pod Ready e
+StatefulSet pronto `1/1`.
+
+---
+
+### Q13 – Log init container applicativo
+
+Analizza i log di `wait-for-database` e identifica host e porta usati
+dall'applicazione.
+
+### Q14 – Service discovery
+
+Ispeziona Service ed EndpointSlice del database e determina il nome DNS
+Kubernetes corretto.
+
+### Q15 – Correzione ConfigMap applicativa
+
+Correggi soltanto `01/app-config.yaml` usando il Service database e
+mantenendo la porta `5432`.
+
+### Q16 – Ricreazione applicazione
+
+Elimina soltanto il Pod di `orders-app`, attendi la ricreazione e verifica
+Deployment disponibile `1/1`.
+
+---
+
+### Q17 – Persistenza dei dati
+
+Scrivi un file di prova nel volume dal Pod database, ricrea il Pod e dimostra
+che il contenuto persiste.
+
+### Q18 – Test di connettività
+
+Dal Pod applicativo verifica risoluzione DNS e connessione TCP al Service
+database. Salva output e timestamp.
+
+### Q19 – Root cause analysis
+
+Riassumi in `01/diagnosi.txt` le tre cause radice: binding PV/PVC,
+configurazione volume e endpoint database. Associa a ciascuna sintomo e fix.
+
+### Q20 – Verifica finale end-to-end
 
 ```bash
 kubectl -n storage-lab get pods,pvc
@@ -97,13 +125,5 @@ kubectl -n storage-lab get deploy orders-app
 kubectl -n storage-lab get sts database
 ```
 
-mostra:
-
-- PVC e PV `Bound`;
-- `database-0` `Running` e `Ready`;
-- Pod applicativo `Running` e `Ready`;
-- Deployment `orders-app` disponibile `1/1`;
-- StatefulSet `database` pronto `1/1`.
-
-Completa `01/diagnosi.txt` con i comandi di verifica e una breve spiegazione
-del motivo per cui non era necessario modificare i workload controller.
+Conferma PV/PVC `Bound`, Pod Ready e controller `1/1`, spiegando perché non è
+stato necessario modificare Deployment o StatefulSet.

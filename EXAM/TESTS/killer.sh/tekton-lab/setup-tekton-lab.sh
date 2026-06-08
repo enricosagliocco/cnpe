@@ -771,5 +771,7 @@ spec:
       value: registry.example/app:2.0.0
   workspaces: [] # TODO PVC
 YAML
+source "$SCRIPT_DIR/../lab-question-layout.sh"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 echo "Tekton lab ready: $COURSE_DIR"

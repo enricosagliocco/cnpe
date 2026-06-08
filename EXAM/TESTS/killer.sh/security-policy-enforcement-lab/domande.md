@@ -1,164 +1,120 @@
-# CNPE Security and Policy Enforcement Lab
+# Le 20 domande dell'esame — Security and Policy Enforcement Lab
 
 Scenario creato da `setup-security-policy-enforcement-lab.sh`. Gli starter
 sono in `~/course-security-policy-enforcement/`.
 
-## Vincoli d'esame
-
-- Non modificare i Deployment `frontend` e `payments`.
-- Non leggere o stampare il contenuto dei Secret mTLS.
-- Non modificare i componenti core nei Namespace `kyverno` e
-  `tekton-pipelines`.
-- Non concedere privilegi `cluster-admin`.
-- Ogni policy deve essere verificata con un caso consentito e uno negato.
-
-Sono consentite modifiche a ConfigMap, NetworkPolicy, RBAC, policy Kyverno,
-Pipeline, PipelineRun e metadati dei workload non conformi.
+**Vincolo:** non modificare i Deployment `frontend` e `payments`, non
+stampare i Secret mTLS, non modificare Kyverno o Tekton core e non concedere
+`cluster-admin`. Ogni policy richiede un test consentito e uno negato.
 
 ---
 
-### Q1 – Comunicazione service-to-service sicura
+### Q1 – Diagnosi comunicazione sicura
 
-Nel Namespace `security-apps`, `frontend` deve chiamare `payments` tramite
-mTLS. Il backend richiede già un certificato client firmato dalla CA del lab,
-ma il frontend usa un endpoint errato e una NetworkPolicy blocca il traffico.
+Analizza log, Service, endpoint, porte e NetworkPolicy tra frontend e
+payments.
 
-1. Analizza log dei Pod, Service, endpoint, porte e NetworkPolicy.
-2. Correggi `01/app-config.yaml` usando:
-   `https://payments.security-apps.svc:8443`.
-3. Completa `01/networkpolicy.yaml` consentendo ingress TCP 8443 verso i Pod
-   `app=payments` soltanto dai Pod `app=frontend`.
-4. Applica i file ed elimina soltanto il Pod frontend per ricaricare la
-   ConfigMap.
-5. Verifica nei log frontend la risposta `payments ok`.
-6. Dimostra che:
-   - da `rogue-client`, il traffico verso `payments:8443` è bloccato dalla
-     NetworkPolicy;
-   - da `unauthenticated-client`, la rete consente il collegamento ma il
-     backend rifiuta la richiesta priva di certificato client.
-7. Salva prove e comandi in `01/verification.txt`.
+### Q2 – Endpoint mTLS
 
-Non modificare certificati, Secret, Deployment o configurazione nginx.
+Correggi `01/app-config.yaml` usando
+`https://payments.security-apps.svc:8443`.
+
+### Q3 – NetworkPolicy
+
+Consenti ingress TCP 8443 a payments soltanto dai Pod `app=frontend`.
+
+### Q4 – Test autenticazione e isolamento
+
+Verifica frontend consentito, rogue-client bloccato e client senza
+certificato rifiutato. Salva in `01/verification.txt`.
 
 ---
 
-### Q2 – RBAC least privilege
+### Q5 – Audit privilegi auditor
 
-Il ServiceAccount `platform-auditor` dispone inizialmente di privilegi
-illimitati.
+Analizza i privilegi iniziali di `platform-auditor` con
+`kubectl auth can-i --list`.
 
-Correggi `02/rbac.yaml` affinché possa:
+### Q6 – RBAC read-only
 
-- leggere `pods`, `pods/log`, `services`, `endpoints`, `configmaps` e
-  `deployments`;
-- leggere `policyreports.wgpolicyk8s.io` e
-  `clusterpolicyreports.wgpolicyk8s.io`;
-- leggere `pipelines`, `pipelineruns`, `tasks` e `taskruns`;
-- operare in sola lettura con `get`, `list`, `watch`.
+Completa `02/rbac.yaml` con get/list/watch per workload, log, policy report e
+risorse Tekton richieste.
 
-Non deve poter:
+### Q7 – Privilegi negativi
 
-- leggere Secret;
-- creare, aggiornare o eliminare workload;
-- modificare RBAC;
-- accedere ai Node.
+Verifica diniego su Secret, write workload, RBAC e Node.
 
-Applica il file e registra in `02/auth-check.txt` almeno otto verifiche
-`kubectl auth can-i`, includendo test positivi nei Namespace `security-apps`
-e `security-pipeline` e test negativi su Secret, RoleBinding e Node.
+### Q8 – Evidenza least privilege
+
+Registra almeno otto test positivi e negativi in `02/auth-check.txt`.
 
 ---
 
-### Q3 – Audit trail e compliance report
+### Q9 – Policy audit
 
-Il Deployment `legacy-api` non contiene le label `owner` e
-`data-classification`. La policy starter è in modalità Audit ma la sua
-espressione accetta tutto.
+Completa `03/audit-policy.yaml` per richiedere label `owner` e
+`data-classification` sui Deployment dei Namespace abilitati.
 
-1. Completa `03/audit-policy.yaml`.
-2. Limita la policy ai Namespace con label
-   `security.cnpe.io/policy=enabled`.
-3. Richiedi entrambe le label sui Deployment.
-4. Mantieni `validationActions: Audit`.
-5. Applica la policy e attendi la generazione del PolicyReport.
-6. Esporta violazioni, messaggio, policy, rule e timestamp in
-   `03/audit-before.txt`.
-7. Correggi soltanto i metadati del Deployment `legacy-api`:
-   - `owner=platform-team`;
-   - `data-classification=internal`.
-8. Attendi la riconciliazione dei report e salva lo stato senza violazioni in
-   `03/audit-after.txt`.
+### Q10 – PolicyReport iniziale
 
-La modalità Audit non deve bloccare nuove risorse durante questa domanda.
+Mantieni Audit ed esporta violazioni, rule, messaggio e timestamp in
+`03/audit-before.txt`.
+
+### Q11 – Remediation metadata
+
+Aggiungi a `legacy-api` soltanto `owner=platform-team` e
+`data-classification=internal`.
+
+### Q12 – Compliance report finale
+
+Attendi la riconciliazione e salva l'assenza di violazioni in
+`03/audit-after.txt`.
 
 ---
 
-### Q4 – Admission controller e governance
+### Q13 – Governance Pod security
 
-La policy `enforce-pod-security-and-digests` deve impedire l'ammissione di Pod
-non conformi nel Namespace `security-apps`.
+Completa il match di `04/governance-policy.yaml` e usa azione Deny.
 
-Completa `04/governance-policy.yaml`:
+### Q14 – Security context
 
-1. limita il match ai Namespace etichettati per le policy;
-2. usa azione `Deny`;
-3. richiedi `spec.securityContext.runAsNonRoot == true`;
-4. richiedi per ogni container:
-   - immagine referenziata tramite digest `@sha256:`;
-   - `allowPrivilegeEscalation == false`;
-   - capability `ALL` rimossa;
-5. nega container privilegiati.
+Richiedi runAsNonRoot, no privilege escalation, drop ALL e container non
+privilegiati.
 
-Verifica:
+### Q15 – Image digest
 
-- `04/pod-bad.yaml` rifiutato dal server API;
-- `04/pod-good.yaml` accettato;
-- un Pod in un Namespace non etichettato non è incluso nel match.
+Richiedi immagini referenziate tramite `@sha256:` per ogni container.
 
-Salva output admission ed eventi in `04/admission.txt`.
+### Q16 – Test admission
+
+Verifica `pod-bad` negato, `pod-good` accettato e Namespace non etichettato
+escluso. Salva in `04/admission.txt`.
 
 ---
 
-### Q5 – Security gate nella pipeline
+### Q17 – Validazione SBOM
 
-La Pipeline Tekton `secure-deployment` copia SBOM e scan report nel workspace,
-ma il gate approva sempre e il task `deploy` non ha una condizione.
+Nel Task `compliance-gate`, verifica `SPDXID` e nega package con licenza
+`NOASSERTION`.
 
-Completa `05/pipeline.yaml` affinché `compliance-gate`:
+### Q18 – Vulnerability report
 
-1. verifichi la presenza di `SPDXID` nell'SBOM;
-2. fallisca se almeno un package ha licenza `NOASSERTION`;
-3. fallisca se `summary.critical` nel report di scansione è maggiore di zero;
-4. scriva `passed` nel result `decision` soltanto quando tutti i controlli
-   riescono;
-5. faccia eseguire `deploy` soltanto quando il result vale `passed`.
+Nega `summary.critical > 0` e produci result `passed` soltanto dopo tutti i
+controlli.
 
-Esegui due prove:
+### Q19 – Gate di deploy
 
-1. Con gli input iniziali, il PipelineRun deve fallire e `deploy` non deve
-   partire.
-2. Correggi `05/sbom.json` con una licenza valida e porta
-   `summary.critical` a zero in `05/scan-report.json`; aggiorna il ConfigMap
-   `security-inputs` e crea un nuovo PipelineRun. Deve terminare con
-   `Succeeded=True` e log `deployment approved`.
+Condiziona `deploy` a `passed`; esegui prima il caso fallito, poi correggi
+SBOM/report ed esegui il caso riuscito.
 
-Salva stato dei TaskRun, result, motivazione del blocco e log finali in
-`05/pipeline-result.txt`.
-
----
-
-### Verifica finale
+### Q20 – Verifica finale security
 
 ```bash
 kubectl -n security-apps get networkpolicy,deploy,pods
-kubectl auth can-i --as=system:serviceaccount:security-platform:platform-auditor \
-  get deployments -n security-apps
 kubectl get validatingpolicies
 kubectl get policyreports -A
 kubectl -n security-pipeline get pipeline,pipelinerun,taskrun
 ```
 
-La prova è completa quando mTLS e isolamento di rete funzionano, l'RBAC è
-least privilege, i report di audit mostrano la remediation, l'admission
-controller blocca i Pod non conformi e la pipeline impedisce il deploy di
-artefatti non conformi.
+Completa `05/pipeline-result.txt` con TaskRun, decisione, blocco iniziale e
+log del deploy approvato.

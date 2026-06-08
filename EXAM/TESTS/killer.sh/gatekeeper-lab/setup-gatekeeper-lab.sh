@@ -1671,6 +1671,8 @@ spec:
             - "sleep 3600"
 YAML
 
+source "$SCRIPT_DIR/../lab-question-layout.sh"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.gatekeeper-lab-initialized"
 
 ok "Gatekeeper lab ready"

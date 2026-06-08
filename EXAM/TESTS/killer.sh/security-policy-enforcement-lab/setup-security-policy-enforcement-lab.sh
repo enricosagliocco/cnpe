@@ -2,6 +2,7 @@
 set -euo pipefail
 
 COURSE_DIR="${COURSE_DIR:-$HOME/course-security-policy-enforcement}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
 CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-existing}"
@@ -146,7 +147,9 @@ if [ "$LAB_FORCE" = "true" ]; then
   rm -rf "$COURSE_DIR"
 fi
 
-mkdir -p "$COURSE_DIR"/{01,02,03,04,05}
+for number in $(seq -w 1 20); do
+  mkdir -p "$COURSE_DIR/$number"
+done
 for namespace in security-apps security-platform security-pipeline; do
   kubectl create namespace "$namespace" --dry-run=client -o yaml |
     kubectl apply -f - >/dev/null
@@ -606,8 +609,9 @@ kubectl -n security-pipeline create configmap security-inputs \
   kubectl apply -f - >/dev/null
 touch "$COURSE_DIR/05/pipeline-result.txt"
 
-cp "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/domande.md" \
-  "$COURSE_DIR/domande.md"
+cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
+source "$SCRIPT_DIR/../lab-question-layout.sh"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 
 info "Security and policy enforcement lab ready: $COURSE_DIR"

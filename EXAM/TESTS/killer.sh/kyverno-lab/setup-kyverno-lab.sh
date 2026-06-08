@@ -1046,5 +1046,7 @@ spec:
 YAML
 touch "$COURSE_DIR/20/report.md"
 
+source "$SCRIPT_DIR/../lab-question-layout.sh"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 echo "Kyverno lab ready: $COURSE_DIR"

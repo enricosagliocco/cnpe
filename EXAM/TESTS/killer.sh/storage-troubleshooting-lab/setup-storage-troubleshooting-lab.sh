@@ -2,6 +2,7 @@
 set -euo pipefail
 
 COURSE_DIR="${COURSE_DIR:-$HOME/course-storage-troubleshooting}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-existing}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-storage}"
@@ -49,7 +50,9 @@ if [ "$LAB_FORCE" = "true" ]; then
   rm -rf "$COURSE_DIR"
 fi
 
-mkdir -p "$COURSE_DIR/01"
+for number in $(seq -w 1 20); do
+  mkdir -p "$COURSE_DIR/$number"
+done
 
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml |
   kubectl apply -f - >/dev/null
@@ -255,8 +258,9 @@ spec:
             periodSeconds: 3
 YAML
 
-cp "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/domande.md" \
-  "$COURSE_DIR/domande.md"
+cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
+source "$SCRIPT_DIR/../lab-question-layout.sh"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 
 info "Storage troubleshooting lab ready: $COURSE_DIR"

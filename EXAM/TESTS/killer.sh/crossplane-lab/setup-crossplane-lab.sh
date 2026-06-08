@@ -380,5 +380,7 @@ spec:
   environment: prod
 YAML
 rm "$COURSE_DIR/base-xrd.yaml" "$COURSE_DIR/base-composition.yaml" "$COURSE_DIR/base-xr.yaml"
+source "$SCRIPT_DIR/../lab-question-layout.sh"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 echo "Crossplane lab ready: $COURSE_DIR"
