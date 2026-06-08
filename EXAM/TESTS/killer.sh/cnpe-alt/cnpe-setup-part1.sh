@@ -417,7 +417,9 @@ spec:
           env:
             - name: APP_NAME
               value: "$app"
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               cat >/tmp/metrics-server.py <<'PY'
@@ -479,12 +481,15 @@ data:
         kubernetes_sd_configs:
           - role: pod
             namespaces:
-              names: ['kariba']
+              names:
+                - kariba
         relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_app]
+          - source_labels:
+              - __meta_kubernetes_pod_label_app
             regex: (frontend|backend)
             action: keep
-          - source_labels: [__meta_kubernetes_pod_ip]
+          - source_labels:
+              - __meta_kubernetes_pod_ip
             target_label: __address__
             replacement: $1:8080
           - target_label: __metrics_path__
@@ -504,11 +509,22 @@ kind: ClusterRole
 metadata:
   name: prometheus
 rules:
-  - apiGroups: [""]
-    resources: [nodes, nodes/proxy, services, endpoints, pods]
-    verbs: [get, list, watch]
-  - nonResourceURLs: [/metrics]
-    verbs: [get]
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -597,7 +613,9 @@ spec:
           env:
             - name: APP_NAME
               value: proxy
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               cat >/tmp/metrics-server.py <<'PY'
@@ -816,7 +834,9 @@ spec:
       containers:
         - name: app
           image: httpd:2-alpine
-          command: ["/bin/sh","-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               echo "app1 version ${APP_VERSION}" > /usr/local/apache2/htdocs/index.html;
@@ -859,7 +879,9 @@ spec:
       containers:
         - name: app
           image: httpd:2-alpine
-          command: ["/bin/sh","-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               echo "app2 version ${APP_VERSION}" > /usr/local/apache2/htdocs/index.html;
@@ -979,10 +1001,14 @@ spec:
     namespaces:
       - TODO_NAMESPACE
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
-      - apiGroups: ["apps"]
-        kinds: ["Deployment"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
+      - apiGroups:
+          - "apps"
+        kinds:
+          - "Deployment"
 YAML
 
 # Helm charts – app-earth, app-venus, app-saturn

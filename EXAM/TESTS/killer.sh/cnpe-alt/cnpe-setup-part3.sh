@@ -115,7 +115,9 @@ spec:
       containers:
         - name: agent
           image: busybox:1.36
-          command: ["sleep", "infinity"]
+          command:
+            - "sleep"
+            - "infinity"
           securityContext:
             runAsUser: 1000
             allowPrivilegeEscalation: true
@@ -248,7 +250,9 @@ spec:
       containers:
         - name: app
           image: curlimages/curl:latest
-          command: ["/bin/sh","-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               while true; do
@@ -352,7 +356,8 @@ spec:
     - metadata:
         name: data
       spec:
-        accessModes: [ReadWriteOnce]
+        accessModes:
+          - ReadWriteOnce
         resources:
           requests:
             storage: 100Mi
@@ -434,7 +439,9 @@ spec:
       containers:
         - name: webapp
           image: nginx:1-alpine
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               echo "webapp version ${VERSION}" > /usr/share/nginx/html/index.html;
@@ -510,7 +517,10 @@ spec:
       containers:
         - name: logger
           image: busybox:1.36
-          command: ["/bin/sh", "-c", "while true; do echo log; sleep 5; done"]
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "while true; do echo log; sleep 5; done"
           resources:
             requests:
               cpu: 10m
@@ -717,7 +727,10 @@ spec:
               properties:
                 size:
                   type: string
-                  enum: ["small", "medium", "large"]
+                  enum:
+                    - "small"
+                    - "medium"
+                    - "large"
                   default: "small"
 YAML
 

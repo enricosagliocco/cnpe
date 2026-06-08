@@ -105,26 +105,27 @@ spec:
     plural: platformservices
     singular: platformservice
     kind: PlatformService
-    shortNames: [psvc]
+    shortNames:
+      - psvc
   versions:
-  - name: v1alpha1
-    served: true
-    storage: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          spec:
-            type: object
-            properties:
-              owner:
-                type: string
-              runtime:
-                type: string
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                owner:
+                  type: string
+                runtime:
+                  type: string
 YAML
 cat > "$COURSE_DIR/1/platform-service/kustomization.yaml" <<'YAML'
 resources:
-- crd.yaml
+  - crd.yaml
 YAML
 kubectl apply -k "$COURSE_DIR/1/platform-service" >/dev/null
 init_git_repo platform-service "$COURSE_DIR/1/platform-service"
@@ -134,65 +135,87 @@ mkdir -p "$COURSE_DIR/2"
 kubectl apply -n atlas -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: checkout, labels: {app: checkout}}
+metadata:
+  name: checkout
+  labels:
+    app: checkout
 spec:
   replicas: 1
-  selector: {matchLabels: {app: checkout}}
+  selector:
+    matchLabels:
+      app: checkout
   template:
-    metadata: {labels: {app: checkout, scrape: "true"}}
+    metadata:
+      labels:
+        app: checkout
+        scrape: "true"
     spec:
       containers:
-      - name: app
-        image: python:3.12-alpine
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            cat >/tmp/metrics.py <<'PY'
-            from http.server import BaseHTTPRequestHandler, HTTPServer
-            class Handler(BaseHTTPRequestHandler):
-                def do_GET(self):
-                    body = 'http_requests_per_minute{namespace="atlas",deployment="checkout"} 75\n'
-                    self.send_response(200)
-                    self.send_header("Content-Type", "text/plain")
-                    self.end_headers()
-                    self.wfile.write(body.encode())
-                def log_message(self, *_):
-                    pass
-            HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
-            PY
-            python /tmp/metrics.py
-        ports: [{containerPort: 8080}]
+        - name: app
+          image: python:3.12-alpine
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - |
+              cat >/tmp/metrics.py <<'PY'
+              from http.server import BaseHTTPRequestHandler, HTTPServer
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      body = 'http_requests_per_minute{namespace="atlas",deployment="checkout"} 75\n'
+                      self.send_response(200)
+                      self.send_header("Content-Type", "text/plain")
+                      self.end_headers()
+                      self.wfile.write(body.encode())
+                  def log_message(self, *_):
+                      pass
+              HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+              PY
+              python /tmp/metrics.py
+          ports:
+            - containerPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: proxy, labels: {app: proxy}}
+metadata:
+  name: proxy
+  labels:
+    app: proxy
 spec:
   replicas: 1
-  selector: {matchLabels: {app: proxy}}
+  selector:
+    matchLabels:
+      app: proxy
   template:
-    metadata: {labels: {app: proxy, scrape: "missing"}}
+    metadata:
+      labels:
+        app: proxy
+        scrape: "missing"
     spec:
       containers:
-      - name: app
-        image: python:3.12-alpine
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            cat >/tmp/metrics.py <<'PY'
-            from http.server import BaseHTTPRequestHandler, HTTPServer
-            class Handler(BaseHTTPRequestHandler):
-                def do_GET(self):
-                    body = 'http_requests_per_minute{namespace="atlas",deployment="proxy"} 220\n'
-                    self.send_response(200)
-                    self.send_header("Content-Type", "text/plain")
-                    self.end_headers()
-                    self.wfile.write(body.encode())
-                def log_message(self, *_):
-                    pass
-            HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
-            PY
-            python /tmp/metrics.py
-        ports: [{containerPort: 8080}]
+        - name: app
+          image: python:3.12-alpine
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - |
+              cat >/tmp/metrics.py <<'PY'
+              from http.server import BaseHTTPRequestHandler, HTTPServer
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      body = 'http_requests_per_minute{namespace="atlas",deployment="proxy"} 220\n'
+                      self.send_response(200)
+                      self.send_header("Content-Type", "text/plain")
+                      self.end_headers()
+                      self.wfile.write(body.encode())
+                  def log_message(self, *_):
+                      pass
+              HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+              PY
+              python /tmp/metrics.py
+          ports:
+            - containerPort: 8080
 YAML
 touch "$COURSE_DIR/2/prometheus-report.txt"
 
@@ -206,15 +229,19 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: portal-client}
+    matchLabels:
+      app: portal-client
   template:
     metadata:
-      labels: {app: portal-client, version: v1}
+      labels:
+        app: portal-client
+        version: v1
     spec:
       containers:
-      - name: nginx
-        image: nginx:1-alpine
-        ports: [{containerPort: 80}]
+        - name: nginx
+          image: nginx:1-alpine
+          ports:
+            - containerPort: 80
 YAML
 cat > "$COURSE_DIR/3/portal-client/manifests/service.yaml" <<'YAML'
 apiVersion: v1
@@ -222,13 +249,16 @@ kind: Service
 metadata:
   name: portal-client
 spec:
-  selector: {app: portal-client}
-  ports: [{port: 80, targetPort: 80}]
+  selector:
+    app: portal-client
+  ports:
+    - port: 80
+      targetPort: 80
 YAML
 cat > "$COURSE_DIR/3/portal-client/manifests/kustomization.yaml" <<'YAML'
 resources:
-- deploy.yaml
-- service.yaml
+  - deploy.yaml
+  - service.yaml
 YAML
 init_git_repo portal-client "$COURSE_DIR/3/portal-client"
 
@@ -261,25 +291,37 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: catalog
-  labels: {app: catalog}
+  labels:
+    app: catalog
 spec:
   replicas: 2
-  selector: {matchLabels: {app: catalog}}
+  selector:
+    matchLabels:
+      app: catalog
   template:
-    metadata: {labels: {app: catalog}}
+    metadata:
+      labels:
+        app: catalog
     spec:
       containers:
-      - name: app
-        image: nginx:1-alpine
-        env: [{name: APP_VERSION, value: "1.0.0"}]
-        ports: [{containerPort: 80}]
+        - name: app
+          image: nginx:1-alpine
+          env:
+            - name: APP_VERSION
+              value: "1.0.0"
+          ports:
+            - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: catalog}
+metadata:
+  name: catalog
 spec:
-  selector: {app: catalog}
-  ports: [{port: 80, targetPort: 80}]
+  selector:
+    app: catalog
+  ports:
+    - port: 80
+      targetPort: 80
 ---
 apiVersion: flagger.app/v1beta1
 kind: Canary
@@ -328,8 +370,11 @@ metadata:
   name: frontend-rollout
   namespace: delivery-alt
 spec:
-  selector: {app: frontend-rollout}
-  ports: [{port: 80, targetPort: 80}]
+  selector:
+    app: frontend-rollout
+  ports:
+    - port: 80
+      targetPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -337,8 +382,11 @@ metadata:
   name: frontend-rollout-canary
   namespace: delivery-alt
 spec:
-  selector: {app: frontend-rollout}
-  ports: [{port: 80, targetPort: 80}]
+  selector:
+    app: frontend-rollout
+  ports:
+    - port: 80
+      targetPort: 80
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -348,15 +396,19 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: frontend-rollout}
+    matchLabels:
+      app: frontend-rollout
   template:
     metadata:
-      labels: {app: frontend-rollout}
+      labels:
+        app: frontend-rollout
     spec:
       containers:
         - name: app
           image: nginx:1-alpine
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               echo '{"ok":true}' >/usr/share/nginx/html/index.html
@@ -419,8 +471,8 @@ metadata:
   namespace: cicd-alt
 spec:
   params:
-  - name: repo-url
-    type: string
+    - name: repo-url
+      type: string
   workspaces:
     - name: source
   tasks: [] # TODO: wire api-git-clone and api-print-sha
@@ -466,10 +518,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: demo}
+    matchLabels:
+      app: demo
   template:
     metadata:
-      labels: {app: demo}
+      labels:
+        app: demo
     spec:
       containers:
         - name: app
@@ -481,8 +535,11 @@ kind: Service
 metadata:
   name: demo
 spec:
-  selector: {app: demo}
-  ports: [{port: 80, targetPort: 80}]
+  selector:
+    app: demo
+  ports:
+    - port: 80
+      targetPort: 80
 YAML
 cat > "$COURSE_DIR/7/flux-platform/clusters/dev/apps/demo/kustomization.yaml" <<'YAML'
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -534,16 +591,16 @@ spec:
     kind: PostgresInstance
     plural: postgresinstances
   versions:
-  - name: v1alpha1
-    served: true
-    referenceable: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          spec:
-            type: object
-            properties: {}
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties: {}
 YAML
 cat > "$COURSE_DIR/8/platform-api/composition.yaml" <<'YAML'
 apiVersion: apiextensions.crossplane.io/v1
@@ -556,26 +613,26 @@ spec:
     kind: PostgresInstance
   mode: Pipeline
   pipeline:
-  - step: patch-and-transform
-    functionRef:
-      name: function-patch-and-transform
-    input:
-      apiVersion: pt.fn.crossplane.io/v1beta1
-      kind: Resources
-      resources:
-      - name: postgres-config
-        base:
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: postgres-config
-          data: {}
-        patches:
-        - fromFieldPath: metadata.namespace
-          toFieldPath: metadata.namespace
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: postgres-config
+            base:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: postgres-config
+              data: {}
+            patches:
+              - fromFieldPath: metadata.namespace
+                toFieldPath: metadata.namespace
         # TODO: patch spec.databaseName and spec.storageSize into data
-        readinessChecks:
-        - type: None
+            readinessChecks:
+              - type: None
 YAML
 cat > "$COURSE_DIR/8/platform-api/xr.yaml" <<'YAML'
 apiVersion: platform.cnpe.io/v1alpha1
@@ -663,27 +720,36 @@ spec:
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: telemetry-api, labels: {app: telemetry-api}}
+metadata:
+  name: telemetry-api
+  labels:
+    app: telemetry-api
 spec:
   replicas: 1
-  selector: {matchLabels: {app: telemetry-api}}
+  selector:
+    matchLabels:
+      app: telemetry-api
   template:
-    metadata: {labels: {app: telemetry-api}}
+    metadata:
+      labels:
+        app: telemetry-api
     spec:
       containers:
-      - name: app
-        image: busybox:1.36
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            while true; do
-              echo "$(date) INFO telemetry export scheduled"
-              echo "$(date) ERROR exporter cannot reach ${OTEL_EXPORTER_OTLP_ENDPOINT}"
-              sleep 5
-            done
-        env:
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://wrong-collector:4317"
+        - name: app
+          image: busybox:1.36
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - |
+              while true; do
+                echo "$(date) INFO telemetry export scheduled"
+                echo "$(date) ERROR exporter cannot reach ${OTEL_EXPORTER_OTLP_ENDPOINT}"
+                sleep 5
+              done
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://wrong-collector:4317"
 YAML
 touch "$COURSE_DIR/11/otel-check.txt"
 touch "$COURSE_DIR/12/log-triage.md"
@@ -736,14 +802,14 @@ spec:
             label:
               # TODO
   targets:
-  - target: admission.k8s.gatekeeper.sh
-    rego: |
-      package k8srequiredowner
-      violation[{"msg": msg}] {
-        input.review.kind.kind == "Deployment"
-        not input.review.object.metadata.labels[input.parameters.label]
-        msg := "CHANGE THIS MESSAGE"
-      }
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredowner
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Deployment"
+          not input.review.object.metadata.labels[input.parameters.label]
+          msg := "CHANGE THIS MESSAGE"
+        }
 YAML
 cat > "$COURSE_DIR/13/gatekeeper/require-owner.yaml" <<'YAML'
 apiVersion: constraints.gatekeeper.sh/v1beta1
@@ -763,10 +829,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: owner-test-bad}
+    matchLabels:
+      app: owner-test-bad
   template:
     metadata:
-      labels: {app: owner-test-bad}
+      labels:
+        app: owner-test-bad
     spec:
       containers:
         - name: app
@@ -783,10 +851,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: owner-test-good}
+    matchLabels:
+      app: owner-test-good
   template:
     metadata:
-      labels: {app: owner-test-good}
+      labels:
+        app: owner-test-good
     spec:
       containers:
         - name: app
@@ -806,8 +876,10 @@ spec:
       match:
         any:
           - resources:
-              kinds: ["Pod"]
-              namespaces: ["security-alt"]
+              kinds:
+                - "Pod"
+              namespaces:
+                - "security-alt"
       exclude:
         any:
           - resources:
@@ -845,11 +917,15 @@ spec:
   containers:
     - name: app
       image: busybox:1.36
-      command: ["sh", "-c", "sleep 3600"]
+      command:
+        - "sh"
+        - "-c"
+        - "sleep 3600"
       securityContext:
         allowPrivilegeEscalation: false
         capabilities:
-          drop: ["ALL"]
+          drop:
+            - "ALL"
 YAML
 
 cat > "$COURSE_DIR/15/pod-security/legacy-worker.yaml" <<'YAML'
@@ -860,16 +936,22 @@ metadata:
   namespace: security-alt
 spec:
   replicas: 1
-  selector: {matchLabels: {app: legacy-worker}}
+  selector:
+    matchLabels:
+      app: legacy-worker
   template:
-    metadata: {labels: {app: legacy-worker}}
+    metadata:
+      labels:
+        app: legacy-worker
     spec:
       containers:
-      - name: worker
-        image: busybox:1.36
-        command: ["sleep","3600"]
-        securityContext:
-          privileged: true
+        - name: worker
+          image: busybox:1.36
+          command:
+            - "sleep"
+            - "3600"
+          securityContext:
+            privileged: true
 YAML
 kubectl apply -f "$COURSE_DIR/15/pod-security/legacy-worker.yaml"
 
@@ -926,17 +1008,24 @@ YAML
 kubectl apply -n data-alt -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: queue-worker}
+metadata:
+  name: queue-worker
 spec:
   replicas: 1
-  selector: {matchLabels: {app: queue-worker}}
+  selector:
+    matchLabels:
+      app: queue-worker
   template:
-    metadata: {labels: {app: queue-worker}}
+    metadata:
+      labels:
+        app: queue-worker
     spec:
       containers:
-      - name: worker
-        image: busybox:1.36
-        command: ["sleep","3600"]
+        - name: worker
+          image: busybox:1.36
+          command:
+            - "sleep"
+            - "3600"
 YAML
 touch "$COURSE_DIR/17/keda/status.txt"
 touch "$COURSE_DIR/18/opencost/allocation.json"
@@ -952,15 +1041,19 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: mesh-server}
+    matchLabels:
+      app: mesh-server
   template:
     metadata:
-      labels: {app: mesh-server}
+      labels:
+        app: mesh-server
     spec:
       containers:
         - name: app
           image: nginx:1-alpine
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - |
               echo mesh-server-ok >/usr/share/nginx/html/index.html
@@ -974,8 +1067,11 @@ metadata:
   name: mesh-server
   namespace: mesh-alt
 spec:
-  selector: {app: mesh-server}
-  ports: [{port: 80, targetPort: 80}]
+  selector:
+    app: mesh-server
+  ports:
+    - port: 80
+      targetPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -985,15 +1081,20 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: mesh-client}
+    matchLabels:
+      app: mesh-client
   template:
     metadata:
-      labels: {app: mesh-client}
+      labels:
+        app: mesh-client
     spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: ["/bin/sh", "-c", "sleep 3600"]
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "sleep 3600"
 YAML
 touch "$COURSE_DIR/19/linkerd/verification.txt"
 

@@ -136,7 +136,8 @@ spec:
   enforcementAction: deny
   match:
     kinds:
-      - apiGroups: ["apps"]
+      - apiGroups:
+          - "apps"
         kinds: # TODO
     namespaces: # TODO
   parameters:
@@ -152,10 +153,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: no-owner}
+    matchLabels:
+      app: no-owner
   template:
     metadata:
-      labels: {app: no-owner}
+      labels:
+        app: no-owner
     spec:
       containers:
         - name: app
@@ -173,10 +176,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: has-owner}
+    matchLabels:
+      app: has-owner
   template:
     metadata:
-      labels: {app: has-owner}
+      labels:
+        app: has-owner
     spec:
       containers:
         - name: app
@@ -217,12 +222,17 @@ metadata:
   name: require-app-team-labels
 spec:
   match:
-    namespaces: ["apps"]
+    namespaces:
+      - "apps"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
-      - apiGroups: ["apps"]
-        kinds: ["Deployment"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
+      - apiGroups:
+          - "apps"
+        kinds:
+          - "Deployment"
   parameters:
     labels: [] # TODO
 YAML
@@ -253,10 +263,13 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: labeled-workload}
+    matchLabels:
+      app: labeled-workload
   template:
     metadata:
-      labels: {app: labeled-workload, team: platform}
+      labels:
+        app: labeled-workload
+        team: platform
     spec:
       containers:
         - name: app
@@ -300,10 +313,13 @@ metadata:
   name: apps-allowed-repos
 spec:
   match:
-    namespaces: ["apps"]
+    namespaces:
+      - "apps"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
   parameters:
     repos: [] # TODO
 YAML
@@ -378,10 +394,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: prod-api}
+    matchLabels:
+      app: prod-api
   template:
     metadata:
-      labels: {app: prod-api}
+      labels:
+        app: prod-api
     spec:
       containers:
         - name: app
@@ -396,10 +414,12 @@ metadata:
   namespace: prod
 spec:
   selector:
-    matchLabels: {app: implicit-single-replica}
+    matchLabels:
+      app: implicit-single-replica
   template:
     metadata:
-      labels: {app: implicit-single-replica}
+      labels:
+        app: implicit-single-replica
     spec:
       containers:
         - name: app
@@ -426,10 +446,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: dev-api}
+    matchLabels:
+      app: dev-api
   template:
     metadata:
-      labels: {app: dev-api}
+      labels:
+        app: dev-api
     spec:
       containers:
         - name: app
@@ -445,10 +467,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: legacy-debug}
+    matchLabels:
+      app: legacy-debug
   template:
     metadata:
-      labels: {app: legacy-debug}
+      labels:
+        app: legacy-debug
     spec:
       containers:
         - name: app
@@ -487,10 +511,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: dryrun-admission-test}
+    matchLabels:
+      app: dryrun-admission-test
   template:
     metadata:
-      labels: {app: dryrun-admission-test}
+      labels:
+        app: dryrun-admission-test
     spec:
       containers:
         - name: app
@@ -530,8 +556,10 @@ spec:
     namespaceSelector:
       # TODO
     kinds:
-      - apiGroups: ["apps"]
-        kinds: ["Deployment"]
+      - apiGroups:
+          - "apps"
+        kinds:
+          - "Deployment"
   parameters:
     annotation: owner
 YAML
@@ -547,10 +575,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: staging-no-owner}
+    matchLabels:
+      app: staging-no-owner
   template:
     metadata:
-      labels: {app: staging-no-owner}
+      labels:
+        app: staging-no-owner
     spec:
       containers:
         - name: app
@@ -569,10 +599,12 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: prod-with-owner}
+    matchLabels:
+      app: prod-with-owner
   template:
     metadata:
-      labels: {app: prod-with-owner}
+      labels:
+        app: prod-with-owner
     spec:
       containers:
         - name: app
@@ -588,10 +620,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: exempt-no-owner}
+    matchLabels:
+      app: exempt-no-owner
   template:
     metadata:
-      labels: {app: exempt-no-owner}
+      labels:
+        app: exempt-no-owner
     spec:
       containers:
         - name: app
@@ -688,8 +722,10 @@ metadata:
 spec:
   match:
     kinds:
-      - apiGroups: ["networking.k8s.io"]
-        kinds: ["Ingress"]
+      - apiGroups:
+          - "networking.k8s.io"
+        kinds:
+          - "Ingress"
 YAML
 
 cat > "$COURSE_DIR/10/duplicate.yaml" <<'YAML'
@@ -755,11 +791,17 @@ spec:
   initContainers:
     - name: init
       image: nginx:1-alpine
-      command: ["sh", "-c", "echo init"]
+      command:
+        - "sh"
+        - "-c"
+        - "echo init"
   containers:
     - name: worker
       image: nginx:1-alpine
-      command: ["sh", "-c", "sleep 3600"]
+      command:
+        - "sh"
+        - "-c"
+        - "sleep 3600"
 YAML
 
 cat > "$COURSE_DIR/12/template.yaml" <<'YAML'
@@ -776,9 +818,12 @@ spec:
         openAPIV3Schema:
           type: object
           properties:
-            allowHostNetwork: {type: boolean}
-            allowPrivileged: {type: boolean}
-            allowPrivilegeEscalation: {type: boolean}
+            allowHostNetwork:
+              type: boolean
+            allowPrivileged:
+              type: boolean
+            allowPrivilegeEscalation:
+              type: boolean
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
@@ -927,10 +972,12 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: immutable-demo}
+    matchLabels:
+      app: immutable-demo
   template:
     metadata:
-      labels: {app: immutable-demo}
+      labels:
+        app: immutable-demo
     spec:
       containers:
         - name: app
@@ -952,10 +999,12 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: immutable-demo}
+    matchLabels:
+      app: immutable-demo
   template:
     metadata:
-      labels: {app: immutable-demo}
+      labels:
+        app: immutable-demo
     spec:
       containers:
         - name: app
@@ -977,10 +1026,12 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: immutable-demo}
+    matchLabels:
+      app: immutable-demo
   template:
     metadata:
-      labels: {app: immutable-demo}
+      labels:
+        app: immutable-demo
     spec:
       containers:
         - name: app
@@ -995,10 +1046,13 @@ metadata:
   name: all-container-types-allowed-repos
 spec:
   match:
-    namespaces: ["prod"]
+    namespaces:
+      - "prod"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
   parameters:
     repos:
       - registry.k8s.io/
@@ -1014,7 +1068,10 @@ spec:
   initContainers:
     - name: init
       image: docker.io/library/busybox:1.36
-      command: ["sh", "-c", "true"]
+      command:
+        - "sh"
+        - "-c"
+        - "true"
   containers:
     - name: app
       image: registry.k8s.io/pause:3.10
@@ -1036,8 +1093,12 @@ spec:
     - name: init
       image: registry.k8s.io/pause:3.10
       resources:
-        requests: {cpu: 10m, memory: 16Mi}
-        limits: {cpu: 100m, memory: 64Mi}
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
       securityContext:
         privileged: false
         allowPrivilegeEscalation: false
@@ -1045,8 +1106,12 @@ spec:
     - name: app
       image: registry.k8s.io/pause:3.10
       resources:
-        requests: {cpu: 10m, memory: 16Mi}
-        limits: {cpu: 100m, memory: 64Mi}
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
       securityContext:
         privileged: false
         allowPrivilegeEscalation: false
@@ -1090,10 +1155,13 @@ metadata:
 spec:
   match:
     source: Generated
-    namespaces: ["prod"]
+    namespaces:
+      - "prod"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
 YAML
 
 cat > "$COURSE_DIR/16/deployment-bad.yaml" <<'YAML'
@@ -1108,10 +1176,12 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: root-deployment}
+    matchLabels:
+      app: root-deployment
   template:
     metadata:
-      labels: {app: root-deployment}
+      labels:
+        app: root-deployment
     spec:
       containers:
         - name: app
@@ -1130,10 +1200,12 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: non-root-deployment}
+    matchLabels:
+      app: non-root-deployment
   template:
     metadata:
-      labels: {app: non-root-deployment}
+      labels:
+        app: non-root-deployment
     spec:
       securityContext:
         runAsNonRoot: true
@@ -1176,10 +1248,13 @@ metadata:
 spec:
   enforcementAction: dryrun
   match:
-    namespaces: ["dev"]
+    namespaces:
+      - "dev"
     kinds:
-      - apiGroups: ["apps"]
-        kinds: ["Deployment"]
+      - apiGroups:
+          - "apps"
+        kinds:
+          - "Deployment"
   parameters:
     label: team
 YAML
@@ -1215,7 +1290,8 @@ metadata:
 spec:
   parameters:
     requiredLabels: owner
-    allowedEnvironments: ["production"]
+    allowedEnvironments:
+      - "production"
     minimumReplicas: 0
     unexpected: true
 YAML
@@ -1227,8 +1303,13 @@ metadata:
   name: valid-parameters
 spec:
   parameters:
-    requiredLabels: ["app", "owner"]
-    allowedEnvironments: ["dev", "staging", "prod"]
+    requiredLabels:
+      - "app"
+      - "owner"
+    allowedEnvironments:
+      - "dev"
+      - "staging"
+      - "prod"
     minimumReplicas: 2
 YAML
 
@@ -1245,7 +1326,6 @@ cp "$COURSE_DIR/02/template.yaml" \
   "$COURSE_DIR/19/policy-bundle/base/requiredlabels-template.yaml"
 
 cat > "$COURSE_DIR/19/policy-bundle/base/constraints.yaml" <<'YAML'
-# TODO: add both constraints
 YAML
 
 cat > "$COURSE_DIR/19/policy-bundle/base/workload-good.yaml" <<'YAML'
@@ -1262,10 +1342,13 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: bundle-good}
+    matchLabels:
+      app: bundle-good
   template:
     metadata:
-      labels: {app: bundle-good, team: platform}
+      labels:
+        app: bundle-good
+        team: platform
     spec:
       containers:
         - name: app
@@ -1281,10 +1364,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: bundle-bad}
+    matchLabels:
+      app: bundle-bad
   template:
     metadata:
-      labels: {app: bundle-bad}
+      labels:
+        app: bundle-bad
     spec:
       containers:
         - name: app
@@ -1326,10 +1411,13 @@ spec:
     labelSelector:
       matchLabels:
         incident: gatekeeper-final
-    namespaces: ["prod"]
+    namespaces:
+      - "prod"
     kinds:
-      - apiGroups: ["apps"]
-        kinds: ["Deployment"]
+      - apiGroups:
+          - "apps"
+        kinds:
+          - "Deployment"
   parameters:
     annotation: owner
 ---
@@ -1344,10 +1432,13 @@ spec:
     labelSelector:
       matchLabels:
         incident: gatekeeper-final
-    namespaces: ["prod"]
+    namespaces:
+      - "prod"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
   parameters:
     repos: [] # TODO: allow only registry.k8s.io/
 ---
@@ -1362,10 +1453,13 @@ spec:
     labelSelector:
       matchLabels:
         incident: gatekeeper-final
-    namespaces: ["prod"]
+    namespaces:
+      - "prod"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: SecurePods
@@ -1378,10 +1472,13 @@ spec:
     labelSelector:
       matchLabels:
         incident: gatekeeper-final
-    namespaces: ["prod"]
+    namespaces:
+      - "prod"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
   parameters:
     allowHostNetwork: false
     allowPrivileged: false
@@ -1402,10 +1499,13 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels: {app: incident-bad}
+    matchLabels:
+      app: incident-bad
   template:
     metadata:
-      labels: {app: incident-bad, incident: gatekeeper-final}
+      labels:
+        app: incident-bad
+        incident: gatekeeper-final
     spec:
       hostNetwork: true
       securityContext:
@@ -1430,10 +1530,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: team-a-api}
+    matchLabels:
+      app: team-a-api
   template:
     metadata:
-      labels: {app: team-a-api}
+      labels:
+        app: team-a-api
     spec:
       containers:
         - name: app
@@ -1449,15 +1551,20 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: team-b-worker}
+    matchLabels:
+      app: team-b-worker
   template:
     metadata:
-      labels: {app: team-b-worker}
+      labels:
+        app: team-b-worker
     spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: ["sh", "-c", "sleep 3600"]
+          command:
+            - "sh"
+            - "-c"
+            - "sleep 3600"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1467,10 +1574,12 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: legacy-api}
+    matchLabels:
+      app: legacy-api
   template:
     metadata:
-      labels: {app: legacy-api}
+      labels:
+        app: legacy-api
     spec:
       containers:
         - name: app
@@ -1520,10 +1629,13 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: checkout}
+    matchLabels:
+      app: checkout
   template:
     metadata:
-      labels: {app: checkout, incident: gatekeeper-final}
+      labels:
+        app: checkout
+        incident: gatekeeper-final
     spec:
       hostNetwork: true
       containers:
@@ -1542,15 +1654,21 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: {app: payments}
+    matchLabels:
+      app: payments
   template:
     metadata:
-      labels: {app: payments, incident: gatekeeper-final}
+      labels:
+        app: payments
+        incident: gatekeeper-final
     spec:
       containers:
         - name: app
           image: docker.io/library/busybox:1.36
-          command: ["sh", "-c", "sleep 3600"]
+          command:
+            - "sh"
+            - "-c"
+            - "sleep 3600"
 YAML
 
 touch "$COURSE_DIR/.gatekeeper-lab-initialized"

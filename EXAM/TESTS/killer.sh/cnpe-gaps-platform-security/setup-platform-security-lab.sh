@@ -63,7 +63,8 @@ if [ "$INSTALL_TOOLS" = "true" ]; then
   kubectl apply -f - <<'YAML'
 apiVersion: pkg.crossplane.io/v1
 kind: Function
-metadata: {name: function-patch-and-transform}
+metadata:
+  name: function-patch-and-transform
 spec:
   package: xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.8.2
 YAML
@@ -74,11 +75,15 @@ fi
 cat > "$COURSE_DIR/01/crd.yaml" <<'YAML'
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
-metadata: {name: databaseclaims.platform.example.io}
+metadata:
+  name: databaseclaims.platform.example.io
 spec:
   group: platform.example.io
   scope: Namespaced
-  names: {plural: databaseclaims, singular: databaseclaim, kind: DatabaseClaim}
+  names:
+    plural: databaseclaims
+    singular: databaseclaim
+    kind: DatabaseClaim
   versions:
     - name: v1alpha1
       served: true
@@ -87,19 +92,30 @@ spec:
         openAPIV3Schema:
           type: object
           properties:
-            spec: {type: object, properties: {}} # TODO
+            spec:                                # TODO
+              type: object
+              properties: {}
 YAML
 cat > "$COURSE_DIR/01/valid.yaml" <<'YAML'
 apiVersion: platform.example.io/v1alpha1
 kind: DatabaseClaim
-metadata: {name: orders, namespace: tenant-a}
-spec: {engine: postgres, storageGi: 10}
+metadata:
+  name: orders
+  namespace: tenant-a
+spec:
+  engine: postgres
+  storageGi: 10
 YAML
 cat > "$COURSE_DIR/01/invalid.yaml" <<'YAML'
 apiVersion: platform.example.io/v1alpha1
 kind: DatabaseClaim
-metadata: {name: broken, namespace: tenant-a}
-spec: {engine: oracle, storageGi: 0, extra: true}
+metadata:
+  name: broken
+  namespace: tenant-a
+spec:
+  engine: oracle
+  storageGi: 0
+  extra: true
 YAML
 for n in 02 03 04; do cp "$COURSE_DIR/01/crd.yaml" "$COURSE_DIR/$n/crd.yaml"; done
 cp "$COURSE_DIR/01/valid.yaml" "$COURSE_DIR/03/cache.yaml"
@@ -108,11 +124,14 @@ touch "$COURSE_DIR/03/result.txt"
 cat > "$COURSE_DIR/05/xrd.yaml" <<'YAML'
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
-metadata: {name: appenvironments.platform.example.io}
+metadata:
+  name: appenvironments.platform.example.io
 spec:
   scope: TODO
   group: platform.example.io
-  names: {kind: AppEnvironment, plural: appenvironments}
+  names:
+    kind: AppEnvironment
+    plural: appenvironments
   versions:
     - name: v1alpha1
       served: true
@@ -121,18 +140,24 @@ spec:
         openAPIV3Schema:
           type: object
           properties:
-            spec: {type: object, properties: {}} # TODO
+            spec:                                # TODO
+              type: object
+              properties: {}
 YAML
 cat > "$COURSE_DIR/06/composition.yaml" <<'YAML'
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
-metadata: {name: app-environment}
+metadata:
+  name: app-environment
 spec:
-  compositeTypeRef: {apiVersion: platform.example.io/v1alpha1, kind: AppEnvironment}
+  compositeTypeRef:
+    apiVersion: platform.example.io/v1alpha1
+    kind: AppEnvironment
   mode: Pipeline
   pipeline:
     - step: patch-and-transform
-      functionRef: {name: function-patch-and-transform}
+      functionRef:
+        name: function-patch-and-transform
       input:
         apiVersion: pt.fn.crossplane.io/v1beta1
         kind: Resources
@@ -141,7 +166,8 @@ spec:
             base:
               apiVersion: v1
               kind: ConfigMap
-              metadata: {name: environment-config}
+              metadata:
+                name: environment-config
               data: {}
             patches: [] # TODO
 YAML
@@ -149,116 +175,183 @@ for n in 07 08; do cp "$COURSE_DIR/06/composition.yaml" "$COURSE_DIR/$n/composit
 cat > "$COURSE_DIR/09/xr.yaml" <<'YAML'
 apiVersion: platform.example.io/v1alpha1
 kind: AppEnvironment
-metadata: {name: TODO, namespace: TODO}
-spec: {team: TODO, environment: TODO}
+metadata:
+  name: TODO
+  namespace: TODO
+spec:
+  team: TODO
+  environment: TODO
 YAML
 touch "$COURSE_DIR/09/result.txt"
 
 cat > "$COURSE_DIR/10/quota.yaml" <<'YAML'
 apiVersion: v1
 kind: ResourceQuota
-metadata: {name: tenant-budget, namespace: tenant-a}
-spec: {hard: {}} # TODO
+metadata:
+  name: tenant-budget
+  namespace: tenant-a
+spec:            # TODO
+  hard: {}
 YAML
 cat > "$COURSE_DIR/11/limitrange.yaml" <<'YAML'
 apiVersion: v1
 kind: LimitRange
-metadata: {name: tenant-defaults, namespace: tenant-a}
-spec: {limits: []} # TODO
+metadata:
+  name: tenant-defaults
+  namespace: tenant-a
+spec:              # TODO
+  limits: []
 YAML
 cat > "$COURSE_DIR/11/pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
-metadata: {name: defaults-demo, namespace: tenant-a}
-spec: {containers: [{name: app, image: registry.k8s.io/pause:3.10}]}
+metadata:
+  name: defaults-demo
+  namespace: tenant-a
+spec:
+  containers:
+    - name: app
+      image: registry.k8s.io/pause:3.10
 YAML
 cat > "$COURSE_DIR/12/policies.yaml" <<'YAML'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
-metadata: {name: default-deny, namespace: tenant-a}
-spec: {podSelector: {}, policyTypes: [Ingress, Egress]}
----
-# TODO frontend-to-backend:8080 and DNS egress
+metadata:
+  name: default-deny
+  namespace: tenant-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+--- null
+...
 YAML
 cat > "$COURSE_DIR/13/rbac.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
-metadata: {name: tenant-admin, namespace: tenant-a}
+metadata:
+  name: tenant-admin
+  namespace: tenant-a
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
-metadata: {name: tenant-admin, namespace: tenant-a}
+metadata:
+  name: tenant-admin
+  namespace: tenant-a
 rules: [] # TODO
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
-metadata: {name: tenant-admin, namespace: tenant-a}
+metadata:
+  name: tenant-admin
+  namespace: tenant-a
 subjects: [] # TODO
-roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: tenant-admin}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tenant-admin
 YAML
 touch "$COURSE_DIR/13/checks.txt"
 cat > "$COURSE_DIR/14/deployment.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: restricted-app, namespace: tenant-a}
+metadata:
+  name: restricted-app
+  namespace: tenant-a
 spec:
   replicas: 1
-  selector: {matchLabels: {app: restricted-app}}
+  selector:
+    matchLabels:
+      app: restricted-app
   template:
-    metadata: {labels: {app: restricted-app}}
+    metadata:
+      labels:
+        app: restricted-app
     spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: [sh, -c, "sleep 3600"]
-          securityContext: {privileged: true}
+          command:
+            - sh
+            - -c
+            - "sleep 3600"
+          securityContext:
+            privileged: true
 YAML
 kubectl apply -f "$COURSE_DIR/14/deployment.yaml" >/dev/null
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: frontend, namespace: tenant-a}
+metadata:
+  name: frontend
+  namespace: tenant-a
 spec:
   replicas: 1
-  selector: {matchLabels: {app: frontend}}
+  selector:
+    matchLabels:
+      app: frontend
   template:
-    metadata: {labels: {app: frontend}}
+    metadata:
+      labels:
+        app: frontend
     spec:
       containers:
         - name: client
           image: busybox:1.36
-          command: [sh, -c, "sleep 3600"]
+          command:
+            - sh
+            - -c
+            - "sleep 3600"
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: backend, namespace: tenant-a}
+metadata:
+  name: backend
+  namespace: tenant-a
 spec:
   replicas: 1
-  selector: {matchLabels: {app: backend}}
+  selector:
+    matchLabels:
+      app: backend
   template:
-    metadata: {labels: {app: backend}}
+    metadata:
+      labels:
+        app: backend
     spec:
       containers:
         - name: server
           image: nginx:1-alpine
-          ports: [{containerPort: 8080}]
+          ports:
+            - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: backend, namespace: tenant-a}
+metadata:
+  name: backend
+  namespace: tenant-a
 spec:
-  selector: {app: backend}
-  ports: [{port: 8080, targetPort: 80}]
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: unallocated-cost, namespace: tenant-a}
+metadata:
+  name: unallocated-cost
+  namespace: tenant-a
 spec:
   replicas: 1
-  selector: {matchLabels: {app: unallocated-cost}}
+  selector:
+    matchLabels:
+      app: unallocated-cost
   template:
-    metadata: {labels: {app: unallocated-cost}}
+    metadata:
+      labels:
+        app: unallocated-cost
     spec:
       containers:
         - name: app
@@ -268,12 +361,15 @@ YAML
 cat > "$COURSE_DIR/15/template.yaml" <<'YAML'
 apiVersion: templates.gatekeeper.sh/v1
 kind: ConstraintTemplate
-metadata: {name: requiredannotations}
+metadata:
+  name: requiredannotations
 spec:
   crd:
     spec:
-      names: {kind: RequiredAnnotations}
-      validation: {openAPIV3Schema: {}} # TODO
+      names:
+        kind: RequiredAnnotations
+      validation:                       # TODO
+        openAPIV3Schema: {}
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
@@ -283,29 +379,39 @@ YAML
 cat > "$COURSE_DIR/15/constraint.yaml" <<'YAML'
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: RequiredAnnotations
-metadata: {name: tenant-owner}
+metadata:
+  name: tenant-owner
 spec: {} # TODO
 YAML
 cat > "$COURSE_DIR/15/bad.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: no-owner, namespace: tenant-a}
+metadata:
+  name: no-owner
+  namespace: tenant-a
 spec:
   replicas: 1
-  selector: {matchLabels: {app: no-owner}}
+  selector:
+    matchLabels:
+      app: no-owner
   template:
-    metadata: {labels: {app: no-owner}}
+    metadata:
+      labels:
+        app: no-owner
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        seccompProfile: {type: RuntimeDefault}
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: app
           image: registry.k8s.io/pause:3.10
           securityContext:
             allowPrivilegeEscalation: false
-            capabilities: {drop: ["ALL"]}
+            capabilities:
+              drop:
+                - "ALL"
 YAML
 cat > "$COURSE_DIR/15/good.yaml" <<'YAML'
 apiVersion: apps/v1
@@ -313,33 +419,50 @@ kind: Deployment
 metadata:
   name: has-owner
   namespace: tenant-a
-  annotations: {owner: platform-team}
+  annotations:
+    owner: platform-team
 spec:
   replicas: 1
-  selector: {matchLabels: {app: has-owner}}
+  selector:
+    matchLabels:
+      app: has-owner
   template:
-    metadata: {labels: {app: has-owner}}
+    metadata:
+      labels:
+        app: has-owner
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        seccompProfile: {type: RuntimeDefault}
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: app
           image: registry.k8s.io/pause:3.10
           securityContext:
             allowPrivilegeEscalation: false
-            capabilities: {drop: ["ALL"]}
+            capabilities:
+              drop:
+                - "ALL"
 YAML
 cat > "$COURSE_DIR/16/template.yaml" <<'YAML'
 apiVersion: templates.gatekeeper.sh/v1
 kind: ConstraintTemplate
-metadata: {name: allowedrepos}
+metadata:
+  name: allowedrepos
 spec:
   crd:
     spec:
-      names: {kind: AllowedRepos}
-      validation: {openAPIV3Schema: {type: object, properties: {repos: {type: array, items: {type: string}}}}}
+      names:
+        kind: AllowedRepos
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            repos:
+              type: array
+              items:
+                type: string
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
@@ -349,68 +472,103 @@ YAML
 cat > "$COURSE_DIR/16/constraint.yaml" <<'YAML'
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: AllowedRepos
-metadata: {name: tenant-allowed-repos}
+metadata:
+  name: tenant-allowed-repos
 spec:
   enforcementAction: deny
   match:
-    namespaces: ["tenant-a"]
+    namespaces:
+      - "tenant-a"
     kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
+      - apiGroups:
+          - ""
+        kinds:
+          - "Pod"
   parameters:
-    repos: ["registry.k8s.io/"]
+    repos:
+      - "registry.k8s.io/"
 YAML
 cat > "$COURSE_DIR/16/bad.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
-metadata: {name: disallowed-init, namespace: tenant-a}
+metadata:
+  name: disallowed-init
+  namespace: tenant-a
 spec:
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
-    seccompProfile: {type: RuntimeDefault}
+    seccompProfile:
+      type: RuntimeDefault
   initContainers:
     - name: init
       image: docker.io/library/busybox:1.36
-      command: [sh, -c, "true"]
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      command:
+        - sh
+        - -c
+        - "true"
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - "ALL"
   containers:
     - name: app
       image: registry.k8s.io/pause:3.10
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - "ALL"
 YAML
 cat > "$COURSE_DIR/16/good.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
-metadata: {name: allowed-images, namespace: tenant-a}
+metadata:
+  name: allowed-images
+  namespace: tenant-a
 spec:
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
-    seccompProfile: {type: RuntimeDefault}
+    seccompProfile:
+      type: RuntimeDefault
   initContainers:
     - name: init
       image: registry.k8s.io/pause:3.10
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - "ALL"
   containers:
     - name: app
       image: registry.k8s.io/pause:3.10
-      securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: ["ALL"]}}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - "ALL"
 YAML
 touch "$COURSE_DIR/17/audit.txt"
 cat > "$COURSE_DIR/17/template.yaml" <<'YAML'
 apiVersion: templates.gatekeeper.sh/v1
 kind: ConstraintTemplate
-metadata: {name: requiredlabels}
+metadata:
+  name: requiredlabels
 spec:
   crd:
     spec:
-      names: {kind: RequiredLabels}
+      names:
+        kind: RequiredLabels
       validation:
         openAPIV3Schema:
           type: object
           properties:
-            labels: {type: array, items: {type: string}}
+            labels:
+              type: array
+              items:
+                type: string
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
@@ -426,15 +584,21 @@ YAML
 cat > "$COURSE_DIR/17/constraint.yaml" <<'YAML'
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: RequiredLabels
-metadata: {name: tenant-cost-center}
+metadata:
+  name: tenant-cost-center
 spec:
   enforcementAction: dryrun
   match:
-    namespaces: ["tenant-a"]
+    namespaces:
+      - "tenant-a"
     kinds:
-      - apiGroups: ["apps"]
-        kinds: ["Deployment"]
-  parameters: {labels: ["cost-center"]}
+      - apiGroups:
+          - "apps"
+        kinds:
+          - "Deployment"
+  parameters:
+    labels:
+      - "cost-center"
 YAML
 cat > "$COURSE_DIR/18/sbom.json" <<'JSON'
 {"spdxVersion":"SPDX-2.3","packages":[{"name":"demo","licenseConcluded":"NOASSERTION"}]}
@@ -442,7 +606,8 @@ JSON
 cat > "$COURSE_DIR/18/pipeline-policy.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Task
-metadata: {name: verify-sbom}
+metadata:
+  name: verify-sbom
 spec:
   steps:
     - name: verify
@@ -462,12 +627,18 @@ CSV
 cat > "$COURSE_DIR/19/deployment.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: right-sized, namespace: tenant-a}
+metadata:
+  name: right-sized
+  namespace: tenant-a
 spec:
   replicas: 2
-  selector: {matchLabels: {app: right-sized}}
+  selector:
+    matchLabels:
+      app: right-sized
   template:
-    metadata: {labels: {app: right-sized}}
+    metadata:
+      labels:
+        app: right-sized
     spec:
       containers:
         - name: app

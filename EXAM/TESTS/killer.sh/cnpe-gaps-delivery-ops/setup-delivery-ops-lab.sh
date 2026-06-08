@@ -73,39 +73,61 @@ if [ "$INSTALL_TOOLS" = "true" ]; then
   kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: jaeger, namespace: tracing}
+metadata:
+  name: jaeger
+  namespace: tracing
 spec:
   replicas: 1
-  selector: {matchLabels: {app: jaeger}}
+  selector:
+    matchLabels:
+      app: jaeger
   template:
-    metadata: {labels: {app: jaeger}}
+    metadata:
+      labels:
+        app: jaeger
     spec:
       containers:
         - name: jaeger
           image: jaegertracing/all-in-one:1.75.0
           ports:
-            - {name: otlp-grpc, containerPort: 4317}
-            - {name: query, containerPort: 16686}
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: query
+              containerPort: 16686
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: jaeger-collector, namespace: tracing}
+metadata:
+  name: jaeger-collector
+  namespace: tracing
 spec:
-  selector: {app: jaeger}
+  selector:
+    app: jaeger
   ports:
-    - {name: otlp-grpc, port: 4317, targetPort: 4317}
-    - {name: query, port: 16686, targetPort: 16686}
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: query
+      port: 16686
+      targetPort: 16686
 YAML
 fi
 
 cat > "$COURSE_DIR/01/application.yaml" <<'YAML'
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-metadata: {name: storefront, namespace: argocd}
+metadata:
+  name: storefront
+  namespace: argocd
 spec:
   project: default
-  source: {repoURL: TODO, path: TODO, targetRevision: TODO}
-  destination: {server: https://kubernetes.default.svc, namespace: TODO}
+  source:
+    repoURL: TODO
+    path: TODO
+    targetRevision: TODO
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: TODO
   syncPolicy: {} # TODO
 YAML
 cp "$COURSE_DIR/01/application.yaml" "$COURSE_DIR/02/application.yaml"
@@ -113,47 +135,73 @@ cp "$COURSE_DIR/01/application.yaml" "$COURSE_DIR/02/application.yaml"
 cat > "$COURSE_DIR/03/source.yaml" <<'YAML'
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
-metadata: {name: platform-source, namespace: flux-system}
+metadata:
+  name: platform-source
+  namespace: flux-system
 spec:
   interval: 10m
   url: https://github.com/fluxcd/flux2-kustomize-helm-example
-  ref: {branch: develop}
+  ref:
+    branch: develop
 YAML
 cat > "$COURSE_DIR/04/kustomization.yaml" <<'YAML'
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
-metadata: {name: platform-staging, namespace: flux-system}
+metadata:
+  name: platform-staging
+  namespace: flux-system
 spec: {} # TODO
 YAML
 cat > "$COURSE_DIR/05/deployment.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: drift-demo, namespace: delivery-dev}
+metadata:
+  name: drift-demo
+  namespace: delivery-dev
 spec:
   replicas: 2
-  selector: {matchLabels: {app: drift-demo}}
+  selector:
+    matchLabels:
+      app: drift-demo
   template:
-    metadata: {labels: {app: drift-demo}}
-    spec: {containers: [{name: app, image: nginx:1-alpine}]}
+    metadata:
+      labels:
+        app: drift-demo
+    spec:
+      containers:
+        - name: app
+          image: nginx:1-alpine
 YAML
 kubectl apply -f "$COURSE_DIR/05/deployment.yaml" >/dev/null
 
 kubectl apply -f - <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: traffic-api, namespace: metrics-lab}
+metadata:
+  name: traffic-api
+  namespace: metrics-lab
 spec:
   replicas: 1
-  selector: {matchLabels: {app: traffic-api, metrics: "true"}}
+  selector:
+    matchLabels:
+      app: traffic-api
+      metrics: "true"
   template:
     metadata:
-      labels: {app: traffic-api, metrics: "true"}
-      annotations: {prometheus.io/port: "8080", prometheus.io/path: /metrics}
+      labels:
+        app: traffic-api
+        metrics: "true"
+      annotations:
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
     spec:
       containers:
         - name: metrics
           image: python:3.12-alpine
-          command: [python, -u, -c]
+          command:
+            - python
+            - -u
+            - -c
           args:
             - |
               from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -162,151 +210,243 @@ spec:
                   body=b'http_requests_total{namespace="metrics-lab",app="traffic-api",status="200"} 100\n'
                   self.send_response(200); self.end_headers(); self.wfile.write(body)
               HTTPServer(("0.0.0.0",8080),H).serve_forever()
-          ports: [{name: metrics, containerPort: 8080}]
+          ports:
+            - name: metrics
+              containerPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: log-heavy, namespace: logging-lab}
+metadata:
+  name: log-heavy
+  namespace: logging-lab
 spec:
   replicas: 1
-  selector: {matchLabels: {app: log-heavy}}
+  selector:
+    matchLabels:
+      app: log-heavy
   template:
-    metadata: {labels: {app: log-heavy}}
+    metadata:
+      labels:
+        app: log-heavy
     spec:
       containers:
         - name: logger
           image: busybox:1.36
-          command: [sh, -c]
-          args: ['while true; do echo "ERROR payment timeout"; sleep 2; done']
+          command:
+            - sh
+            - -c
+          args:
+            - 'while true; do echo "ERROR payment timeout"; sleep 2; done'
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: log-light, namespace: logging-lab}
+metadata:
+  name: log-light
+  namespace: logging-lab
 spec:
   replicas: 1
-  selector: {matchLabels: {app: log-light}}
+  selector:
+    matchLabels:
+      app: log-light
   template:
-    metadata: {labels: {app: log-light}}
+    metadata:
+      labels:
+        app: log-light
     spec:
       containers:
         - name: logger
           image: busybox:1.36
-          command: [sh, -c]
-          args: ['while true; do echo "ERROR retry"; sleep 10; done']
+          command:
+            - sh
+            - -c
+          args:
+            - 'while true; do echo "ERROR retry"; sleep 10; done'
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: checkout-stable, namespace: delivery-dev}
+metadata:
+  name: checkout-stable
+  namespace: delivery-dev
 spec:
-  selector: {app: checkout}
-  ports: [{name: http, port: 80, targetPort: 80}]
+  selector:
+    app: checkout
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
 ---
 apiVersion: v1
 kind: Service
-metadata: {name: checkout-canary, namespace: delivery-dev}
+metadata:
+  name: checkout-canary
+  namespace: delivery-dev
 spec:
-  selector: {app: checkout}
-  ports: [{name: http, port: 80, targetPort: 80}]
+  selector:
+    app: checkout
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
 YAML
 
 cat > "$COURSE_DIR/06/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
-metadata: {name: ordered-build, namespace: cicd-lab}
+metadata:
+  name: ordered-build
+  namespace: cicd-lab
 spec:
-  workspaces: [{name: source}]
+  workspaces:
+    - name: source
   tasks:
     - name: clone
       taskSpec:
-        workspaces: [{name: source}]
-        steps: [{name: clone, image: alpine:3.20, script: "echo source > $(workspaces.source.path)/app"}]
+        workspaces:
+          - name: source
+        steps:
+          - name: clone
+            image: alpine:3.20
+            script: |
+              echo source > $(workspaces.source.path)/app
     - name: test
       taskSpec:
-        workspaces: [{name: source}]
-        steps: [{name: test, image: alpine:3.20, script: "test -f $(workspaces.source.path)/app"}]
+        workspaces:
+          - name: source
+        steps:
+          - name: test
+            image: alpine:3.20
+            script: |
+              test -f $(workspaces.source.path)/app
       # TODO runAfter/workspace
     - name: package
       taskSpec:
-        workspaces: [{name: source}]
-        steps: [{name: package, image: alpine:3.20, script: "echo packaged"}]
+        workspaces:
+          - name: source
+        steps:
+          - name: package
+            image: alpine:3.20
+            script: |
+              echo packaged
       # TODO runAfter/workspace
 YAML
 cat > "$COURSE_DIR/06/pipelinerun.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: PipelineRun
-metadata: {generateName: ordered-build-, namespace: cicd-lab}
+metadata:
+  generateName: ordered-build-
+  namespace: cicd-lab
 spec:
-  pipelineRef: {name: ordered-build}
-  workspaces: [{name: source, emptyDir: {}}]
+  pipelineRef:
+    name: ordered-build
+  workspaces:
+    - name: source
+      emptyDir: {}
 YAML
 cat > "$COURSE_DIR/07/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
-metadata: {name: parallel-quality, namespace: cicd-lab}
+metadata:
+  name: parallel-quality
+  namespace: cicd-lab
 spec:
   tasks:
     - name: clone
       taskSpec:
-        steps: [{name: clone, image: alpine:3.20, script: "sleep 1; echo cloned"}]
+        steps:
+          - name: clone
+            image: alpine:3.20
+            script: |
+              sleep 1; echo cloned
     - name: lint
       taskSpec:
-        steps: [{name: lint, image: alpine:3.20, script: "sleep 3; echo lint"}]
+        steps:
+          - name: lint
+            image: alpine:3.20
+            script: |
+              sleep 3; echo lint
       # TODO runAfter clone
     - name: unit-test
       taskSpec:
-        steps: [{name: unit, image: alpine:3.20, script: "sleep 3; echo unit"}]
+        steps:
+          - name: unit
+            image: alpine:3.20
+            script: |
+              sleep 3; echo unit
       # TODO runAfter clone
     - name: report
       taskSpec:
-        steps: [{name: report, image: alpine:3.20, script: "echo report"}]
+        steps:
+          - name: report
+            image: alpine:3.20
+            script: |
+              echo report
       # TODO runAfter lint and unit-test
 YAML
 cat > "$COURSE_DIR/07/pipelinerun.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: PipelineRun
-metadata: {generateName: parallel-quality-, namespace: cicd-lab}
-spec: {pipelineRef: {name: parallel-quality}}
+metadata:
+  generateName: parallel-quality-
+  namespace: cicd-lab
+spec:
+  pipelineRef:
+    name: parallel-quality
 YAML
 touch "$COURSE_DIR/07/result.txt"
 cat > "$COURSE_DIR/08/task.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Task
-metadata: {name: calculate-version, namespace: cicd-lab}
+metadata:
+  name: calculate-version
+  namespace: cicd-lab
 spec:
-  results: [{name: version}]
+  results:
+    - name: version
   steps:
     - name: calculate
       image: alpine:3.20
-      script: 'echo -n TODO > $(results.version.path)'
+      script: |
+        echo -n TODO > $(results.version.path)
 YAML
 cat > "$COURSE_DIR/08/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
-metadata: {name: release-version, namespace: cicd-lab}
+metadata:
+  name: release-version
+  namespace: cicd-lab
 spec:
   tasks:
     - name: calculate-version
-      taskRef: {name: calculate-version}
+      taskRef:
+        name: calculate-version
     - name: print-version
       params: [] # TODO pass calculate-version result
       taskSpec:
-        params: [{name: release}]
+        params:
+          - name: release
         steps:
           - name: print
             image: alpine:3.20
-            script: "echo release=$(params.release)"
+            script: |
+              echo release=$(params.release)
 YAML
 cat > "$COURSE_DIR/08/pipelinerun.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: PipelineRun
-metadata: {generateName: release-version-, namespace: cicd-lab}
-spec: {pipelineRef: {name: release-version}}
+metadata:
+  generateName: release-version-
+  namespace: cicd-lab
+spec:
+  pipelineRef:
+    name: release-version
 YAML
 
 cat > "$COURSE_DIR/09/rollout.yaml" <<'YAML'
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
-metadata: {name: checkout, namespace: delivery-dev}
+metadata:
+  name: checkout
+  namespace: delivery-dev
 spec:
   replicas: 4
   strategy:
@@ -314,27 +454,39 @@ spec:
       stableService: TODO
       canaryService: TODO
       steps: [] # TODO
-  selector: {matchLabels: {app: checkout}}
+  selector:
+    matchLabels:
+      app: checkout
   template:
-    metadata: {labels: {app: checkout}}
-    spec: {containers: [{name: app, image: nginx:1-alpine}]}
+    metadata:
+      labels:
+        app: checkout
+    spec:
+      containers:
+        - name: app
+          image: nginx:1-alpine
 YAML
 cat > "$COURSE_DIR/10/analysis.yaml" <<'YAML'
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
-metadata: {name: checkout-success-rate, namespace: delivery-dev}
+metadata:
+  name: checkout-success-rate
+  namespace: delivery-dev
 spec:
   metrics:
     - name: success-rate
       successCondition: TODO
-      provider: {prometheus: {address: TODO, query: TODO}}
+      provider:
+        prometheus:
+          address: TODO
+          query: TODO
 YAML
 touch "$COURSE_DIR/11/result.txt"
 
 cat > "$COURSE_DIR/12/prometheus-job.yaml" <<'YAML'
-- job_name: metrics-lab
-  kubernetes_sd_configs: [] # TODO
-  relabel_configs: [] # TODO
+  - job_name: metrics-lab
+    kubernetes_sd_configs: [] # TODO
+    relabel_configs: [] # TODO
 YAML
 cat > "$COURSE_DIR/13/queries.txt" <<'TXT'
 # request rate:
@@ -348,8 +500,10 @@ groups:
       - alert: HighErrorRate
         expr: TODO
         for: TODO
-        labels: {severity: TODO}
-        annotations: {summary: TODO}
+        labels:
+          severity: TODO
+        annotations:
+          summary: TODO
 YAML
 cat > "$COURSE_DIR/15/datasource.yaml" <<'YAML'
 apiVersion: 1
@@ -371,27 +525,40 @@ touch "$COURSE_DIR/16/result.txt"
 cat > "$COURSE_DIR/17/deployment.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: orders-api, namespace: tracing}
+metadata:
+  name: orders-api
+  namespace: tracing
 spec:
   replicas: 1
-  selector: {matchLabels: {app: orders-api}}
+  selector:
+    matchLabels:
+      app: orders-api
   template:
-    metadata: {labels: {app: orders-api}}
+    metadata:
+      labels:
+        app: orders-api
     spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: [sh, -c, "sleep 3600"]
+          command:
+            - sh
+            - -c
+            - "sleep 3600"
           env:
-            - {name: OTEL_EXPORTER_OTLP_ENDPOINT, value: "http://wrong:4317"}
-            - {name: OTEL_SERVICE_NAME, value: "TODO"}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://wrong:4317"
+            - name: OTEL_SERVICE_NAME
+              value: "TODO"
 YAML
 kubectl apply -f "$COURSE_DIR/17/deployment.yaml" >/dev/null
 kubectl -n tracing delete job orders-api-trace-generator --ignore-not-found >/dev/null
 kubectl apply -f - <<'YAML'
 apiVersion: batch/v1
 kind: Job
-metadata: {name: orders-api-trace-generator, namespace: tracing}
+metadata:
+  name: orders-api-trace-generator
+  namespace: tracing
 spec:
   template:
     spec:

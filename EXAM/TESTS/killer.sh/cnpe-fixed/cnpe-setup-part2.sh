@@ -580,12 +580,11 @@ spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
-            - while true; do
-                echo "$(date) INFO normal operation";
-                sleep 5;
-              done
+            - while true; do echo "$(date) INFO normal operation"; sleep 5; done
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -605,12 +604,11 @@ spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
-            - while true; do
-                echo "$(date) ERROR verification failed";
-                sleep 3;
-              done
+            - while true; do echo "$(date) ERROR verification failed"; sleep 3; done
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -631,7 +629,9 @@ spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
             - while true; do echo "$(date) INFO workflow processing"; sleep 5; done
 ---
@@ -654,12 +654,11 @@ spec:
       containers:
         - name: app
           image: busybox:1.36
-          command: ["/bin/sh", "-c"]
+          command:
+            - "/bin/sh"
+            - "-c"
           args:
-            - while true; do
-                echo "$(date) ERROR resource limit exceeded";
-                sleep 4;
-              done
+            - while true; do echo "$(date) ERROR resource limit exceeded"; sleep 4; done
 YAML
 
 success "Q8 ready"
@@ -792,7 +791,8 @@ spec:
       scrapeTimeout: 10s
       honorLabels: true
       relabelings:
-        - sourceLabels: [__meta_kubernetes_pod_node_name]
+        - sourceLabels:
+            - __meta_kubernetes_pod_node_name
           targetLabel: node
   sampleLimit: 5000
   labelLimit: 10
@@ -1215,12 +1215,12 @@ spec:
   templates:
     - name: chain
       steps:
-        - - name: config1
-            template: create-config1
-            arguments:
-              parameters:
-                - name: ns
-                  value: "{{workflow.parameters.target_namespace}}"
+        -   - name: config1
+              template: create-config1
+              arguments:
+                parameters:
+                  - name: ns
+                    value: "{{workflow.parameters.target_namespace}}"
 
     - name: create-config1
       inputs:
@@ -1228,7 +1228,10 @@ spec:
           - name: ns
       container:
         image: alpine/kubectl:latest
-        command: ["/bin/sh","-c", "kubectl -n {{inputs.parameters.ns}} create configmap cm1 --from-literal=debug=true -o yaml --dry-run=client | kubectl apply -f -"]
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "kubectl -n {{inputs.parameters.ns}} create configmap cm1 --from-literal=debug=true -o yaml --dry-run=client | kubectl apply -f -"
 YAML
 
 kubectl apply -f $COURSE_DIR/11/configurator.yaml
@@ -1447,7 +1450,10 @@ spec:
       containers:
         - name: miner
           image: busybox:1.36
-          command: ["/bin/sh", "-c", "while true; do sleep 60; done"]
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "while true; do sleep 60; done"
           env:
             - name: PROCESS
               value: miner
