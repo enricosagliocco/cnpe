@@ -14,6 +14,11 @@ Ogni domanda contiene una policy incompleta o errata e manifest di test. Devi:
 4. applicare la policy al cluster;
 5. verificare realmente il caso negato e quello consentito.
 
+Le domande sono indipendenti. Dopo aver completato le verifiche di una
+domanda, elimina la relativa policy prima di passare alla successiva, salvo
+quando la traccia richiede esplicitamente di riutilizzarla. In questo modo una
+policy `Deny` precedente non altera i test dei manifest successivi.
+
 Comandi utili:
 
 ```bash

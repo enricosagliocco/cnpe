@@ -6,14 +6,34 @@ COURSE_DIR="${COURSE_DIR:-$HOME/course-tekton}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 
-command -v kubectl >/dev/null || { echo "kubectl is required"; exit 1; }
+die() { echo "[ERR] $*" >&2; exit 1; }
+
+ensure_cluster() {
+  if kubectl cluster-info >/dev/null 2>&1; then
+    return
+  fi
+  if command -v minikube >/dev/null 2>&1; then
+    echo "[INFO] No reachable cluster; starting Minikube"
+    minikube start --cpus=4 --memory=6144
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
+    return
+  fi
+  die "No reachable Kubernetes cluster and Minikube is not installed"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  echo "$COURSE_DIR already initialized; use LAB_FORCE=true"; exit 1
+  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
-kubectl apply -f "https://infra.tekton.dev/releases/pipeline/previous/${TEKTON_VERSION}/release.yaml"
+kubectl apply -f "https://infra.tekton.dev/tekton-releases/pipeline/previous/${TEKTON_VERSION}/release.yaml"
 kubectl -n tekton-pipelines rollout status deploy/tekton-pipelines-controller --timeout=300s
-kubectl apply -f "https://infra.tekton.dev/releases/dashboard/latest/release.yaml"
+kubectl -n tekton-pipelines rollout status deploy/tekton-pipelines-webhook --timeout=300s
+kubectl -n tekton-pipelines patch configmap feature-flags --type merge \
+  -p '{"data":{"enable-api-fields":"beta"}}' >/dev/null
+kubectl apply -f "https://infra.tekton.dev/tekton-releases/dashboard/latest/release.yaml"
 kubectl -n tekton-pipelines rollout status deploy/tekton-dashboard --timeout=300s
 kubectl create ns tekton-lab --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 mkdir -p "$COURSE_DIR"

@@ -6,16 +6,59 @@ COURSE_DIR="${COURSE_DIR:-$HOME/course-gatekeeper-guided}"
 LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
 
-command -v kubectl >/dev/null || { echo "kubectl is required"; exit 1; }
+info() { echo "[INFO] $*"; }
+ok() { echo "[OK] $*"; }
+die() { echo "[ERR] $*" >&2; exit 1; }
+
+ensure_cluster() {
+  if kubectl cluster-info >/dev/null 2>&1; then
+    return
+  fi
+
+  if command -v minikube >/dev/null 2>&1; then
+    info "No reachable cluster; starting Minikube"
+    minikube start --cpus=4 --memory=6144
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
+    return
+  fi
+
+  die "No reachable Kubernetes cluster and Minikube is not installed"
+}
+
+wait_for_gatekeeper_webhook() {
+  local attempts=60
+  local delay=2
+  local check_namespace="gatekeeper-readiness-${RANDOM}-${RANDOM}"
+  local attempt
+
+  info "Waiting for the Gatekeeper admission webhook to accept requests"
+  for attempt in $(seq 1 "$attempts"); do
+    if kubectl create namespace "$check_namespace" \
+      --dry-run=server -o name >/dev/null 2>&1; then
+      ok "Gatekeeper admission webhook is ready"
+      return
+    fi
+    sleep "$delay"
+  done
+
+  die "Gatekeeper admission webhook did not become ready after $((attempts * delay)) seconds"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
+
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  echo "$COURSE_DIR already initialized; use LAB_FORCE=true"; exit 1
+  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
 if [ "$INSTALL_TOOLS" = "true" ]; then
+  info "Installing Gatekeeper ${GATEKEEPER_VERSION}; this can take 1-2 minutes"
   kubectl apply -f \
     "https://raw.githubusercontent.com/open-policy-agent/gatekeeper/${GATEKEEPER_VERSION}/deploy/gatekeeper.yaml"
   kubectl -n gatekeeper-system rollout status deploy/gatekeeper-controller-manager --timeout=300s
   kubectl -n gatekeeper-system rollout status deploy/gatekeeper-audit --timeout=300s
+  wait_for_gatekeeper_webhook
 fi
 
 mkdir -p "$COURSE_DIR"
@@ -25,6 +68,29 @@ for ns in guided-apps guided-prod guided-exempt; do
 done
 kubectl label ns guided-prod policy.gatekeeper/enabled=true --overwrite >/dev/null
 kubectl label ns guided-exempt policy.gatekeeper/enabled=false --overwrite >/dev/null
+
+# Q8 needs an existing object that can later be discovered through data.inventory.
+if ! kubectl -n guided-apps get ingress inventory-source >/dev/null 2>&1; then
+  kubectl apply -f - >/dev/null <<'YAML'
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inventory-source
+  namespace: guided-apps
+spec:
+  rules:
+    - host: guided.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 80
+YAML
+fi
 
 cat > "$COURSE_DIR/README.md" <<'MD'
 # Metodo di lavoro
@@ -226,10 +292,27 @@ spec:
   match: {namespaces: [guided-prod], kinds: [{apiGroups: ["apps"], kinds: ["Deployment"]}]}
   parameters: {minimum: 2}
 YAML
-cp "$COURSE_DIR/01/bad.yaml" "$COURSE_DIR/03/bad.yaml"
-sed -i 's/namespace: guided-apps/namespace: guided-prod/; s/name: owner-bad/name: replicas-bad/; s/app: owner-bad/app: replicas-bad/' "$COURSE_DIR/03/bad.yaml"
-cp "$COURSE_DIR/03/bad.yaml" "$COURSE_DIR/03/good.yaml"
-sed -i 's/name: replicas-bad/name: replicas-good/g; s/app: replicas-bad/app: replicas-good/g; s/spec: {/spec: {replicas: 2,/' "$COURSE_DIR/03/good.yaml"
+cat > "$COURSE_DIR/03/bad.yaml" <<'YAML'
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: replicas-bad, namespace: guided-prod}
+spec:
+  selector: {matchLabels: {app: replicas-bad}}
+  template:
+    metadata: {labels: {app: replicas-bad}}
+    spec: {containers: [{name: app, image: nginx:1-alpine}]}
+YAML
+cat > "$COURSE_DIR/03/good.yaml" <<'YAML'
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: replicas-good, namespace: guided-prod}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: replicas-good}}
+  template:
+    metadata: {labels: {app: replicas-good}}
+    spec: {containers: [{name: app, image: nginx:1-alpine}]}
+YAML
 
 cat > "$COURSE_DIR/04/README.md" <<'MD'
 # 04 - Iterare liste e produrre violazioni
@@ -291,13 +374,13 @@ YAML
 cat > "$COURSE_DIR/04/bad.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
-metadata: {name: repo-bad, namespace: guided-apps}
+metadata: {name: repo-bad, namespace: guided-apps, labels: {app: repo-bad, team: platform}}
 spec: {containers: [{name: web, image: docker.io/library/nginx:latest}]}
 YAML
 cat > "$COURSE_DIR/04/good.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
-metadata: {name: repo-good, namespace: guided-apps}
+metadata: {name: repo-good, namespace: guided-apps, labels: {app: repo-good, team: platform}}
 spec: {containers: [{name: app, image: registry.k8s.io/pause:3.10}]}
 YAML
 
@@ -351,8 +434,17 @@ spec:
     # TODO namespaceSelector enabled=true and exclude guided-exempt
   parameters: {annotation: owner}
 YAML
-cp "$COURSE_DIR/01/bad.yaml" "$COURSE_DIR/06/bad.yaml"
-sed -i 's/namespace: guided-apps/namespace: guided-prod/' "$COURSE_DIR/06/bad.yaml"
+cat > "$COURSE_DIR/06/bad.yaml" <<'YAML'
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: owner-bad, namespace: guided-prod}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: owner-bad}}
+  template:
+    metadata: {labels: {app: owner-bad}}
+    spec: {containers: [{name: app, image: nginx:1-alpine}]}
+YAML
 cp "$COURSE_DIR/01/bad.yaml" "$COURSE_DIR/06/good.yaml"
 sed -i 's/namespace: guided-apps/namespace: guided-exempt/; s/owner-bad/exempt-bad/g' "$COURSE_DIR/06/good.yaml"
 
@@ -368,6 +460,9 @@ input.review.oldObject
 
 Limita la regola all'operazione UPDATE nel Rego o nel match disponibile.
 Completa lo starter per rendere immutabile la label `team`.
+
+Applica nell'ordine `initial.yaml`, `good.yaml` e `bad.yaml`: l'aggiornamento
+di `version` deve riuscire, mentre il cambio di `team` deve essere negato.
 MD
 cat > "$COURSE_DIR/07/example-template.yaml" <<'YAML'
 apiVersion: templates.gatekeeper.sh/v1
@@ -403,13 +498,20 @@ metadata: {name: immutable-team-guided}
 spec:
   match: {namespaces: [guided-apps], kinds: [{apiGroups: ["apps"], kinds: ["Deployment"]}]}
 YAML
-cat > "$COURSE_DIR/07/bad.yaml" <<'YAML'
+cat > "$COURSE_DIR/07/initial.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
-metadata: {name: immutable, namespace: guided-apps, labels: {team: platform, version: v1}}
+metadata:
+  name: immutable
+  namespace: guided-apps
+  annotations: {owner: platform}
+  labels: {team: platform, version: v1}
 spec: {selector: {matchLabels: {app: immutable}}, template: {metadata: {labels: {app: immutable}}, spec: {containers: [{name: app, image: nginx:1-alpine}]}}}
 YAML
-cp "$COURSE_DIR/07/bad.yaml" "$COURSE_DIR/07/good.yaml"
+sed 's/version: v1/version: v2/' \
+  "$COURSE_DIR/07/initial.yaml" > "$COURSE_DIR/07/good.yaml"
+sed 's/team: platform/team: operations/; s/version: v1/version: v2/' \
+  "$COURSE_DIR/07/initial.yaml" > "$COURSE_DIR/07/bad.yaml"
 
 cat > "$COURSE_DIR/08/README.md" <<'MD'
 # 08 - Inventory: confrontare con risorse esistenti
@@ -426,6 +528,10 @@ other := data.inventory.namespace[ns]["networking.k8s.io/v1"].Ingress[name]
 Prima abilita la sync dell'Ingress con `config.yaml`. Poi completa il template
 per negare un host Ingress già usato, ignorando l'oggetto stesso durante
 UPDATE.
+
+Il setup crea `guided-apps/inventory-source` con host `guided.example.com`.
+Dopo aver applicato `config.yaml`, attendi che la risorsa sia sincronizzata
+prima di provare `bad.yaml`.
 MD
 cat > "$COURSE_DIR/08/example-template.yaml" <<'YAML'
 apiVersion: config.gatekeeper.sh/v1alpha1

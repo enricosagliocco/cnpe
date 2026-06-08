@@ -194,9 +194,17 @@ L'XRD starter usa ancora la policy automatica di aggiornamento.
 
 `16/environment.yaml` contiene i default, ma la Composition non li usa.
 
-1. Crea `EnvironmentConfig` `platform-defaults` con `region=eu-west` e `owner=platform`; patcha entrambi come annotation del Deployment.
-2. Applica EnvironmentConfig, Composition e XR.
-3. Verifica le annotation sulla risorsa composta.
+1. Applica `16/function.yaml` e attendi che `function-environment-configs`
+   sia Healthy.
+2. Crea `EnvironmentConfig` `platform-defaults` con `region=eu-west` e
+   `owner=platform`.
+3. Aggiungi come primo step della pipeline `function-environment-configs`,
+   selezionando `platform-defaults` per riferimento.
+4. Nel successivo step `function-patch-and-transform`, usa patch
+   `FromEnvironmentFieldPath` per scrivere `region` e `owner` come annotation
+   del Deployment.
+5. Applica EnvironmentConfig, Composition e XR e verifica le annotation
+   sulla risorsa composta.
 
 ---
 

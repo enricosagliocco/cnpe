@@ -5,10 +5,43 @@ COURSE_DIR="${COURSE_DIR:-$HOME/course-platform-security}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
+CROSSPLANE_VERSION="${CROSSPLANE_VERSION:-2.3.1}"
 
-command -v kubectl >/dev/null || { echo "kubectl is required"; exit 1; }
+die() { echo "[ERR] $*" >&2; exit 1; }
+
+ensure_cluster() {
+  if kubectl cluster-info >/dev/null 2>&1; then
+    return
+  fi
+  if command -v minikube >/dev/null 2>&1; then
+    echo "[INFO] No reachable cluster; starting Minikube"
+    minikube start --cpus=6 --memory=10240
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
+    return
+  fi
+  die "No reachable Kubernetes cluster and Minikube is not installed"
+}
+
+wait_for_gatekeeper_webhook() {
+  local attempts=60
+  local check_namespace="gatekeeper-readiness-${RANDOM}-${RANDOM}"
+  local attempt
+
+  for attempt in $(seq 1 "$attempts"); do
+    if kubectl create namespace "$check_namespace" \
+      --dry-run=server -o name >/dev/null 2>&1; then
+      return
+    fi
+    sleep 2
+  done
+  die "Gatekeeper admission webhook did not become ready after 120 seconds"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  echo "$COURSE_DIR already initialized; use LAB_FORCE=true"; exit 1
+  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 mkdir -p "$COURSE_DIR"
 for n in $(seq -w 1 20); do mkdir -p "$COURSE_DIR/$n"; done
@@ -21,9 +54,12 @@ if [ "$INSTALL_TOOLS" = "true" ]; then
   command -v helm >/dev/null || { echo "helm is required"; exit 1; }
   kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/v3.22.2/deploy/gatekeeper.yaml
   kubectl -n gatekeeper-system rollout status deploy/gatekeeper-controller-manager --timeout=300s
+  kubectl -n gatekeeper-system rollout status deploy/gatekeeper-audit --timeout=300s
+  wait_for_gatekeeper_webhook
   helm repo add crossplane-stable https://charts.crossplane.io/stable >/dev/null 2>&1 || true
   helm repo update >/dev/null
-  helm upgrade --install crossplane crossplane-stable/crossplane -n crossplane-system --create-namespace --wait
+  helm upgrade --install crossplane crossplane-stable/crossplane \
+    -n crossplane-system --create-namespace --version "$CROSSPLANE_VERSION" --wait
   kubectl apply -f - <<'YAML'
 apiVersion: pkg.crossplane.io/v1
 kind: Function
@@ -31,6 +67,8 @@ metadata: {name: function-patch-and-transform}
 spec:
   package: xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.8.2
 YAML
+  kubectl wait --for=condition=Healthy \
+    function/function-patch-and-transform --timeout=300s
 fi
 
 cat > "$COURSE_DIR/01/crd.yaml" <<'YAML'

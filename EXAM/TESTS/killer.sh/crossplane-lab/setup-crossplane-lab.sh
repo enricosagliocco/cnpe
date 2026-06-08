@@ -4,17 +4,35 @@ set -euo pipefail
 COURSE_DIR="${COURSE_DIR:-$HOME/course-crossplane}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
+CROSSPLANE_VERSION="${CROSSPLANE_VERSION:-2.3.1}"
 
-command -v kubectl >/dev/null || { echo "kubectl is required"; exit 1; }
-command -v helm >/dev/null || { echo "helm is required"; exit 1; }
+die() { echo "[ERR] $*" >&2; exit 1; }
+
+ensure_cluster() {
+  if kubectl cluster-info >/dev/null 2>&1; then
+    return
+  fi
+  if command -v minikube >/dev/null 2>&1; then
+    echo "[INFO] No reachable cluster; starting Minikube"
+    minikube start --cpus=4 --memory=6144
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
+    return
+  fi
+  die "No reachable Kubernetes cluster and Minikube is not installed"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+command -v helm >/dev/null || die "helm is required"
+ensure_cluster
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  echo "$COURSE_DIR already initialized; use LAB_FORCE=true"; exit 1
+  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
 helm repo add crossplane-stable https://charts.crossplane.io/stable >/dev/null 2>&1 || true
 helm repo update >/dev/null
 helm upgrade --install crossplane crossplane-stable/crossplane \
-  -n crossplane-system --create-namespace --wait
+  -n crossplane-system --create-namespace --version "$CROSSPLANE_VERSION" --wait
 kubectl apply -f - <<'YAML'
 apiVersion: pkg.crossplane.io/v1
 kind: Function
@@ -181,6 +199,13 @@ apiVersion: apiextensions.crossplane.io/v1beta1
 kind: EnvironmentConfig
 metadata: {name: platform-defaults}
 data: {region: eu-west, owner: platform}
+YAML
+cat > "$COURSE_DIR/16/function.yaml" <<'YAML'
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata: {name: function-environment-configs}
+spec:
+  package: xpkg.crossplane.io/crossplane-contrib/function-environment-configs:v0.7.1
 YAML
 cat > "$COURSE_DIR/18/function.yaml" <<'YAML'
 apiVersion: pkg.crossplane.io/v1

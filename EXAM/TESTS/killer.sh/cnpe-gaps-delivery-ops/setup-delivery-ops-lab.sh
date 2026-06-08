@@ -6,9 +6,26 @@ LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-command -v kubectl >/dev/null || { echo "kubectl is required"; exit 1; }
+die() { echo "[ERR] $*" >&2; exit 1; }
+
+ensure_cluster() {
+  if kubectl cluster-info >/dev/null 2>&1; then
+    return
+  fi
+  if command -v minikube >/dev/null 2>&1; then
+    echo "[INFO] No reachable cluster; starting Minikube"
+    minikube start --cpus=6 --memory=12288
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
+    return
+  fi
+  die "No reachable Kubernetes cluster and Minikube is not installed"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  echo "$COURSE_DIR already initialized; use LAB_FORCE=true"; exit 1
+  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
 mkdir -p "$COURSE_DIR"
@@ -44,9 +61,12 @@ if [ "$INSTALL_TOOLS" = "true" ]; then
     --set "config.clients[0].url=http://loki.monitoring.svc:3100/loki/api/v1/push" \
     --wait
   kubectl apply -f https://github.com/fluxcd/flux2/releases/download/v2.8.8/install.yaml
-  kubectl apply -f https://infra.tekton.dev/releases/pipeline/previous/v1.9.0/release.yaml
-  kubectl apply -f https://infra.tekton.dev/releases/dashboard/latest/release.yaml
+  kubectl apply -f https://infra.tekton.dev/tekton-releases/pipeline/previous/v1.9.0/release.yaml
+  kubectl apply -f https://infra.tekton.dev/tekton-releases/dashboard/latest/release.yaml
   kubectl -n tekton-pipelines rollout status deploy/tekton-pipelines-controller --timeout=300s
+  kubectl -n tekton-pipelines rollout status deploy/tekton-pipelines-webhook --timeout=300s
+  kubectl -n tekton-pipelines patch configmap feature-flags --type merge \
+    -p '{"data":{"enable-api-fields":"beta"}}' >/dev/null
   kubectl -n tekton-pipelines rollout status deploy/tekton-dashboard --timeout=300s
   kubectl -n flux-system rollout status deploy/source-controller --timeout=300s
   kubectl -n flux-system rollout status deploy/kustomize-controller --timeout=300s

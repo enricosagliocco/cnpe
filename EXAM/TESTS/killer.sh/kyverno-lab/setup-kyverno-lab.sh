@@ -9,9 +9,26 @@ INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$HOME/.local/bin:$PATH"
 
-command -v kubectl >/dev/null || { echo "kubectl is required"; exit 1; }
+die() { echo "[ERR] $*" >&2; exit 1; }
+
+ensure_cluster() {
+  if kubectl cluster-info >/dev/null 2>&1; then
+    return
+  fi
+  if command -v minikube >/dev/null 2>&1; then
+    echo "[INFO] No reachable cluster; starting Minikube"
+    minikube start --cpus=4 --memory=6144
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
+    return
+  fi
+  die "No reachable Kubernetes cluster and Minikube is not installed"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  echo "$COURSE_DIR already initialized; use LAB_FORCE=true"; exit 1
+  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
 if [ "$INSTALL_TOOLS" = "true" ]; then
@@ -21,6 +38,7 @@ if [ "$INSTALL_TOOLS" = "true" ]; then
   helm upgrade --install kyverno kyverno/kyverno -n kyverno --create-namespace \
     --version "$KYVERNO_VERSION" --wait
   kubectl -n kyverno rollout status deploy/kyverno-admission-controller --timeout=300s
+  kubectl -n kyverno rollout status deploy/kyverno-background-controller --timeout=300s
 fi
 
 if ! command -v kyverno >/dev/null; then

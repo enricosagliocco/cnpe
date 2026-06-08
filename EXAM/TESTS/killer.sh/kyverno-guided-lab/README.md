@@ -20,3 +20,8 @@ contiene:
 
 Procedi in ordine: ogni lezione introduce un solo costrutto nuovo.
 
+Le lezioni sono isolate. Dopo i test admission di una lezione, elimina la
+policy applicata prima di procedere, salvo quando il README della lezione
+richiede esplicitamente di riutilizzarla. Le policy `Deny` precedenti
+potrebbero altrimenti bloccare workload usati per dimostrare un costrutto
+diverso.

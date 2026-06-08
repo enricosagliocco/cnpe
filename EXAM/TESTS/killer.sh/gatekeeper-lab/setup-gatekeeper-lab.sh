@@ -36,6 +36,8 @@ ensure_cluster() {
   if command -v minikube >/dev/null 2>&1; then
     info "No reachable cluster; starting Minikube"
     minikube start --cpus=4 --memory=6144
+    kubectl cluster-info >/dev/null 2>&1 ||
+      die "Minikube started, but kubectl still cannot reach the cluster"
     return
   fi
 
@@ -44,6 +46,26 @@ ensure_cluster() {
 
 apply_namespace() {
   kubectl create namespace "$1" --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+}
+
+wait_for_gatekeeper_webhook() {
+  local attempts=60
+  local delay=2
+  local check_namespace="gatekeeper-readiness-${RANDOM}-${RANDOM}"
+  local attempt
+
+  info "Waiting for the Gatekeeper admission webhook to accept requests"
+  for attempt in $(seq 1 "$attempts"); do
+    if kubectl create namespace "$check_namespace" \
+      --dry-run=server -o name >/dev/null 2>&1; then
+      ok "Gatekeeper admission webhook is ready"
+      return
+    fi
+
+    sleep "$delay"
+  done
+
+  die "Gatekeeper admission webhook did not become ready after $((attempts * delay)) seconds"
 }
 
 require kubectl
@@ -62,6 +84,8 @@ kubectl -n gatekeeper-system rollout status deploy/gatekeeper-controller-manager
   --timeout=300s
 kubectl -n gatekeeper-system rollout status deploy/gatekeeper-audit \
   --timeout=300s
+
+wait_for_gatekeeper_webhook
 
 for ns in apps dev staging prod exempt legacy team-a team-b; do
   apply_namespace "$ns"
