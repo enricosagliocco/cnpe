@@ -37,4 +37,10 @@ for part in \
   fi
 done
 
+CALLER_HOME="${SUDO_USER:+$(getent passwd "$SUDO_USER" | cut -d: -f6)}"
+CALLER_HOME="${CALLER_HOME:-$HOME}"
+COURSE_DIR="${COURSE_DIR:-${CALLER_HOME}/course}"
+mkdir -p "$COURSE_DIR"
+cp "${SCRIPT_DIR}/domande.md" "${COURSE_DIR}/domande.md"
+
 banner "All done!"
