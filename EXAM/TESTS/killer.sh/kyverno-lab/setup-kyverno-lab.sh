@@ -11,6 +11,83 @@ export PATH="$HOME/.local/bin:$PATH"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 
+load_question_layout() {
+  local shared_layout="$SCRIPT_DIR/../lab-question-layout.sh"
+
+  if [ -f "$shared_layout" ]; then
+    # The full repository keeps this helper next to all lab directories.
+    source "$shared_layout"
+    return
+  fi
+
+  # Keep the lab runnable when only the kyverno-lab directory is copied.
+  prepare_question_layout() {
+    local course_dir="$1"
+    local questions_file="$2"
+    local directory_style="${3:-padded}"
+    local directory
+    local number
+    local heading
+
+    [ -f "$questions_file" ] || {
+      echo "[ERR] questions file not found: $questions_file" >&2
+      return 1
+    }
+
+    for number in $(seq 1 20); do
+      if [ "$directory_style" = "plain" ]; then
+        directory="$number"
+      else
+        directory="$(printf '%02d' "$number")"
+      fi
+      mkdir -p "$course_dir/$directory"
+      rm -f "$course_dir/$directory/QUESTION.md"
+      touch "$course_dir/$directory/evidence.txt"
+    done
+
+    awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
+      /^### Q[0-9]+ / {
+        heading = $0
+        sub(/^### Q/, "", heading)
+        split(heading, fields, " ")
+        if (directory_style == "plain") {
+          question = fields[1] + 0
+        } else {
+          question = sprintf("%02d", fields[1])
+        }
+        output = course_dir "/" question "/QUESTION.md"
+        print $0 > output
+        next
+      }
+      /^### / {
+        question = ""
+      }
+      question != "" {
+        print $0 > output
+      }
+    ' "$questions_file"
+
+    {
+      echo "# Question index"
+      echo
+      for number in $(seq 1 20); do
+        if [ "$directory_style" = "plain" ]; then
+          directory="$number"
+        else
+          directory="$(printf '%02d' "$number")"
+        fi
+        if [ ! -s "$course_dir/$directory/QUESTION.md" ]; then
+          echo "[ERR] Q${number#0} was not extracted from $questions_file" >&2
+          return 1
+        fi
+        heading="$(head -n 1 "$course_dir/$directory/QUESTION.md")"
+        heading="${heading#\#\#\# }"
+        printf -- '- [%s](%s/QUESTION.md)\n' "$heading" "$directory"
+      done
+    } > "$course_dir/questions-index.md"
+  }
+}
+
 ensure_cluster() {
   if kubectl cluster-info >/dev/null 2>&1; then
     return
@@ -1046,7 +1123,7 @@ spec:
 YAML
 touch "$COURSE_DIR/20/report.md"
 
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+load_question_layout
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 echo "Kyverno lab ready: $COURSE_DIR"
