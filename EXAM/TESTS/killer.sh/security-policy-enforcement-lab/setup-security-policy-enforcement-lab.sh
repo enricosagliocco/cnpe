@@ -9,9 +9,96 @@ CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-existing}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-security}"
 KYVERNO_VERSION="${KYVERNO_VERSION:-3.8.1}"
 TEKTON_VERSION="${TEKTON_VERSION:-v1.9.0}"
+CALICO_VERSION="${CALICO_VERSION:-v3.29.3}"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
+
+load_question_layout() {
+  local shared_layout="$SCRIPT_DIR/../lab-question-layout.sh"
+
+  if [ -f "$shared_layout" ]; then
+    source "$shared_layout"
+    return
+  fi
+
+  # Keep the lab runnable when only this lab directory is copied.
+  prepare_question_layout() {
+    local course_dir="$1"
+    local questions_file="$2"
+    local directory_style="${3:-padded}"
+    local directory
+    local number
+    local heading
+
+    [ -f "$questions_file" ] || {
+      echo "[ERR] questions file not found: $questions_file" >&2
+      return 1
+    }
+
+    for number in $(seq 1 20); do
+      if [ "$directory_style" = "plain" ]; then
+        directory="$number"
+      else
+        directory="$(printf '%02d' "$number")"
+      fi
+      mkdir -p "$course_dir/$directory"
+      rm -f "$course_dir/$directory/QUESTION.md"
+      touch "$course_dir/$directory/evidence.txt"
+    done
+
+    awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
+      /^### Q[0-9]+ / {
+        heading = $0
+        sub(/^### Q/, "", heading)
+        split(heading, fields, " ")
+        if (directory_style == "plain") {
+          question = fields[1] + 0
+        } else {
+          question = sprintf("%02d", fields[1])
+        }
+        output = course_dir "/" question "/QUESTION.md"
+        print $0 > output
+        next
+      }
+      /^### / {
+        question = ""
+      }
+      question != "" {
+        print $0 > output
+      }
+    ' "$questions_file"
+
+    {
+      echo "# Question index"
+      echo
+      for number in $(seq 1 20); do
+        if [ "$directory_style" = "plain" ]; then
+          directory="$number"
+        else
+          directory="$(printf '%02d' "$number")"
+        fi
+        if [ ! -s "$course_dir/$directory/QUESTION.md" ]; then
+          echo "[ERR] Q${number#0} was not extracted from $questions_file" >&2
+          return 1
+        fi
+        heading="$(head -n 1 "$course_dir/$directory/QUESTION.md")"
+        heading="${heading#\#\#\# }"
+        printf -- '- [%s](%s/QUESTION.md)\n' "$heading" "$directory"
+      done
+    } > "$course_dir/questions-index.md"
+  }
+}
+
+install_calico() {
+  info "Installing Calico ${CALICO_VERSION}"
+  kubectl apply -f \
+    "https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/calico.yaml" \
+    >/dev/null
+  kubectl -n kube-system rollout status daemonset/calico-node --timeout=300s
+  kubectl -n kube-system rollout status deployment/calico-kube-controllers \
+    --timeout=300s
+}
 
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
@@ -25,11 +112,25 @@ ensure_cluster() {
         info "Using existing kind cluster: $KIND_CLUSTER_NAME"
       else
         info "Creating kind cluster: $KIND_CLUSTER_NAME"
-        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s
+        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s --config - <<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true
+nodes:
+  - role: control-plane
+  - role: worker
+EOF
       fi
       kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
       kubectl cluster-info >/dev/null 2>&1 ||
         die "kind started, but kubectl cannot reach the cluster"
+      if ! kubectl -n kube-system get daemonset calico-node >/dev/null 2>&1; then
+        if kubectl -n kube-system get daemonset kindnet >/dev/null 2>&1; then
+          die "Existing kind cluster uses kindnet and cannot enforce this lab's NetworkPolicy; delete it with: kind delete cluster --name $KIND_CLUSTER_NAME"
+        fi
+        install_calico
+      fi
       ;;
     *)
       die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER"
@@ -141,7 +242,7 @@ if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
 fi
 
 if [ "$LAB_FORCE" = "true" ]; then
-  for namespace in security-apps security-platform security-pipeline; do
+  for namespace in security-apps security-exempt security-platform security-pipeline; do
     kubectl delete namespace "$namespace" --ignore-not-found --wait=true
   done
   rm -rf "$COURSE_DIR"
@@ -150,7 +251,7 @@ fi
 for number in $(seq -w 1 20); do
   mkdir -p "$COURSE_DIR/$number"
 done
-for namespace in security-apps security-platform security-pipeline; do
+for namespace in security-apps security-exempt security-platform security-pipeline; do
   kubectl create namespace "$namespace" --dry-run=client -o yaml |
     kubectl apply -f - >/dev/null
 done
@@ -362,11 +463,36 @@ metadata:
   name: platform-auditor
 rules:
   - apiGroups:
-      - "*"
+      - ""
+      - "apps"
+      - "rbac.authorization.k8s.io"
+      - "policies.kyverno.io"
+      - "wgpolicyk8s.io"
+      - "tekton.dev"
     resources:
-      - "*"
+      - "pods"
+      - "pods/log"
+      - "secrets"
+      - "services"
+      - "deployments"
+      - "statefulsets"
+      - "daemonsets"
+      - "roles"
+      - "rolebindings"
+      - "validatingpolicies"
+      - "policyreports"
+      - "clusterpolicyreports"
+      - "pipelines"
+      - "pipelineruns"
+      - "taskruns"
     verbs:
-      - "*"
+      - "get"
+      - "list"
+      - "watch"
+      - "create"
+      - "update"
+      - "patch"
+      - "delete"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -424,6 +550,7 @@ spec:
   validationActions:
     - Audit
   matchConstraints:
+    namespaceSelector: {} # TODO security.cnpe.io/policy=enabled
     resourceRules:
       - apiGroups:
           - "apps"
@@ -438,7 +565,6 @@ spec:
     - message: "Deployment must declare owner and data-classification labels"
       expression: "true" # TODO
 YAML
-kubectl apply -f "$COURSE_DIR/03/audit-policy.yaml" >/dev/null
 touch "$COURSE_DIR/03/audit-before.txt" "$COURSE_DIR/03/audit-after.txt"
 
 cat > "$COURSE_DIR/04/governance-policy.yaml" <<'YAML'
@@ -450,6 +576,7 @@ spec:
   validationActions:
     - Audit # TODO Deny
   matchConstraints:
+    namespaceSelector: {} # TODO security.cnpe.io/policy=enabled
     resourceRules:
       - apiGroups:
           - ""
@@ -498,6 +625,20 @@ spec:
         capabilities:
           drop:
             - ALL
+YAML
+
+cat > "$COURSE_DIR/04/pod-excluded.yaml" <<'YAML'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: governance-excluded
+  namespace: security-exempt
+spec:
+  containers:
+    - name: app
+      image: nginx:latest
+      securityContext:
+        privileged: true
 YAML
 touch "$COURSE_DIR/04/admission.txt"
 
@@ -610,7 +751,7 @@ kubectl -n security-pipeline create configmap security-inputs \
 touch "$COURSE_DIR/05/pipeline-result.txt"
 
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+load_question_layout
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 

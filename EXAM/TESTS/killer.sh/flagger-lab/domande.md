@@ -392,7 +392,7 @@ Percorso: `~/course-flagger/19`.
 
 ---
 
-### Q20 - Simulazione finale a tempo
+### Q20 - Simulazione a tempo finale
 
 Percorso: `~/course-flagger/20`.
 
