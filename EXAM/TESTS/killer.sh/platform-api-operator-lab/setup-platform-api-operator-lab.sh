@@ -12,6 +12,82 @@ TEKTON_VERSION="${TEKTON_VERSION:-v1.9.0}"
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
 
+load_question_layout() {
+  local shared_layout="$SCRIPT_DIR/../lab-question-layout.sh"
+
+  if [ -f "$shared_layout" ]; then
+    source "$shared_layout"
+    return
+  fi
+
+  # Keep the lab runnable when only this lab directory is copied.
+  prepare_question_layout() {
+    local course_dir="$1"
+    local questions_file="$2"
+    local directory_style="${3:-padded}"
+    local directory
+    local number
+    local heading
+
+    [ -f "$questions_file" ] || {
+      echo "[ERR] questions file not found: $questions_file" >&2
+      return 1
+    }
+
+    for number in $(seq 1 20); do
+      if [ "$directory_style" = "plain" ]; then
+        directory="$number"
+      else
+        directory="$(printf '%02d' "$number")"
+      fi
+      mkdir -p "$course_dir/$directory"
+      rm -f "$course_dir/$directory/QUESTION.md"
+      touch "$course_dir/$directory/evidence.txt"
+    done
+
+    awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
+      /^### Q[0-9]+ / {
+        heading = $0
+        sub(/^### Q/, "", heading)
+        split(heading, fields, " ")
+        if (directory_style == "plain") {
+          question = fields[1] + 0
+        } else {
+          question = sprintf("%02d", fields[1])
+        }
+        output = course_dir "/" question "/QUESTION.md"
+        print $0 > output
+        next
+      }
+      /^### / {
+        question = ""
+      }
+      question != "" {
+        print $0 > output
+      }
+    ' "$questions_file"
+
+    {
+      echo "# Question index"
+      echo
+      for number in $(seq 1 20); do
+        if [ "$directory_style" = "plain" ]; then
+          directory="$number"
+        else
+          directory="$(printf '%02d' "$number")"
+        fi
+        if [ ! -s "$course_dir/$directory/QUESTION.md" ]; then
+          echo "[ERR] Q${number#0} was not extracted from $questions_file" >&2
+          return 1
+        fi
+        heading="$(head -n 1 "$course_dir/$directory/QUESTION.md")"
+        heading="${heading#\#\#\# }"
+        printf -- '- [%s](%s/QUESTION.md)\n' "$heading" "$directory"
+      done
+    } > "$course_dir/questions-index.md"
+  }
+}
+
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
     existing)
@@ -101,6 +177,46 @@ spec:
           x-kubernetes-preserve-unknown-fields: true # TODO structural schema
 YAML
 kubectl apply -f "$COURSE_DIR/01/platformservice-crd.yaml" >/dev/null
+
+cat > "$COURSE_DIR/01/service-valid.yaml" <<'YAML'
+apiVersion: platform.cnpe.io/v1alpha1
+kind: PlatformService
+metadata:
+  name: api-valid
+  namespace: tenant-a
+spec:
+  owner:
+    team: platform
+  plan: small
+  image: nginx:1.27-alpine
+YAML
+
+cat > "$COURSE_DIR/01/service-invalid-plan.yaml" <<'YAML'
+apiVersion: platform.cnpe.io/v1alpha1
+kind: PlatformService
+metadata:
+  name: api-invalid-plan
+  namespace: tenant-a
+spec:
+  owner:
+    team: platform
+  plan: large
+  image: nginx:1.27-alpine
+YAML
+
+cat > "$COURSE_DIR/01/service-invalid-replicas.yaml" <<'YAML'
+apiVersion: platform.cnpe.io/v1alpha1
+kind: PlatformService
+metadata:
+  name: api-invalid-replicas
+  namespace: tenant-a
+spec:
+  owner:
+    team: platform
+  plan: medium
+  image: nginx:1.27-alpine
+  replicas: 8
+YAML
 touch "$COURSE_DIR/01/crd-check.txt"
 
 cat > "$COURSE_DIR/02/developer-rbac.yaml" <<'YAML'
@@ -163,6 +279,7 @@ rules:
       - get
       - list
       - watch
+      # TODO Q17 add patch for metadata.finalizers
   - apiGroups:
       - platform.cnpe.io
     resources:
@@ -218,6 +335,20 @@ data:
         --no-headers -o custom-columns='NS:.metadata.namespace,NAME:.metadata.name' |
       while read -r namespace name; do
         [ -n "$namespace" ] || continue
+        deletion_timestamp="$(kubectl -n "$namespace" get platformservice "$name" \
+          -o jsonpath='{.metadata.deletionTimestamp}')"
+        finalizers="$(kubectl -n "$namespace" get platformservice "$name" \
+          -o jsonpath='{.metadata.finalizers[*]}')"
+
+        if [ -n "$deletion_timestamp" ]; then
+          if echo "$finalizers" | grep -qw platform.cnpe.io/cleanup; then
+            # TODO Q18: delete Deployment, Service and ConfigMap, then remove
+            # platform.cnpe.io/cleanup from metadata.finalizers.
+            echo "cleanup pending for ${namespace}/${name}"
+          fi
+          continue
+        fi
+
         image="$(kubectl -n "$namespace" get platformservice "$name" \
           -o jsonpath='{.spec.image}')"
         replicas="$(kubectl -n "$namespace" get platformservice "$name" \
@@ -304,7 +435,7 @@ spec:
       serviceAccountName: platform-service-operator
       containers:
         - name: operator
-          image: bitnami/kubectl:1.32
+          image: registry.k8s.io/kubectl:v1.32.0
           command:
             - /bin/sh
             - /opt/operator/reconcile.sh
@@ -421,7 +552,7 @@ spec:
           - name: image
         steps:
           - name: create
-            image: bitnami/kubectl:1.32
+            image: registry.k8s.io/kubectl:v1.32.0
             script: |
               #!/bin/sh
               kubectl apply -f - <<EOF
@@ -471,6 +602,28 @@ spec:
     - name: plan
       value: medium
 YAML
+
+cat > "$COURSE_DIR/04/provisioning-run-invalid.yaml" <<'YAML'
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: provision-invalid-
+  namespace: self-service
+spec:
+  pipelineRef:
+    name: provision-platform-service
+  taskRunTemplate:
+    serviceAccountName: provisioner
+  params:
+    - name: service-name
+      value: rejected-service
+    - name: target-namespace
+      value: tenant-a
+    - name: team
+      value: payments
+    - name: plan
+      value: large
+YAML
 kubectl apply -f "$COURSE_DIR/04/pipeline-rbac.yaml" >/dev/null
 touch "$COURSE_DIR/04/workflow-check.txt"
 
@@ -491,7 +644,7 @@ YAML
 touch "$COURSE_DIR/05/lifecycle-check.txt"
 
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+load_question_layout
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 

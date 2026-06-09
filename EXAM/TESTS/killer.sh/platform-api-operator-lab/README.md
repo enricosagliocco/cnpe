@@ -8,6 +8,9 @@ Laboratorio pratico dedicato a:
 4. provisioning automatizzato tramite Tekton;
 5. status, drift, finalizer e lifecycle delle risorse gestite.
 
+Le 20 domande sono raccolte in cinque scenari progressivi nelle directory
+`01`-`05`. Ogni blocco di quattro domande condivide gli stessi starter.
+
 ## Avvio con kind
 
 Prerequisiti: Docker o Podman, `kind` e `kubectl`.
@@ -39,3 +42,6 @@ LAB_FORCE=true ./setup-platform-api-operator-lab-kind.sh
 
 La versione Tekton predefinita è `v1.9.0` ed è sovrascrivibile tramite
 `TEKTON_VERSION`.
+
+La directory del lab è autonoma: può essere copiata ed eseguita senza il file
+condiviso `../lab-question-layout.sh`.
