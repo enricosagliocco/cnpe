@@ -21,12 +21,14 @@ chmod +x setup-flagger-lab-kind.sh
 ./setup-flagger-lab-kind.sh
 ```
 
-Il setup installa Flagger 1.43.0 con il provider Kubernetes, il load tester e
-crea gli starter in `~/course-flagger`. La versione è sovrascrivibile con
-`FLAGGER_VERSION`.
+Il setup installa Flagger 1.43.0 con provider Kubernetes, il Prometheus
+integrato nel chart, il load tester e un receiver HTTP locale per webhook e
+alert. Gli starter vengono creati in `~/course-flagger`. Le versioni sono
+sovrascrivibili con `FLAGGER_VERSION` e `LOADTESTER_VERSION`.
 
 ```bash
 kubectl -n flagger-system logs deploy/flagger -f
+kubectl -n flagger-system logs deploy/flagger-receiver -f
 kubectl -n flagger-lab get canaries
 ```
 
@@ -37,5 +39,6 @@ LAB_FORCE=true ./setup-flagger-lab-kind.sh
 ```
 
 Il provider Kubernetes rende il lab base leggero e ripetibile. Gli esercizi
-dedicati a NGINX, Istio e Gateway API richiedono di completare i manifest, ma
-non installano automaticamente tutti i provider di routing.
+dedicati a NGINX e Gateway API includono gli starter da validare, ma non
+installano automaticamente ingress controller, Gateway API CRD o relativi
+controller.
