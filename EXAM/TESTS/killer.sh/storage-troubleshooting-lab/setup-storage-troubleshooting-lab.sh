@@ -8,6 +8,7 @@ CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-storage}"
 NAMESPACE="storage-lab"
 PV_NAME="cnpe-database-pv"
+LEGACY_STORAGE_CLASS_NAME="cnpe-manual"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
@@ -53,6 +54,8 @@ if [ "$LAB_FORCE" = "true" ]; then
   info "Removing previous lab resources"
   kubectl delete namespace "$NAMESPACE" --ignore-not-found --wait=true
   kubectl delete persistentvolume "$PV_NAME" --ignore-not-found --wait=true
+  kubectl delete storageclass "$LEGACY_STORAGE_CLASS_NAME" \
+    --ignore-not-found --wait=true
   rm -rf "$COURSE_DIR"
 fi
 
@@ -97,7 +100,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: cnpe-manual
+  storageClassName: local-path
   hostPath:
     path: /tmp/cnpe-storage-lab/postgresql
     type: DirectoryOrCreate
@@ -107,7 +110,6 @@ touch "$COURSE_DIR/01/diagnosi.txt"
 
 kubectl apply -f "$COURSE_DIR/01/database-config.yaml" >/dev/null
 kubectl apply -f "$COURSE_DIR/01/app-config.yaml" >/dev/null
-kubectl apply -f "$COURSE_DIR/01/database-pv.yaml" >/dev/null
 
 kubectl -n "$NAMESPACE" create secret generic database-secret \
   --from-literal=POSTGRES_DB=orders \
@@ -205,7 +207,7 @@ spec:
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: cnpe-manual
+        storageClassName: ""
         selector:
           matchLabels:
             storage.cnpe.io/database: postgres
@@ -270,6 +272,6 @@ prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 
 info "Storage troubleshooting lab ready: $COURSE_DIR"
-info "Expected initial state: PVC Pending and application init failure"
+info "Expected initial state: PVC Pending, no PV, and application init failure"
 kubectl -n "$NAMESPACE" get pods,persistentvolumeclaims
-kubectl get persistentvolume "$PV_NAME"
+kubectl get persistentvolumes

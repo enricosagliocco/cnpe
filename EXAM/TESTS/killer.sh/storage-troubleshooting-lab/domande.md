@@ -41,15 +41,17 @@ Percorso: `~/course-storage-troubleshooting/01`.
 
 Percorso: `~/course-storage-troubleshooting/01`.
 
-1. Rileva richiesta storage, access mode, StorageClass e selector del PVC
-   senza modificarne lo spec.
+1. Rileva richiesta storage, access mode, assenza di StorageClass e selector
+   del PVC senza modificarne lo spec.
 
 ### Q4 – Analisi PV
 
 Percorso: `~/course-storage-troubleshooting/01`.
 
-1. Confronta `01/database-pv.yaml` con il PVC e documenta ogni incompatibilità
-   che impedisce il binding.
+1. Conferma che il PV non esiste ancora nel cluster.
+
+2. Confronta il candidato `01/database-pv.yaml` con il PVC e documenta ogni
+   incompatibilità che impedirebbe il binding.
 
 ---
 
@@ -59,12 +61,13 @@ Percorso: `~/course-storage-troubleshooting/01`.
 
 1. Correggi il PV con capacità `1Gi` e access mode `ReadWriteOnce`.
 
-### Q6 – StorageClass e selector
+### Q6 – PV classless e selector
 
 Percorso: `~/course-storage-troubleshooting/01`.
 
-1. Imposta StorageClass `cnpe-manual` e una label compatibile con il selector
-   del PVC.
+1. Rimuovi l'associazione a qualsiasi StorageClass dal PV impostando
+   `storageClassName: ""` e configura una label compatibile con il selector del
+   PVC.
 
 ### Q7 – Reclaim policy
 
@@ -77,9 +80,11 @@ Percorso: `~/course-storage-troubleshooting/01`.
 
 Percorso: `~/course-storage-troubleshooting/01`.
 
-1. Applica il PV e verifica PV e PVC `Bound` senza eliminare il claim.
+1. Crea manualmente il PV applicando `01/database-pv.yaml` e verifica PV e PVC
+   `Bound` senza eliminare il claim.
 
-2. Registra claimRef, capacità e StorageClass.
+2. Registra claimRef, capacità e conferma che PV e PVC non usino una
+   StorageClass.
 
 ---
 
