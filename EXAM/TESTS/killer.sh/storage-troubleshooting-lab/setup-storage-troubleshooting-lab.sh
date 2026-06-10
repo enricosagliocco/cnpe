@@ -43,10 +43,6 @@ EOF
   esac
 }
 
-apply_incident() {
-  kubectl apply -f "$COURSE_DIR/$1/incident.yaml" >/dev/null
-}
-
 command -v kubectl >/dev/null || die "kubectl is required"
 ensure_cluster
 
@@ -78,8 +74,12 @@ fi
 for number in $(seq -w 1 20); do
   mkdir -p "$COURSE_DIR/$number"
   touch "$COURSE_DIR/$number/evidence.txt"
-  kubectl create namespace "storage-q${number}" --dry-run=client -o yaml |
-    kubectl apply -f - >/dev/null
+  cat > "$COURSE_DIR/$number/namespace.yaml" <<YAML
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage-q${number}
+YAML
 done
 
 # Q1: wrong StorageClass.
@@ -129,7 +129,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: report-data}
 YAML
-apply_incident 01
 
 # Q2: selector mismatch.
 cat > "$COURSE_DIR/02/incident.yaml" <<'YAML'
@@ -176,7 +175,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: catalog-data}
 YAML
-apply_incident 02
 
 # Q3: insufficient PV capacity.
 cat > "$COURSE_DIR/03/incident.yaml" <<'YAML'
@@ -184,8 +182,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q03-ledger
-  labels:
-    storage.cnpe.io/incident: q03
 spec:
   capacity: {storage: 512Mi}
   accessModes: [ReadWriteOnce]
@@ -202,9 +198,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q03
   resources:
     requests: {storage: 1Gi}
 ---
@@ -223,7 +216,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: ledger-data}
 YAML
-apply_incident 03
 
 # Q4: incompatible access mode.
 cat > "$COURSE_DIR/04/incident.yaml" <<'YAML'
@@ -231,8 +223,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q04-media
-  labels:
-    storage.cnpe.io/incident: q04
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteMany]
@@ -249,9 +239,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q04
   resources:
     requests: {storage: 1Gi}
 ---
@@ -270,7 +257,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: media-data}
 YAML
-apply_incident 04
 
 # Q5: different static StorageClasses.
 cat > "$COURSE_DIR/05/incident.yaml" <<'YAML'
@@ -324,7 +310,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: billing-data}
 YAML
-apply_incident 05
 
 # Q6: PVC pre-bound to a missing PV.
 cat > "$COURSE_DIR/06/incident.yaml" <<'YAML'
@@ -332,8 +317,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q06-archive
-  labels:
-    storage.cnpe.io/incident: q06
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -351,9 +334,6 @@ spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
   volumeName: storage-q06-archive-old
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q06
   resources:
     requests: {storage: 1Gi}
 ---
@@ -372,7 +352,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: archive-data}
 YAML
-apply_incident 06
 
 # Q7: workload references a missing PVC.
 cat > "$COURSE_DIR/07/incident.yaml" <<'YAML'
@@ -380,8 +359,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q07-processor
-  labels:
-    storage.cnpe.io/incident: q07
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -406,7 +383,6 @@ spec:
       persistentVolumeClaim:
         claimName: processor-data
 YAML
-apply_incident 07
 cat > "$COURSE_DIR/07/claim.yaml" <<'YAML'
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -416,9 +392,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q07
   resources:
     requests: {storage: 1Gi}
 YAML
@@ -441,7 +414,6 @@ spec:
       configMap:
         name: application-config
 YAML
-apply_incident 08
 cat > "$COURSE_DIR/08/configmap.yaml" <<'YAML'
 apiVersion: v1
 kind: ConfigMap
@@ -470,7 +442,6 @@ spec:
       secret:
         secretName: api-credentials
 YAML
-apply_incident 09
 cat > "$COURSE_DIR/09/secret.yaml" <<'YAML'
 apiVersion: v1
 kind: Secret
@@ -512,7 +483,6 @@ spec:
           - key: application.yaml
             path: application.yaml
 YAML
-apply_incident 10
 
 # Q11: writable workload receives a read-only mount.
 cat > "$COURSE_DIR/11/incident.yaml" <<'YAML'
@@ -520,8 +490,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q11-writer
-  labels:
-    storage.cnpe.io/incident: q11
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -538,9 +506,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q11
   resources:
     requests: {storage: 1Gi}
 ---
@@ -562,7 +527,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: writer-data}
 YAML
-apply_incident 11
 
 # Q12: external mount-path setting does not match the workload.
 cat > "$COURSE_DIR/12/incident.yaml" <<'YAML'
@@ -570,8 +534,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q12-postgres
-  labels:
-    storage.cnpe.io/incident: q12
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -588,9 +550,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q12
   resources:
     requests: {storage: 1Gi}
 ---
@@ -631,7 +590,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: postgres-data}
 YAML
-apply_incident 12
 
 # Q13: PV node affinity points to a non-existent node.
 cat > "$COURSE_DIR/13/incident.yaml" <<'YAML'
@@ -639,8 +597,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q13-local
-  labels:
-    storage.cnpe.io/incident: q13
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -663,9 +619,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q13
   resources:
     requests: {storage: 1Gi}
 ---
@@ -684,7 +637,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: local-data}
 YAML
-apply_incident 13
 printf '%s\n' "$node_a" > "$COURSE_DIR/13/available-node.txt"
 
 # Q14: Pod is pinned to node_b, PV to node_a.
@@ -693,8 +645,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q14-local
-  labels:
-    storage.cnpe.io/incident: q14
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -717,9 +667,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q14
   resources:
     requests: {storage: 1Gi}
 ---
@@ -740,7 +687,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: pinned-data}
 YAML
-apply_incident 14
 printf '%s\n' "$node_b" > "$COURSE_DIR/14/target-node.txt"
 
 # Q15: StatefulSet template requests a class with no provisioner.
@@ -749,8 +695,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q15-queue
-  labels:
-    storage.cnpe.io/incident: q15
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -784,13 +728,9 @@ spec:
       spec:
         accessModes: [ReadWriteOnce]
         storageClassName: storage-q15-missing
-        selector:
-          matchLabels:
-            storage.cnpe.io/incident: q15
         resources:
           requests: {storage: 1Gi}
 YAML
-apply_incident 15
 
 # Q16: create a retained Released PV, then a replacement claim.
 cat > "$COURSE_DIR/16/incident.yaml" <<'YAML'
@@ -822,11 +762,7 @@ spec:
       recovery.cnpe.io/id: orders
   resources:
     requests: {storage: 1Gi}
-YAML
-apply_incident 16
-kubectl -n storage-q16 wait pvc/old-data --for=jsonpath='{.status.phase}'=Bound \
-  --timeout=60s
-kubectl apply -f - <<'YAML' >/dev/null
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -843,10 +779,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: old-data}
 YAML
-kubectl -n storage-q16 wait pod/seed --for=jsonpath='{.status.phase}'=Succeeded \
-  --timeout=120s
-kubectl -n storage-q16 delete pod seed --wait=true >/dev/null
-kubectl -n storage-q16 delete pvc old-data --wait=true >/dev/null
 cat > "$COURSE_DIR/16/recovery.yaml" <<'YAML'
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -877,7 +809,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: recovered-data}
 YAML
-kubectl apply -f "$COURSE_DIR/16/recovery.yaml" >/dev/null
 
 # Q17: Block PV cannot satisfy a Filesystem PVC.
 cat > "$COURSE_DIR/17/incident.yaml" <<'YAML'
@@ -885,8 +816,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q17-block
-  labels:
-    storage.cnpe.io/incident: q17
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -905,9 +834,6 @@ spec:
   accessModes: [ReadWriteOnce]
   volumeMode: Filesystem
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q17
   resources:
     requests: {storage: 1Gi}
 ---
@@ -926,7 +852,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: filesystem-data}
 YAML
-apply_incident 17
 
 # Q18: subPath does not exist inside the bound volume.
 cat > "$COURSE_DIR/18/incident.yaml" <<'YAML'
@@ -934,8 +859,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q18-subpath
-  labels:
-    storage.cnpe.io/incident: q18
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -952,9 +875,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q18
   resources:
     requests: {storage: 1Gi}
 ---
@@ -976,7 +896,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: config-data}
 YAML
-apply_incident 18
 
 # Q19: init creates a root-only directory, app remains non-root.
 cat > "$COURSE_DIR/19/incident.yaml" <<'YAML'
@@ -984,8 +903,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q19-permissions
-  labels:
-    storage.cnpe.io/incident: q19
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -1002,9 +919,6 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
-  selector:
-    matchLabels:
-      storage.cnpe.io/incident: q19
   resources:
     requests: {storage: 1Gi}
 ---
@@ -1032,7 +946,6 @@ spec:
     - name: data
       persistentVolumeClaim: {claimName: nonroot-data}
 YAML
-apply_incident 19
 
 # Q20: class mismatch plus missing ConfigMap key.
 cat > "$COURSE_DIR/20/incident.yaml" <<'YAML'
@@ -1103,13 +1016,13 @@ spec:
             items:
               - {key: application.yaml, path: application.yaml}
 YAML
-apply_incident 20
 
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
+cp "$SCRIPT_DIR/README.md" "$COURSE_DIR/README.md"
 source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 
 info "Storage troubleshooting lab ready: $COURSE_DIR"
-info "Twenty independent incidents are available in storage-q01 through storage-q20"
-kubectl get pods,pvc -A | grep 'storage-q' || true
+info "Twenty incident manifests are available in directories 01 through 20"
+info "Apply one question at a time and delete its resources before continuing"

@@ -1,13 +1,13 @@
 # CNPE Storage Troubleshooting Lab
 
 Laboratorio pratico composto da 20 incidenti storage indipendenti in stile
-esame CNPE. Ogni domanda parte da risorse già guaste nel cluster e richiede
-triage, diagnosi, correzione e verifica.
+esame CNPE. Lo script genera i manifest, ma non li applica automaticamente:
+questo evita che i PV statici delle diverse domande competano tra loro.
 
 Gli scenari coprono:
 
 - PVC `Pending` e binding statico;
-- selector, capacità, access mode, StorageClass e pre-binding;
+- selector, capacita, access mode, StorageClass e pre-binding;
 - ConfigMap, Secret, projected volume, `subPath` e mount read-only;
 - StatefulSet e volumeClaimTemplate;
 - local PV, node affinity e scheduling;
@@ -15,7 +15,7 @@ Gli scenari coprono:
 - volume mode e permessi per container non-root.
 
 Ogni domanda usa il Namespace `storage-qNN` e la directory
-`~/course-storage-troubleshooting/NN/`. Le domande non dipendono tra loro.
+`~/course-storage-troubleshooting/NN/`. Applicare una sola domanda per volta.
 
 ## Avvio con kind
 
@@ -35,8 +35,63 @@ Il cluster deve avere almeno due nodi schedulabili.
 CLUSTER_PROVIDER=existing ./setup-storage-troubleshooting-lab.sh
 ```
 
-Per rigenerare tutti gli incidenti:
+Per rigenerare tutti i manifest:
 
 ```bash
 LAB_FORCE=true ./setup-storage-troubleshooting-lab-kind.sh
+```
+
+## Esecuzione delle domande
+
+Per avviare, ad esempio, Q03:
+
+```bash
+cd ~/course-storage-troubleshooting/03
+kubectl apply -f namespace.yaml
+kubectl apply -f incident.yaml
+```
+
+Terminata la domanda, eliminare tutte le sue risorse prima di passare alla
+successiva:
+
+```bash
+kubectl delete -f incident.yaml --ignore-not-found
+kubectl delete -f namespace.yaml --ignore-not-found
+```
+
+La cancellazione del Namespace non elimina PV e StorageClass, che sono risorse
+cluster-scoped. Per questo va eseguito anche `kubectl delete -f incident.yaml`.
+Se durante la soluzione sono stati rinominati o creati oggetti aggiuntivi,
+verificare e rimuovere eventuali risorse residue:
+
+```bash
+kubectl get pv,storageclass | grep 'storage-q'
+```
+
+Q07, Q08, Q09 e Q16 contengono YAML aggiuntivi da usare durante la soluzione.
+Per Q16, dopo aver applicato `incident.yaml`, preparare il PV `Released` con:
+
+```bash
+kubectl -n storage-q16 wait pvc/old-data \
+  --for=jsonpath='{.status.phase}'=Bound --timeout=60s
+kubectl -n storage-q16 wait pod/seed \
+  --for=jsonpath='{.status.phase}'=Succeeded --timeout=120s
+kubectl -n storage-q16 delete pod seed --wait=true
+kubectl -n storage-q16 delete pvc old-data --wait=true
+kubectl apply -f recovery.yaml
+```
+
+## Pulizia completa
+
+Al termine del laboratorio:
+
+```bash
+for n in $(seq -w 1 20); do
+  kubectl delete namespace "storage-q${n}" --ignore-not-found --wait=true
+done
+kubectl get pv -o name | grep '^persistentvolume/storage-q' |
+  xargs -r kubectl delete --ignore-not-found
+kubectl get storageclass -o name |
+  grep '^storageclass.storage.k8s.io/storage-q' |
+  xargs -r kubectl delete --ignore-not-found
 ```
