@@ -4,7 +4,7 @@ set -euo pipefail
 COURSE_DIR="${COURSE_DIR:-$HOME/course-storage-troubleshooting}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
-CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-existing}"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-storage}"
 NAMESPACE="storage-lab"
 PV_NAME="cnpe-database-pv"
@@ -14,6 +14,12 @@ info() { echo "[INFO] $*"; }
 
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
+    minikube)
+      if ! kubectl cluster-info >/dev/null 2>&1; then
+        command -v minikube >/dev/null || die "Minikube is required"
+        minikube start --cpus=4 --memory=6144
+      fi
+      ;;
     existing)
       kubectl cluster-info >/dev/null 2>&1 ||
         die "kubectl cannot reach a Kubernetes cluster"

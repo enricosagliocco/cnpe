@@ -12,6 +12,8 @@ fi
 COURSE_DIR="${COURSE_DIR:-${CALLER_HOME}/course-gatekeeper}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
+KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-gatekeeper-lab}"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -29,19 +31,29 @@ require() {
 }
 
 ensure_cluster() {
-  if kubectl cluster-info >/dev/null 2>&1; then
-    return
-  fi
-
-  if command -v minikube >/dev/null 2>&1; then
-    info "No reachable cluster; starting Minikube"
-    minikube start --cpus=4 --memory=6144
-    kubectl cluster-info >/dev/null 2>&1 ||
-      die "Minikube started, but kubectl still cannot reach the cluster"
-    return
-  fi
-
-  die "No reachable Kubernetes cluster and Minikube is not installed"
+  case "$CLUSTER_PROVIDER" in
+    kind)
+      command -v kind >/dev/null || die "kind is required"
+      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
+        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
+      else
+        info "Creating kind cluster: $KIND_CLUSTER_NAME"
+        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s
+      fi
+      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
+      ;;
+    minikube)
+      if ! kubectl cluster-info >/dev/null 2>&1; then
+        command -v minikube >/dev/null || die "Minikube is required"
+        minikube start --cpus=4 --memory=6144
+      fi
+      ;;
+    existing)
+      kubectl cluster-info >/dev/null 2>&1 ||
+        die "kubectl cannot reach a cluster"
+      ;;
+    *) die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER" ;;
+  esac
 }
 
 apply_namespace() {

@@ -5,7 +5,7 @@ COURSE_DIR="${COURSE_DIR:-$HOME/course-gitops-progressive-delivery}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
-CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-existing}"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-gitops}"
 ARGO_CD_VERSION="${ARGO_CD_VERSION:-v3.4.2}"
 FLUX_VERSION="${FLUX_VERSION:-v2.8.8}"
@@ -17,6 +17,12 @@ info() { echo "[INFO] $*"; }
 
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
+    minikube)
+      if ! kubectl cluster-info >/dev/null 2>&1; then
+        command -v minikube >/dev/null || die "Minikube is required"
+        minikube start --cpus=4 --memory=6144
+      fi
+      ;;
     existing)
       kubectl cluster-info >/dev/null 2>&1 ||
         die "kubectl cannot reach a Kubernetes cluster"

@@ -32,6 +32,10 @@ ensure_cluster() {
       echo "[INFO] No reachable cluster; starting Minikube"
       minikube start --cpus=4 --memory=6144
       ;;
+    existing)
+      kubectl cluster-info >/dev/null 2>&1 ||
+        die "kubectl cannot reach a cluster"
+      ;;
     *)
       die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER"
       ;;

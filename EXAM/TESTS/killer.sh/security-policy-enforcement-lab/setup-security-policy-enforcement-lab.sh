@@ -5,7 +5,7 @@ COURSE_DIR="${COURSE_DIR:-$HOME/course-security-policy-enforcement}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
-CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-existing}"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-security}"
 KYVERNO_VERSION="${KYVERNO_VERSION:-3.8.1}"
 TEKTON_VERSION="${TEKTON_VERSION:-v1.9.0}"
@@ -102,6 +102,12 @@ install_calico() {
 
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
+    minikube)
+      if ! kubectl cluster-info >/dev/null 2>&1; then
+        command -v minikube >/dev/null || die "Minikube is required"
+        minikube start --cpus=4 --memory=6144
+      fi
+      ;;
     existing)
       kubectl cluster-info >/dev/null 2>&1 ||
         die "kubectl cannot reach a Kubernetes cluster"

@@ -6,21 +6,36 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 INSTALL_TOOLS="${INSTALL_TOOLS:-true}"
 CROSSPLANE_VERSION="${CROSSPLANE_VERSION:-2.3.1}"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
+KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-platform-security-lab}"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
+info() { echo "[INFO] $*"; }
 
 ensure_cluster() {
-  if kubectl cluster-info >/dev/null 2>&1; then
-    return
-  fi
-  if command -v minikube >/dev/null 2>&1; then
-    echo "[INFO] No reachable cluster; starting Minikube"
-    minikube start --cpus=6 --memory=10240
-    kubectl cluster-info >/dev/null 2>&1 ||
-      die "Minikube started, but kubectl still cannot reach the cluster"
-    return
-  fi
-  die "No reachable Kubernetes cluster and Minikube is not installed"
+  case "$CLUSTER_PROVIDER" in
+    kind)
+      command -v kind >/dev/null || die "kind is required"
+      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
+        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
+      else
+        info "Creating kind cluster: $KIND_CLUSTER_NAME"
+        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s
+      fi
+      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
+      ;;
+    minikube)
+      if ! kubectl cluster-info >/dev/null 2>&1; then
+        command -v minikube >/dev/null || die "Minikube is required"
+        minikube start --cpus=6 --memory=10240
+      fi
+      ;;
+    existing)
+      kubectl cluster-info >/dev/null 2>&1 ||
+        die "kubectl cannot reach a cluster"
+      ;;
+    *) die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER" ;;
+  esac
 }
 
 wait_for_gatekeeper_webhook() {
