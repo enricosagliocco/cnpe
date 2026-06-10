@@ -24,7 +24,7 @@ prepare_question_layout() {
   done
 
   awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
-    /^### Q[0-9]+ (–|-)/ {
+    /^### Q[0-9]+ / {
       heading = $0
       sub(/^### Q/, "", heading)
       split(heading, fields, " ")

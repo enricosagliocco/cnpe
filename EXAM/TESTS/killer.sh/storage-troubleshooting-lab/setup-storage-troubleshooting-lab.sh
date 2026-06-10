@@ -184,6 +184,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q03-ledger
+  labels:
+    storage.cnpe.io/incident: q03
 spec:
   capacity: {storage: 512Mi}
   accessModes: [ReadWriteOnce]
@@ -200,6 +202,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q03
   resources:
     requests: {storage: 1Gi}
 ---
@@ -226,6 +231,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q04-media
+  labels:
+    storage.cnpe.io/incident: q04
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteMany]
@@ -242,6 +249,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q04
   resources:
     requests: {storage: 1Gi}
 ---
@@ -322,6 +332,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q06-archive
+  labels:
+    storage.cnpe.io/incident: q06
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -339,6 +351,9 @@ spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
   volumeName: storage-q06-archive-old
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q06
   resources:
     requests: {storage: 1Gi}
 ---
@@ -365,6 +380,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q07-processor
+  labels:
+    storage.cnpe.io/incident: q07
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -399,6 +416,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q07
   resources:
     requests: {storage: 1Gi}
 YAML
@@ -500,6 +520,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q11-writer
+  labels:
+    storage.cnpe.io/incident: q11
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -516,6 +538,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q11
   resources:
     requests: {storage: 1Gi}
 ---
@@ -545,6 +570,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q12-postgres
+  labels:
+    storage.cnpe.io/incident: q12
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -561,6 +588,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q12
   resources:
     requests: {storage: 1Gi}
 ---
@@ -609,6 +639,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q13-local
+  labels:
+    storage.cnpe.io/incident: q13
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -631,6 +663,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q13
   resources:
     requests: {storage: 1Gi}
 ---
@@ -658,6 +693,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q14-local
+  labels:
+    storage.cnpe.io/incident: q14
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -680,6 +717,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q14
   resources:
     requests: {storage: 1Gi}
 ---
@@ -709,6 +749,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q15-queue
+  labels:
+    storage.cnpe.io/incident: q15
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -742,6 +784,9 @@ spec:
       spec:
         accessModes: [ReadWriteOnce]
         storageClassName: storage-q15-missing
+        selector:
+          matchLabels:
+            storage.cnpe.io/incident: q15
         resources:
           requests: {storage: 1Gi}
 YAML
@@ -840,6 +885,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q17-block
+  labels:
+    storage.cnpe.io/incident: q17
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -858,6 +905,9 @@ spec:
   accessModes: [ReadWriteOnce]
   volumeMode: Filesystem
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q17
   resources:
     requests: {storage: 1Gi}
 ---
@@ -884,6 +934,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q18-subpath
+  labels:
+    storage.cnpe.io/incident: q18
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -900,6 +952,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q18
   resources:
     requests: {storage: 1Gi}
 ---
@@ -929,6 +984,8 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: storage-q19-permissions
+  labels:
+    storage.cnpe.io/incident: q19
 spec:
   capacity: {storage: 1Gi}
   accessModes: [ReadWriteOnce]
@@ -945,6 +1002,9 @@ metadata:
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/incident: q19
   resources:
     requests: {storage: 1Gi}
 ---
