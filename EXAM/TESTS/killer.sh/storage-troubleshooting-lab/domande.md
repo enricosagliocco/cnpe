@@ -1,188 +1,181 @@
-# Le 20 domande dell'esame — Storage Troubleshooting Lab (simulatore lab)
+# Le 20 domande dell'esame - Storage Troubleshooting Lab
 
-Scenario creato da `setup-storage-troubleshooting-lab.sh`. I file modificabili
-sono in `~/course-storage-troubleshooting/01/`; le risorse sono nel Namespace
-`storage-lab`.
+Scenario creato da `setup-storage-troubleshooting-lab.sh`. Ogni domanda è un
+incidente indipendente già presente nel cluster. I file starter si trovano in
+`~/course-storage-troubleshooting/NN/` e le risorse nel Namespace
+`storage-qNN`.
 
-**Vincolo:** non modificare, sostituire o scalare il Deployment `orders-app`
-e lo StatefulSet `database`. Non usare `kubectl edit`, `patch`, `set`,
-`scale` o `rollout restart` su questi controller. Puoi correggere soltanto
-ConfigMap e PV ed eliminare i Pod per farli ricreare.
+Per ogni ticket:
 
-Le domande descrivono un unico incidente progressivo. Conserva comandi,
-output e conclusioni in `01/diagnosi.txt`.
+- individua la causa radice usando stato, eventi e log;
+- correggi soltanto le risorse coinvolte nel Namespace della domanda e gli
+  eventuali PV o StorageClass indicati;
+- non risolvere il problema sostituendo il workload con uno differente;
+- conserva diagnosi, comandi e verifica finale in `NN/evidence.txt`.
 
 Comandi utili:
 
 ```bash
-kubectl config current-context
-kubectl api-resources
 kubectl get events -A --sort-by=.lastTimestamp
+kubectl describe pod -n <namespace> <pod>
+kubectl get pv,pvc -A
 ```
 
 ---
 
-### Q1 – Triage dei workload
+### Q1 - PVC bloccato in Pending
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q01`. Percorso: `~/course-storage-troubleshooting/01`.
 
-1. Elenca Pod, Deployment, StatefulSet, PVC e PV e identifica tutti gli stati
-   anomali senza effettuare modifiche.
+Il Pod `reporting` non viene schedulato perché il PVC `report-data` resta
+`Pending`. Ripristina il provisioning usando le risorse disponibili nel
+cluster e porta il Pod a `Running`.
 
-### Q2 – Eventi del database
+### Q2 - Binding statico con selector
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q02`. Percorso: `~/course-storage-troubleshooting/02`.
 
-1. Descrivi `database-0` e il PVC `data-database-0`.
+Il PVC `catalog-data` non si associa al PV predisposto per il catalogo.
+Correggi il binding senza rimuovere il selector dal PVC e verifica il Pod
+`catalog`.
 
-2. Salva eventi e messaggi di scheduling rilevanti.
+### Q3 - Capacità incompatibile
 
-### Q3 – Analisi PVC
+Namespace: `storage-q03`. Percorso: `~/course-storage-troubleshooting/03`.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Il database `ledger` è fermo perché il claim non trova un volume compatibile.
+Mantieni invariata la richiesta del PVC, correggi il PV e porta il Pod a
+`Running`.
 
-1. Rileva richiesta storage, access mode, assenza di StorageClass e selector
-   del PVC senza modificarne lo spec.
+### Q4 - Access mode incompatibile
 
-### Q4 – Analisi PV
+Namespace: `storage-q04`. Percorso: `~/course-storage-troubleshooting/04`.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Il workload `media` non parte nonostante esista un PV libero. Ripristina il
+binding mantenendo `ReadWriteOnce` come requisito applicativo.
 
-1. Conferma che il PV non esiste ancora nel cluster.
+### Q5 - StorageClass incoerente
 
-2. Confronta il candidato `01/database-pv.yaml` con il PVC e documenta ogni
-   incompatibilità che impedirebbe il binding.
+Namespace: `storage-q05`. Percorso: `~/course-storage-troubleshooting/05`.
 
----
+PV e PVC dell'applicazione `billing` restano separati. Correggi la
+configurazione della classe di storage senza introdurre provisioning
+dinamico.
 
-### Q5 – Capacità e access mode
+### Q6 - Pre-binding verso un volume inesistente
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q06`. Percorso: `~/course-storage-troubleshooting/06`.
 
-1. Correggi il PV con capacità `1Gi` e access mode `ReadWriteOnce`.
+Il PVC `archive-data` è configurato per il binding esplicito, ma il Pod
+`archive` resta `Pending`. Correggi il riferimento mantenendo il pre-binding.
 
-### Q6 – PV classless e selector
+### Q7 - Claim mancante
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q07`. Percorso: `~/course-storage-troubleshooting/07`.
 
-1. Rimuovi l'associazione a qualsiasi StorageClass dal PV impostando
-   `storageClassName: ""` e configura una label compatibile con il selector del
-   PVC.
+Il Pod `processor` non viene creato correttamente perché uno dei volumi
+dichiarati non è disponibile. Ripristina il claim previsto dal workload e
+verifica mount e scrittura.
 
-### Q7 – Reclaim policy
+### Q8 - ConfigMap volume non disponibile
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q08`. Percorso: `~/course-storage-troubleshooting/08`.
 
-1. Configura `persistentVolumeReclaimPolicy: Retain` e spiega perché è adatta
-   ai dati del database.
+Il Pod `config-reader` è bloccato durante il setup dei volumi. Ripristina la
+configurazione attesa senza modificare command o volumeMount del container.
 
-### Q8 – Verifica binding
+### Q9 - Secret volume non disponibile
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q09`. Percorso: `~/course-storage-troubleshooting/09`.
 
-1. Crea manualmente il PV applicando `01/database-pv.yaml` e verifica PV e PVC
-   `Bound` senza eliminare il claim.
+Il Pod `credentials-reader` non parte a causa di un errore sul volume delle
+credenziali. Correggi il problema senza inserire dati sensibili direttamente
+nel Pod.
 
-2. Registra claimRef, capacità e conferma che PV e PVC non usino una
-   StorageClass.
+### Q10 - Chiave ConfigMap non trovata
 
----
+Namespace: `storage-q10`. Percorso: `~/course-storage-troubleshooting/10`.
 
-### Q9 – Log init container database
+La ConfigMap richiesta esiste, ma il Pod `settings-reader` resta in
+`ContainerCreating`. Correggi la sorgente del volume mantenendo il file
+montato con nome `application.yaml`.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+### Q11 - Volume montato read-only
 
-1. Analizza i log di `verify-volume-config` e identifica il valore di
-   configurazione errato.
+Namespace: `storage-q11`. Percorso: `~/course-storage-troubleshooting/11`.
 
-### Q10 – Mount path effettivo
+Il PVC è `Bound`, ma `writer` entra in `CrashLoopBackOff` quando inizializza
+la directory dati. Correggi il mount senza cambiare il comando applicativo.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+### Q12 - Configurazione del mount path
 
-1. Ispeziona lo StatefulSet in sola lettura e determina il path esatto sul
-   quale il PVC è montato.
+Namespace: `storage-q12`. Percorso: `~/course-storage-troubleshooting/12`.
 
-### Q11 – Correzione ConfigMap database
+L'init container di `postgres` fallisce durante la validazione del volume.
+Correggi la configurazione esterna e ricrea il Pod senza modificare il
+workload.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+### Q13 - Node affinity del volume locale
 
-1. Correggi soltanto `01/database-config.yaml` impostando `data-path` al mount
-   path rilevato e applica il file.
+Namespace: `storage-q13`. Percorso: `~/course-storage-troubleshooting/13`.
 
-### Q12 – Ricreazione database
+PV e PVC risultano `Bound`, ma `local-reader` non è schedulabile. Correggi la
+topologia del PV locale usando un nodo reale e verifica il contenuto del
+volume.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+### Q14 - Conflitto tra Pod e local PV
 
-1. Elimina soltanto `database-0`, attendi la ricreazione e verifica Pod Ready
-   e StatefulSet pronto `1/1`.
+Namespace: `storage-q14`. Percorso: `~/course-storage-troubleshooting/14`.
 
----
+Il Pod `pinned-writer` e il PV locale impongono vincoli di nodo incompatibili.
+Mantieni il Pod sul nodo indicato in `14/target-node.txt` e correggi il
+vincolo storage.
 
-### Q13 – Log init container applicativo
+### Q15 - StatefulSet senza provisioning
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q15`. Percorso: `~/course-storage-troubleshooting/15`.
 
-1. Analizza i log di `wait-for-database` e identifica host e porta usati
-   dall'applicazione.
+Lo StatefulSet `queue` non crea un Pod utilizzabile perché il claim template
+non viene provisionato. Correggi il template e verifica StatefulSet `1/1` e
+PVC `Bound`.
 
-### Q14 – Service discovery
+### Q16 - PV in stato Released
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q16`. Percorso: `~/course-storage-troubleshooting/16`.
 
-1. Ispeziona Service ed EndpointSlice del database e determina il nome DNS
-   Kubernetes corretto.
+Dopo la cancellazione di un vecchio claim, il PV con reclaim policy `Retain`
+è rimasto `Released` e il nuovo PVC `recovered-data` è `Pending`. Recupera il
+volume senza cancellarne i dati e verifica il Pod `recovery`.
 
-### Q15 – Correzione ConfigMap applicativa
+### Q17 - Volume mode incompatibile
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q17`. Percorso: `~/course-storage-troubleshooting/17`.
 
-1. Correggi soltanto `01/app-config.yaml` usando il Service database e
-   mantenendo la porta `5432`.
+Esiste un PV libero con capacità e access mode corretti, ma il PVC
+`filesystem-data` non effettua il binding. Ripristina il workload mantenendo
+un mount filesystem nel Pod.
 
-### Q16 – Ricreazione applicazione
+### Q18 - subPath assente
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Namespace: `storage-q18`. Percorso: `~/course-storage-troubleshooting/18`.
 
-1. Elimina soltanto il Pod di `orders-app`, attendi la ricreazione e verifica
-   Deployment disponibile `1/1`.
+Il Pod `subpath-reader` non avvia il container nonostante PV e PVC siano
+`Bound`. Correggi il contenuto del volume o il relativo bootstrap mantenendo
+il mount finale su `/etc/app/config.yaml`.
 
----
+### Q19 - Permessi sul volume
 
-### Q17 – Persistenza dei dati
+Namespace: `storage-q19`. Percorso: `~/course-storage-troubleshooting/19`.
 
-Percorso: `~/course-storage-troubleshooting/01`.
+Il container principale di `nonroot-writer` non può scrivere sul volume
+preparato dall'init container. Correggi ownership e permessi mantenendo il
+container applicativo non-root.
 
-1. Scrivi un file di prova nel volume dal Pod database, ricrea il Pod e
-   dimostra che il contenuto persiste.
+### Q20 - Incidente storage multi-causa
 
-### Q18 – Test di connettività
+Namespace: `storage-q20`. Percorso: `~/course-storage-troubleshooting/20`.
 
-Percorso: `~/course-storage-troubleshooting/01`.
-
-1. Dal Pod applicativo verifica risoluzione DNS e connessione TCP al Service
-   database.
-
-2. Salva output e timestamp.
-
-### Q19 – Root cause analysis
-
-Percorso: `~/course-storage-troubleshooting/01`.
-
-1. Riassumi in `01/diagnosi.txt` le tre cause radice: binding PV/PVC,
-   configurazione volume e endpoint database.
-
-2. Associa a ciascuna sintomo e fix.
-
-### Q20 – Verifica finale end-to-end
-
-Percorso: `~/course-storage-troubleshooting/01`.
-
-```bash
-kubectl -n storage-lab get pods,pvc
-kubectl get pv cnpe-database-pv
-kubectl -n storage-lab get deploy orders-app
-kubectl -n storage-lab get sts database
-```
-
-1. Conferma PV/PVC `Bound`, Pod Ready e controller `1/1`, spiegando perché non
-   è stato necessario modificare Deployment o StatefulSet.
+Il Deployment `orders` non ha repliche disponibili. Il ticket contiene più
+di una causa storage indipendente tra claim, volume e configurazione montata.
+Ripristina il Deployment `1/1` senza cambiare immagine o comando e documenta
+ogni causa radice in `20/evidence.txt`.

@@ -6,45 +6,56 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-storage}"
-NAMESPACE="storage-lab"
-PV_NAME="cnpe-database-pv"
-LEGACY_STORAGE_CLASS_NAME="cnpe-manual"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
 
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
+    kind)
+      command -v kind >/dev/null || die "kind is required"
+      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
+        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
+      else
+        info "Creating three-node kind cluster: $KIND_CLUSTER_NAME"
+        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s --config - <<'EOF'
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
+EOF
+      fi
+      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
+      ;;
     minikube)
       if ! kubectl cluster-info >/dev/null 2>&1; then
-        command -v minikube >/dev/null || die "Minikube is required"
-        minikube start --cpus=4 --memory=6144
+        command -v minikube >/dev/null || die "minikube is required"
+        minikube start --nodes=2 --cpus=3 --memory=6144
       fi
       ;;
     existing)
       kubectl cluster-info >/dev/null 2>&1 ||
         die "kubectl cannot reach a Kubernetes cluster"
       ;;
-    kind)
-      command -v kind >/dev/null || die "kind is required"
-      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
-        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
-      else
-        info "Creating kind cluster: $KIND_CLUSTER_NAME"
-        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s
-      fi
-      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
-      kubectl cluster-info >/dev/null 2>&1 ||
-        die "kind started, but kubectl cannot reach the cluster"
-      ;;
-    *)
-      die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER"
-      ;;
+    *) die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER" ;;
   esac
+}
+
+apply_incident() {
+  kubectl apply -f "$COURSE_DIR/$1/incident.yaml" >/dev/null
 }
 
 command -v kubectl >/dev/null || die "kubectl is required"
 ensure_cluster
+
+schedulable_nodes=($(kubectl get nodes \
+  -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'))
+[ "${#schedulable_nodes[@]}" -ge 2 ] ||
+  die "This lab requires at least two schedulable nodes"
+node_a="${schedulable_nodes[0]}"
+node_b="${schedulable_nodes[1]}"
 
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
   die "$COURSE_DIR already initialized; use LAB_FORCE=true"
@@ -52,219 +63,987 @@ fi
 
 if [ "$LAB_FORCE" = "true" ]; then
   info "Removing previous lab resources"
-  kubectl delete namespace "$NAMESPACE" --ignore-not-found --wait=true
-  kubectl delete persistentvolume "$PV_NAME" --ignore-not-found --wait=true
-  kubectl delete storageclass "$LEGACY_STORAGE_CLASS_NAME" \
-    --ignore-not-found --wait=true
+  for number in $(seq -w 1 20); do
+    kubectl delete namespace "storage-q${number}" --ignore-not-found --wait=true
+  done
+  kubectl get pv -o name 2>/dev/null |
+    grep '^persistentvolume/storage-q' |
+    xargs -r kubectl delete --ignore-not-found || true
+  kubectl get storageclass -o name 2>/dev/null |
+    grep '^storageclass.storage.k8s.io/storage-q' |
+    xargs -r kubectl delete --ignore-not-found || true
   rm -rf "$COURSE_DIR"
 fi
 
 for number in $(seq -w 1 20); do
   mkdir -p "$COURSE_DIR/$number"
+  touch "$COURSE_DIR/$number/evidence.txt"
+  kubectl create namespace "storage-q${number}" --dry-run=client -o yaml |
+    kubectl apply -f - >/dev/null
 done
 
-kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml |
-  kubectl apply -f - >/dev/null
-
-cat > "$COURSE_DIR/01/database-config.yaml" <<'YAML'
-apiVersion: v1
-kind: ConfigMap
+# Q1: wrong StorageClass.
+cat > "$COURSE_DIR/01/incident.yaml" <<'YAML'
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: database-config
-  namespace: storage-lab
-data:
-  data-path: /var/lib/postgresql/wrong
-YAML
-
-cat > "$COURSE_DIR/01/app-config.yaml" <<'YAML'
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-  namespace: storage-lab
-data:
-  DB_HOST: database-wrong
-  DB_PORT: "5432"
-YAML
-
-cat > "$COURSE_DIR/01/database-pv.yaml" <<'YAML'
+  name: storage-q01-manual
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: Immediate
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: cnpe-database-pv
-  labels:
-    storage.cnpe.io/database: mysql
+  name: storage-q01-report
 spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: local-path
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: storage-q01-manual
   hostPath:
-    path: /tmp/cnpe-storage-lab/postgresql
+    path: /tmp/storage-q01
     type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: report-data
+  namespace: storage-q01
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: storage-q01-mannual
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: reporting
+  namespace: storage-q01
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo ready >/data/status; sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: report-data}
+YAML
+apply_incident 01
+
+# Q2: selector mismatch.
+cat > "$COURSE_DIR/02/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q02-catalog
+  labels:
+    storage.cnpe.io/application: inventory
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q02
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: catalog-data
+  namespace: storage-q02
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  selector:
+    matchLabels:
+      storage.cnpe.io/application: catalog
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: catalog
+  namespace: storage-q02
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "touch /data/ready; sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: catalog-data}
+YAML
+apply_incident 02
+
+# Q3: insufficient PV capacity.
+cat > "$COURSE_DIR/03/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q03-ledger
+spec:
+  capacity: {storage: 512Mi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q03
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ledger-data
+  namespace: storage-q03
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ledger
+  namespace: storage-q03
+spec:
+  containers:
+    - name: database
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /var/lib/ledger}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: ledger-data}
+YAML
+apply_incident 03
+
+# Q4: incompatible access mode.
+cat > "$COURSE_DIR/04/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q04-media
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteMany]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q04
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-data
+  namespace: storage-q04
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: media
+  namespace: storage-q04
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /media}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: media-data}
+YAML
+apply_incident 04
+
+# Q5: different static StorageClasses.
+cat > "$COURSE_DIR/05/incident.yaml" <<'YAML'
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: storage-q05-silver
+provisioner: kubernetes.io/no-provisioner
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: storage-q05-gold
+provisioner: kubernetes.io/no-provisioner
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q05-billing
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: storage-q05-silver
+  hostPath:
+    path: /tmp/storage-q05
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: billing-data
+  namespace: storage-q05
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: storage-q05-gold
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: billing
+  namespace: storage-q05
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: billing-data}
+YAML
+apply_incident 05
+
+# Q6: PVC pre-bound to a missing PV.
+cat > "$COURSE_DIR/06/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q06-archive
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q06
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: archive-data
+  namespace: storage-q06
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  volumeName: storage-q06-archive-old
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: archive
+  namespace: storage-q06
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /archive}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: archive-data}
+YAML
+apply_incident 06
+
+# Q7: workload references a missing PVC.
+cat > "$COURSE_DIR/07/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q07-processor
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q07
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: processor
+  namespace: storage-q07
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo processed >/work/result; sleep 3600"]
+      volumeMounts: [{name: work, mountPath: /work}]
+  volumes:
+    - name: work
+      persistentVolumeClaim:
+        claimName: processor-data
+YAML
+apply_incident 07
+cat > "$COURSE_DIR/07/claim.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: processor-data
+  namespace: storage-q07
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
 YAML
 
-touch "$COURSE_DIR/01/diagnosi.txt"
-
-kubectl apply -f "$COURSE_DIR/01/database-config.yaml" >/dev/null
-kubectl apply -f "$COURSE_DIR/01/app-config.yaml" >/dev/null
-
-kubectl -n "$NAMESPACE" create secret generic database-secret \
-  --from-literal=POSTGRES_DB=orders \
-  --from-literal=POSTGRES_USER=orders \
-  --from-literal=POSTGRES_PASSWORD=cnpe-training \
-  --dry-run=client -o yaml |
-  kubectl apply -f - >/dev/null
-
-kubectl apply -f - <<'YAML'
+# Q8: missing ConfigMap.
+cat > "$COURSE_DIR/08/incident.yaml" <<'YAML'
 apiVersion: v1
-kind: Service
+kind: Pod
 metadata:
-  name: database
-  namespace: storage-lab
+  name: config-reader
+  namespace: storage-q08
 spec:
-  selector:
-    app: database
-  ports:
-    - name: postgres
-      port: 5432
-      targetPort: 5432
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "cat /etc/app/mode; sleep 3600"]
+      volumeMounts: [{name: config, mountPath: /etc/app}]
+  volumes:
+    - name: config
+      configMap:
+        name: application-config
+YAML
+apply_incident 08
+cat > "$COURSE_DIR/08/configmap.yaml" <<'YAML'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: application-settings
+  namespace: storage-q08
+data:
+  mode: production
+YAML
+
+# Q9: missing Secret.
+cat > "$COURSE_DIR/09/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: credentials-reader
+  namespace: storage-q09
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "test -s /credentials/token; sleep 3600"]
+      volumeMounts: [{name: credentials, mountPath: /credentials, readOnly: true}]
+  volumes:
+    - name: credentials
+      secret:
+        secretName: api-credentials
+YAML
+apply_incident 09
+cat > "$COURSE_DIR/09/secret.yaml" <<'YAML'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-credential
+  namespace: storage-q09
+type: Opaque
+stringData:
+  token: cnpe-training-token
+YAML
+
+# Q10: ConfigMap exists but requested key does not.
+cat > "$COURSE_DIR/10/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-settings
+  namespace: storage-q10
+data:
+  config.yaml: |
+    mode: production
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: settings-reader
+  namespace: storage-q10
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "cat /etc/app/application.yaml; sleep 3600"]
+      volumeMounts: [{name: settings, mountPath: /etc/app}]
+  volumes:
+    - name: settings
+      configMap:
+        name: app-settings
+        items:
+          - key: application.yaml
+            path: application.yaml
+YAML
+apply_incident 10
+
+# Q11: writable workload receives a read-only mount.
+cat > "$COURSE_DIR/11/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q11-writer
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q11
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: writer-data
+  namespace: storage-q11
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: writer
+  namespace: storage-q11
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo initialized >/data/status; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: true
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: writer-data}
+YAML
+apply_incident 11
+
+# Q12: external mount-path setting does not match the workload.
+cat > "$COURSE_DIR/12/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q12-postgres
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q12
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: storage-q12
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: storage-q12
+data:
+  data-path: /var/lib/postgresql/wrong
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+  namespace: storage-q12
+spec:
+  initContainers:
+    - name: verify-storage
+      image: busybox:1.36
+      command:
+        - sh
+        - -c
+        - |
+          configured="$(cat /config/data-path)"
+          test "$configured" = /var/lib/postgresql/data
+      volumeMounts:
+        - {name: config, mountPath: /config}
+        - {name: data, mountPath: /var/lib/postgresql/data}
+  containers:
+    - name: database
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+  volumes:
+    - name: config
+      configMap: {name: postgres-config}
+    - name: data
+      persistentVolumeClaim: {claimName: postgres-data}
+YAML
+apply_incident 12
+
+# Q13: PV node affinity points to a non-existent node.
+cat > "$COURSE_DIR/13/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q13-local
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  local:
+    path: /tmp
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: [retired-worker]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-data
+  namespace: storage-q13
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: local-reader
+  namespace: storage-q13
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo q13 >/data/storage-q13-check; sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: local-data}
+YAML
+apply_incident 13
+printf '%s\n' "$node_a" > "$COURSE_DIR/13/available-node.txt"
+
+# Q14: Pod is pinned to node_b, PV to node_a.
+cat > "$COURSE_DIR/14/incident.yaml" <<YAML
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q14-local
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  local:
+    path: /tmp
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: [$node_a]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pinned-data
+  namespace: storage-q14
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pinned-writer
+  namespace: storage-q14
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: $node_b
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo q14 >/data/storage-q14-check; sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: pinned-data}
+YAML
+apply_incident 14
+printf '%s\n' "$node_b" > "$COURSE_DIR/14/target-node.txt"
+
+# Q15: StatefulSet template requests a class with no provisioner.
+cat > "$COURSE_DIR/15/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q15-queue
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q15
+    type: DirectoryOrCreate
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: database
-  namespace: storage-lab
-  annotations:
-    exam.cnpe.io/do-not-modify: "true"
+  name: queue
+  namespace: storage-q15
 spec:
-  serviceName: database
+  serviceName: queue
   replicas: 1
   selector:
-    matchLabels:
-      app: database
+    matchLabels: {app: queue}
   template:
     metadata:
-      labels:
-        app: database
+      labels: {app: queue}
     spec:
-      initContainers:
-        - name: verify-volume-config
-          image: busybox:1.36
-          command:
-            - /bin/sh
-            - -c
-          args:
-            - |
-              configured_path="$(cat /config/data-path)"
-              expected_path="/var/lib/postgresql/data"
-              echo "configured data path: ${configured_path}"
-              echo "mounted volume path: ${expected_path}"
-              if [ "${configured_path}" != "${expected_path}" ]; then
-                echo "ERROR: database data-path does not point to the mounted PVC"
-                exit 1
-              fi
-              chmod 0777 "${expected_path}"
-              test -w "${expected_path}"
-          volumeMounts:
-            - name: database-config
-              mountPath: /config
-              readOnly: true
-            - name: data
-              mountPath: /var/lib/postgresql/data
       containers:
-        - name: postgres
-          image: postgres:16-alpine
-          envFrom:
-            - secretRef:
-                name: database-secret
-          env:
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
-          ports:
-            - name: postgres
-              containerPort: 5432
-          readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}"
-            initialDelaySeconds: 3
-            periodSeconds: 3
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: database-config
-          configMap:
-            name: database-config
+        - name: queue
+          image: busybox:1.36
+          command: ["sh", "-c", "sleep 3600"]
+          volumeMounts: [{name: data, mountPath: /data}]
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: ""
-        selector:
-          matchLabels:
-            storage.cnpe.io/database: postgres
+        accessModes: [ReadWriteOnce]
+        storageClassName: storage-q15-missing
         resources:
-          requests:
-            storage: 1Gi
+          requests: {storage: 1Gi}
+YAML
+apply_incident 15
+
+# Q16: create a retained Released PV, then a replacement claim.
+cat > "$COURSE_DIR/16/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q16-recovery
+  labels:
+    recovery.cnpe.io/id: orders
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q16
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: old-data
+  namespace: storage-q16
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  selector:
+    matchLabels:
+      recovery.cnpe.io/id: orders
+  resources:
+    requests: {storage: 1Gi}
+YAML
+apply_incident 16
+kubectl -n storage-q16 wait pvc/old-data --for=jsonpath='{.status.phase}'=Bound \
+  --timeout=60s
+kubectl apply -f - <<'YAML' >/dev/null
+apiVersion: v1
+kind: Pod
+metadata:
+  name: seed
+  namespace: storage-q16
+spec:
+  restartPolicy: Never
+  containers:
+    - name: seed
+      image: busybox:1.36
+      command: ["sh", "-c", "echo retained-data >/data/marker; sync"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: old-data}
+YAML
+kubectl -n storage-q16 wait pod/seed --for=jsonpath='{.status.phase}'=Succeeded \
+  --timeout=120s
+kubectl -n storage-q16 delete pod seed --wait=true >/dev/null
+kubectl -n storage-q16 delete pvc old-data --wait=true >/dev/null
+cat > "$COURSE_DIR/16/recovery.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: recovered-data
+  namespace: storage-q16
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  selector:
+    matchLabels:
+      recovery.cnpe.io/id: orders
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: recovery
+  namespace: storage-q16
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "cat /data/marker; sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: recovered-data}
+YAML
+kubectl apply -f "$COURSE_DIR/16/recovery.yaml" >/dev/null
+
+# Q17: Block PV cannot satisfy a Filesystem PVC.
+cat > "$COURSE_DIR/17/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q17-block
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  volumeMode: Block
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q17-block
+    type: FileOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filesystem-data
+  namespace: storage-q17
+spec:
+  accessModes: [ReadWriteOnce]
+  volumeMode: Filesystem
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: filesystem-reader
+  namespace: storage-q17
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: filesystem-data}
+YAML
+apply_incident 17
+
+# Q18: subPath does not exist inside the bound volume.
+cat > "$COURSE_DIR/18/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q18-subpath
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q18
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: config-data
+  namespace: storage-q18
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: subpath-reader
+  namespace: storage-q18
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "cat /etc/app/config.yaml; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /etc/app/config.yaml
+          subPath: config.yaml
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: config-data}
+YAML
+apply_incident 18
+
+# Q19: init creates a root-only directory, app remains non-root.
+cat > "$COURSE_DIR/19/incident.yaml" <<'YAML'
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q19-permissions
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  hostPath:
+    path: /tmp/storage-q19
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nonroot-data
+  namespace: storage-q19
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ""
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nonroot-writer
+  namespace: storage-q19
+spec:
+  initContainers:
+    - name: prepare
+      image: busybox:1.36
+      command: ["sh", "-c", "mkdir -p /data/app; chown 0:0 /data/app; chmod 0700 /data/app"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  containers:
+    - name: app
+      image: busybox:1.36
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      command: ["sh", "-c", "echo ready >/data/app/status; sleep 3600"]
+      volumeMounts: [{name: data, mountPath: /data}]
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: nonroot-data}
+YAML
+apply_incident 19
+
+# Q20: class mismatch plus missing ConfigMap key.
+cat > "$COURSE_DIR/20/incident.yaml" <<'YAML'
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: storage-q20-orders
+provisioner: kubernetes.io/no-provisioner
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-q20-orders
+spec:
+  capacity: {storage: 1Gi}
+  accessModes: [ReadWriteOnce]
+  storageClassName: storage-q20-orders
+  hostPath:
+    path: /tmp/storage-q20
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orders-data
+  namespace: storage-q20
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: storage-q20-order
+  resources:
+    requests: {storage: 1Gi}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orders-config
+  namespace: storage-q20
+data:
+  settings.yaml: |
+    mode: production
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orders-app
-  namespace: storage-lab
-  annotations:
-    exam.cnpe.io/do-not-modify: "true"
+  name: orders
+  namespace: storage-q20
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: orders-app
+    matchLabels: {app: orders}
   template:
     metadata:
-      labels:
-        app: orders-app
+      labels: {app: orders}
     spec:
-      initContainers:
-        - name: wait-for-database
-          image: busybox:1.36
-          envFrom:
-            - configMapRef:
-                name: app-config
-          command:
-            - /bin/sh
-            - -c
-          args:
-            - |
-              echo "checking database endpoint ${DB_HOST}:${DB_PORT}"
-              if ! nslookup "${DB_HOST}"; then
-                echo "ERROR: database hostname cannot be resolved"
-                exit 1
-              fi
-              if ! nc -z -w 3 "${DB_HOST}" "${DB_PORT}"; then
-                echo "ERROR: database endpoint is not reachable"
-                exit 1
-              fi
       containers:
-        - name: app
-          image: nginx:1.27-alpine
-          ports:
-            - name: http
-              containerPort: 80
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 2
-            periodSeconds: 3
+        - name: orders
+          image: busybox:1.36
+          command: ["sh", "-c", "test -s /config/application.yaml; echo ready >/data/status; sleep 3600"]
+          volumeMounts:
+            - {name: data, mountPath: /data}
+            - {name: config, mountPath: /config}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: orders-data}
+        - name: config
+          configMap:
+            name: orders-config
+            items:
+              - {key: application.yaml, path: application.yaml}
 YAML
+apply_incident 20
 
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
 source "$SCRIPT_DIR/lab-question-layout.sh"
@@ -272,6 +1051,5 @@ prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 
 info "Storage troubleshooting lab ready: $COURSE_DIR"
-info "Expected initial state: PVC Pending, no PV, and application init failure"
-kubectl -n "$NAMESPACE" get pods,persistentvolumeclaims
-kubectl get persistentvolumes
+info "Twenty independent incidents are available in storage-q01 through storage-q20"
+kubectl get pods,pvc -A | grep 'storage-q' || true
