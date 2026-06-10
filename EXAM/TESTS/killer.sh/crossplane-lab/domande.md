@@ -30,9 +30,20 @@ kubectl config view --minify --raw
 Credenziali:
 - Non servono credenziali aggiuntive rispetto al kubeconfig Kubernetes.
 
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q1 – XRD namespaced
+
+Percorso: `~/course-crossplane/01`.
+
 
 `01/xrd.yaml` contiene placeholder nei campi di identità dell'API.
 
@@ -45,6 +56,9 @@ Credenziali:
 
 ### Q2 – Schema XRD
 
+Percorso: `~/course-crossplane/02`.
+
+
 `02/xrd.yaml` definisce l'API, ma lo schema di `spec` è vuoto.
 
 1. Aggiungi spec required: `image` string, `replicas` integer 1..10, `environment` enum dev/staging/prod.
@@ -55,6 +69,9 @@ Credenziali:
 
 ### Q3 – Default e status
 
+Percorso: `~/course-crossplane/03`.
+
+
 `03/xrd.yaml` ha lo schema spec, ma manca default e schema status.
 
 1. Imposta default replicas 1 e aggiungi status `url` string e `readyReplicas` integer.
@@ -64,6 +81,9 @@ Credenziali:
 ---
 
 ### Q4 – Prima Composition
+
+Percorso: `~/course-crossplane/04`.
+
 
 La Composition starter crea un ConfigMap senza Namespace e senza dati.
 
@@ -77,6 +97,9 @@ La Composition starter crea un ConfigMap senza Namespace e senza dati.
 
 ### Q5 – FromComposite patches
 
+Percorso: `~/course-crossplane/05`.
+
+
 Il ConfigMap composto non riflette la spec dell'XR.
 
 1. Patcha `spec.image`, `spec.replicas`, `spec.environment` nei data del ConfigMap e `metadata.namespace` nei metadata.
@@ -86,6 +109,9 @@ Il ConfigMap composto non riflette la spec dell'XR.
 ---
 
 ### Q6 – Composed Deployment
+
+Percorso: `~/course-crossplane/06`.
+
 
 La Composition crea soltanto il ConfigMap.
 
@@ -97,6 +123,9 @@ La Composition crea soltanto il ConfigMap.
 
 ### Q7 – Composed Service
 
+Percorso: `~/course-crossplane/07`.
+
+
 L'app composta non è esposta da alcun Service.
 
 1. Aggiungi Service `app` ClusterIP porta 80 target 8080, selector derivato dal nome XR.
@@ -106,6 +135,9 @@ L'app composta non è esposta da alcun Service.
 ---
 
 ### Q8 – String combine
+
+Percorso: `~/course-crossplane/08`.
+
 
 Il Deployment composto non ha un'identità univoca leggibile.
 
@@ -117,6 +149,9 @@ Il Deployment composto non ha un'identità univoca leggibile.
 
 ### Q9 – Map transform
 
+Percorso: `~/course-crossplane/09`.
+
+
 Il ConfigMap non contiene un log level derivato dall'ambiente.
 
 1. Trasforma environment in log level: dev=debug, staging=info, prod=warn, scrivendo `data.logLevel` nel ConfigMap.
@@ -127,6 +162,9 @@ Il ConfigMap non contiene un log level derivato dall'ambiente.
 
 ### Q10 – Math transform
 
+Percorso: `~/course-crossplane/10`.
+
+
 Il limite connessioni non viene calcolato dalla capacità richiesta.
 
 1. Moltiplica `spec.replicas` per 2 e scrivi il risultato in `data.maxConnections` come stringa.
@@ -136,6 +174,9 @@ Il limite connessioni non viene calcolato dalla capacità richiesta.
 ---
 
 ### Q11 – Patch policy Required
+
+Percorso: `~/course-crossplane/11`.
+
 
 `11/missing-image.yaml` omette `spec.image`, ma la patch attuale non è
 obbligatoria.
@@ -149,6 +190,9 @@ obbligatoria.
 
 ### Q12 – ToComposite status
 
+Percorso: `~/course-crossplane/12`.
+
+
 Lo status dell'XR non espone disponibilità o URL del workload composto.
 
 1. Patcha `status.readyReplicas` dallo status del Deployment e componi `status.url` come `http://<name>.<namespace>.svc`.
@@ -158,6 +202,9 @@ Lo status dell'XR non espone disponibilità o URL del workload composto.
 ---
 
 ### Q13 – Readiness checks
+
+Percorso: `~/course-crossplane/13`.
+
 
 L'XR non attende correttamente tutte le risorse composte.
 
@@ -170,6 +217,9 @@ L'XR non attende correttamente tutte le risorse composte.
 
 ### Q14 – Composition selection
 
+Percorso: `~/course-crossplane/14`.
+
+
 Due varianti di Composition devono essere selezionate tramite label.
 
 1. Crea Composition `app-development` e `app-production` con label `tier=development|production`.
@@ -181,6 +231,9 @@ Due varianti di Composition devono essere selezionate tramite label.
 
 ### Q15 – Composition revisions
 
+Percorso: `~/course-crossplane/15`.
+
+
 L'XRD starter usa ancora la policy automatica di aggiornamento.
 
 1. Imposta `defaultCompositionUpdatePolicy: Manual` nell'XRD.
@@ -191,6 +244,9 @@ L'XRD starter usa ancora la policy automatica di aggiornamento.
 ---
 
 ### Q16 – EnvironmentConfig
+
+Percorso: `~/course-crossplane/16`.
+
 
 `16/environment.yaml` contiene i default, ma la Composition non li usa.
 
@@ -210,6 +266,9 @@ L'XRD starter usa ancora la policy automatica di aggiornamento.
 
 ### Q17 – Patch sets
 
+Percorso: `~/course-crossplane/17`.
+
+
 Namespace e label team sono duplicati o mancanti nelle risorse composte.
 
 1. Definisci patchSet `common-metadata` con Namespace e label team, poi riusalo su ConfigMap, Deployment e Service senza duplicare le patch.
@@ -219,6 +278,9 @@ Namespace e label team sono duplicati o mancanti nelle risorse composte.
 ---
 
 ### Q18 – Function pipeline
+
+Percorso: `~/course-crossplane/18`.
+
 
 La Function `function-auto-ready` è dichiarata nel file, ma non è installata
 né inserita nella pipeline.
@@ -232,6 +294,9 @@ né inserita nella pipeline.
 
 ### Q19 – Troubleshooting
 
+Percorso: `~/course-crossplane/19`.
+
+
 I tre file in `19/` contengono quattro errori indipendenti e devono fallire
 prima della correzione.
 
@@ -242,6 +307,9 @@ prima della correzione.
 ---
 
 ### Q20 – Simulazione a tempo
+
+Percorso: `~/course-crossplane/20`.
+
 
 I file `20/xrd.yaml`, `20/composition.yaml` e `20/xr.yaml` costituiscono uno
 scenario vuoto da implementare end-to-end.

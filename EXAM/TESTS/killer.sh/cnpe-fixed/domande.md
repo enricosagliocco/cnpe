@@ -5,9 +5,20 @@ Lo script è diviso in 3 parti (part1, part2, part3) eseguite dall'entrypoint.
 
 **Vincolo:** non disinstallare i tool installati (Prometheus, Argo CD, Flagger, Gatekeeper, OpenTofu, OpenCost, Grafana, Kustomize, Argo Workflows, Tekton, Jaeger, VPA, Argo Rollouts, FluxCD, Kyverno, Crossplane, Linkerd). Puoi modificare configurazioni e risorse applicative ma non i core dei tool.
 
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q1 – Operator Pattern, CRD, Kustomize, Git
+
+Percorso: `~/course/1`.
+
 La CRD `TeamMonitoring` è installata nel cluster dal repository locale `/course/1/team-monitoring`, che contiene configurazione Kustomize.
 
 1. Crea una nuova versione `v1alpha2` della CRD in cui la property `target` è un **oggetto** con due property string: `namespace` e `service`
@@ -18,6 +29,9 @@ La CRD `TeamMonitoring` è installata nel cluster dal repository locale `/course
 ---
 
 ### Q2 – Prometheus Monitoring
+
+Percorso: `~/course/2`.
+
 Prometheus è installato nel Namespace `prometheus`, accessibile su `http://<node>:30020`. Attualmente vengono scrapati solo i Pod nel Namespace `kariba` con label `app=frontend` e `app=backend`.
 
 Accesso GUI (port-forward):
@@ -40,6 +54,9 @@ kubectl -n prometheus get ingress,svc,secret
 ---
 
 ### Q3 – Argo CD
+
+Percorso: `~/course/3`.
+
 Argo CD è installato con UI su `http://<node>:30030`. L'applicazione `web-client` è connessa al repository Git clonato in `/course/3/web-client`.
 
 Accesso GUI (port-forward):
@@ -83,6 +100,9 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.pas
 ---
 
 ### Q4 – Flagger Blue/Green Deployments
+
+Percorso: `~/course/4`.
+
 Flagger è usato per due app nel Namespace `malawi`. È configurato per Blue/Green senza service mesh.
 
 **Per il Deployment `app1`:**
@@ -90,7 +110,7 @@ Flagger è usato per due app nel Namespace `malawi`. È configurato per Blue/Gre
 2. Scrivi gli eventi generati sulla risorsa `Canary` in `/course/4/app1.log`
 
 **Per il Deployment `app2`**, modifica l'analisi del Canary:
-1. Aggiungi un webhook `pre-rollout` di base che verifichi se i nuovi Pod rispondono via HTTP, usando il Service canary (usa il template fornito in exam)
+3. Aggiungi un webhook `pre-rollout` di base che verifichi se i nuovi Pod rispondono via HTTP, usando il Service canary (usa il template fornito in exam)
 
 Template esplicito:
 
@@ -110,11 +130,14 @@ analysis:
         expectedStatus: "200"
 ```
 
-2. Una volta fatto, avvia un nuovo rollout impostando `APP_VERSION` a `1.0.1`
+4. Una volta fatto, avvia un nuovo rollout impostando `APP_VERSION` a `1.0.1`
 
 ---
 
 ### Q5 – OPA Gatekeeper + Helm
+
+Percorso: `~/course/5`.
+
 OPA Gatekeeper è installato. In `/course/5/infra-opa`:
 
 1. Completa e crea il `ConstraintTemplate` con queste regole:
@@ -130,6 +153,9 @@ OPA Gatekeeper è installato. In `/course/5/infra-opa`:
 ---
 
 ### Q6 – OpenTofu / Terraform
+
+Percorso: `~/course/6`.
+
 Il tuo team usa OpenTofu per gestire risorse Kubernetes.
 
 1. Per `/course/6/service-black-bean`: genera un diff human-readable delle modifiche che verrebbero applicate e salvalo in `/course/6/service-black-bean/diff.txt`
@@ -142,6 +168,9 @@ Il tuo team usa OpenTofu per gestire risorse Kubernetes.
 ---
 
 ### Q7 – OpenCost + Prometheus
+
+Percorso: `~/course/7`.
+
 OpenCost è installato con UI su `http://<node>:30070`. Prometheus è su `http://<node>:30077`.
 
 Accesso GUI (port-forward):
@@ -170,6 +199,9 @@ kubectl -n prometheus get svc,ingress,secret
 ---
 
 ### Q8 – Grafana, Loki, Logging
+
+Percorso: `~/course/8`.
+
 Grafana è accessibile su `http://<node>:30080`. Loki è configurato come unica datasource.
 
 Accesso GUI (port-forward):
@@ -198,6 +230,9 @@ kubectl -n monitoring get secret grafana -o jsonpath='{.data.admin-password}' | 
 ---
 
 ### Q9 – Kustomize + Prometheus Operator CRDs
+
+Percorso: `~/course/9`.
+
 La configurazione in `/course/9/prom-config` ha un overlay staging e production. È stata applicata con:
 ```bash
 kubectl apply -k /course/9/prom-config/overlays/staging
@@ -217,6 +252,9 @@ kubectl apply -k /course/9/prom-config/overlays/production
 ---
 
 ### Q10 – ResourceQuota + Git
+
+Percorso: `~/course/10`.
+
 Limita l'uso dello storage nei Namespace `caspian-pipeline1`, `caspian-pipeline2` e `caspian-pipeline3` usando ResourceQuota.
 
 1. Uno di questi Namespace ha richiesto recentemente 100Gi di storage, ma la modifica è stata revertita. Controlla i commit nel repository Git `/course/10/pipelines-repo` per identificarlo
@@ -230,6 +268,9 @@ Limita l'uso dello storage nei Namespace `caspian-pipeline1`, `caspian-pipeline2
 ---
 
 ### Q11 – Argo Workflows
+
+Percorso: `~/course/11`.
+
 Argo Workflows è installato con UI su `http://<node>:30110`.
 
 Accesso GUI (port-forward):
@@ -257,6 +298,9 @@ kubectl -n argo get secret,cm | grep -Ei 'argo|auth|server'
 ---
 
 ### Q12 – Tekton
+
+Percorso: `~/course/12`.
+
 Tekton Pipelines è installato con Tekton Dashboard su `http://<node>:30120`. Tutti i Tekton Pipeline devono essere eseguiti nel Namespace `builder`.
 
 Accesso GUI (port-forward):
@@ -289,6 +333,9 @@ kubectl -n tekton-pipelines get sa,secret
 ---
 
 ### Q13 – Pod Security Standards
+
+Percorso: `~/course/13`.
+
 Il Namespace `ammersee-legacy` non ha Pod Security Standards applicati. I manifest dei workload esistenti sono in `/course/13`.
 
 1. Configura il Namespace per applicare il Pod Security Standard `restricted` in modalità `enforce`
@@ -297,6 +344,9 @@ Il Namespace `ammersee-legacy` non ha Pod Security Standards applicati. I manife
 ---
 
 ### Q14 – Jaeger
+
+Percorso: `~/course/14`.
+
 Jaeger è installato con UI su `http://<node>:30014`. Diversi servizi generano trace distribuiti.
 
 Accesso GUI (port-forward):
@@ -320,6 +370,9 @@ kubectl -n eyre get svc,ingress,secret
 ---
 
 ### Q15 – Vertical Pod Autoscaler (VPA)
+
+Percorso: `~/course/15`.
+
 Un singolo `etcd` è in esecuzione nel Namespace `sargasso`.
 
 1. Aggiungi un VPA chiamato `etcd-vpa` al file `/course/15/etcd.yaml` e crealo. Non modificare lo StatefulSet nel file
@@ -331,6 +384,9 @@ Un singolo `etcd` è in esecuzione nel Namespace `sargasso`.
 ---
 
 ### Q16 – Argo Rollouts, Canary
+
+Percorso: `~/course/16`.
+
 Argo Rollouts è installato con dashboard su `http://<node>:30160`. Nel Namespace `baltic`, un Rollout `webapp` è attualmente in pausa durante un canary deployment al 50% di traffico.
 
 Accesso GUI (port-forward):
@@ -356,6 +412,9 @@ kubectl -n argo-rollouts get svc,secret,sa
 ---
 
 ### Q17 – FluxCD
+
+Percorso: `~/course/17`.
+
 FluxCD è installato e la CLI `flux` è disponibile.
 
 1. Riprendi la Kustomization `havel-west` per correggere il drift del repository `/course/17/havel-west`
@@ -366,6 +425,9 @@ FluxCD è installato e la CLI `flux` è disponibile.
 ---
 
 ### Q18 – Kyverno
+
+Percorso: `~/course/18`.
+
 Kyverno è installato. La CLI `kyverno` è disponibile.
 
 Crea una `NamespacedMutatingPolicy` chiamata `security-check` che:
@@ -379,6 +441,9 @@ Poi:
 ---
 
 ### Q19 – Crossplane
+
+Percorso: `~/course/19`.
+
 Crossplane è installato. Il team ha creato una `CompositeResourceDefinition` `redis.cache.killer.sh` e una Composition parziale.
 
 1. Crea una risorsa `Redis` chiamata `cache` nel Namespace `danau` con `size: medium`
@@ -392,6 +457,9 @@ Crossplane è installato. Il team ha creato una `CompositeResourceDefinition` `r
 ---
 
 ### Q20 – Linkerd + Gateway API
+
+Percorso: `~/course/20`.
+
 Il Namespace `saltlake-app` è parte della mesh Linkerd.
 
 1. Crea due risorse `Server`:
@@ -406,25 +474,25 @@ Il Namespace `saltlake-app` è parte della mesh Linkerd.
 
 ### Verifica finale end-to-end
 
-1. CRD `TeamMonitoring` v1alpha2 applicata con risorsa `general` in `pacific`
-2. Prometheus scrape esteso a Pod `app=proxy` con query eseguita
-3. Argo CD `web-client` e `web-client-testing` sincronizzati con branch corretti
-4. Flagger Canary per `app1` e `app2` con webhook configurato
-5. Gatekeeper ConstraintTemplate e Constraint applicati in `planet-apps`
-6. OpenTofu state aggiornato per `service-black-bean`, `service-green-curry`, `service-red-velvet`
-7. OpenCost pricing model aggiornato con query Prometheus eseguita
-8. Grafana Loki query aggiornata e Pod errori scalati a 0
-9. Kustomize overlay staging e production applicati con valori corretti
-10. ResourceQuota applicato ai Namespace caspian-pipeline con Git history analizzata
-11. Argo Workflows `greeter` e `configurator` eseguiti con successo
-12. Tekton Pipeline `p1-team-onboarding` e `p2-team-scanner` eseguite con successo
-13. Pod Security Standards `restricted` applicato a `ammersee-legacy`
-14. Jaeger trace esportate per `speechai` con Deployment aggiornati
-15. VPA `etcd-vpa` applicato con raccomandazioni
-16. Argo Rollouts `webapp` promosso con analysis template configurato
-17. FluxCD Kustomization `havel-west` e `havel-east` sincronizzate
-18. Kyverno NamespacedMutatingPolicy `security-check` applicata con test Pod
-19. Crossplane Composition estesa con Service per Redis
-20. Linkerd Server e HTTPRoute configurati con traffic splitting funzionante
+4. CRD `TeamMonitoring` v1alpha2 applicata con risorsa `general` in `pacific`
+5. Prometheus scrape esteso a Pod `app=proxy` con query eseguita
+6. Argo CD `web-client` e `web-client-testing` sincronizzati con branch corretti
+7. Flagger Canary per `app1` e `app2` con webhook configurato
+8. Gatekeeper ConstraintTemplate e Constraint applicati in `planet-apps`
+9. OpenTofu state aggiornato per `service-black-bean`, `service-green-curry`, `service-red-velvet`
+10. OpenCost pricing model aggiornato con query Prometheus eseguita
+11. Grafana Loki query aggiornata e Pod errori scalati a 0
+12. Kustomize overlay staging e production applicati con valori corretti
+13. ResourceQuota applicato ai Namespace caspian-pipeline con Git history analizzata
+14. Argo Workflows `greeter` e `configurator` eseguiti con successo
+15. Tekton Pipeline `p1-team-onboarding` e `p2-team-scanner` eseguite con successo
+16. Pod Security Standards `restricted` applicato a `ammersee-legacy`
+17. Jaeger trace esportate per `speechai` con Deployment aggiornati
+18. VPA `etcd-vpa` applicato con raccomandazioni
+19. Argo Rollouts `webapp` promosso con analysis template configurato
+20. FluxCD Kustomization `havel-west` e `havel-east` sincronizzate
+21. Kyverno NamespacedMutatingPolicy `security-check` applicata con test Pod
+22. Crossplane Composition estesa con Service per Redis
+23. Linkerd Server e HTTPRoute configurati con traffic splitting funzionante
 
 ---

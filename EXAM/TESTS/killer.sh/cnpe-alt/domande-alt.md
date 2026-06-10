@@ -38,9 +38,20 @@ Per CRD, Crossplane, policy e risorse Kubernetes usa Lens/OpenLens con il
 kubeconfig corrente. Mantieni il terminale per modificare e applicare i file
 starter e per salvare gli output richiesti.
 
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q1 – CRD, Kustomize e Git
+
+Percorso: `~/course-alt/1`.
+
 
 La CRD `PlatformService` è installata dal repository
 `~/course-alt/1/platform-service`.
@@ -59,6 +70,9 @@ La CRD `PlatformService` è installata dal repository
 ---
 
 ### Q2 – Prometheus
+
+Percorso: `~/course-alt/2`.
+
 
 Prometheus è nel Namespace `prometheus`. Nel Namespace `atlas` esistono i
 Deployment `checkout` e `proxy`, che espongono `/metrics` sulla porta `8080`.
@@ -84,6 +98,9 @@ La configurazione attuale non include `atlas`.
 
 ### Q3 – Argo CD e branch Git
 
+Percorso: `~/course-alt/3`.
+
+
 Il repository `~/course-alt/3/portal-client` è usato dall'Application Argo CD
 `portal-client`, branch `main`, Namespace `baltic`.
 
@@ -104,6 +121,9 @@ Il repository `~/course-alt/3/portal-client` è usato dall'Application Argo CD
 
 ### Q4 – Flagger pre-rollout webhook
 
+Percorso: `~/course-alt/4`.
+
+
 Nel Namespace `delivery-alt` esistono Deployment `catalog` e Canary `catalog`.
 Il Deployment ha `APP_VERSION=1.0.0`.
 
@@ -122,6 +142,9 @@ Il Deployment ha `APP_VERSION=1.0.0`.
 ---
 
 ### Q5 – Argo Rollouts e AnalysisTemplate
+
+Percorso: `~/course-alt/5`.
+
 
 Nel Namespace `delivery-alt` il Rollout `frontend-rollout` usa una strategia
 canary con una pausa al 50%. Il file
@@ -144,6 +167,9 @@ canary con una pausa al 50%. Il file
 
 ### Q6 – Tekton Pipeline
 
+Percorso: `~/course-alt/6`.
+
+
 Il file `~/course-alt/6/tekton-api/pipeline.yaml` contiene due Task completi,
 ma la Pipeline `api-build` non li usa.
 
@@ -159,6 +185,9 @@ ma la Pipeline `api-build` non li usa.
 ---
 
 ### Q7 – FluxCD
+
+Percorso: `~/course-alt/7`.
+
 
 Il repository `~/course-alt/7/flux-platform` contiene
 `clusters/dev/apps/demo`, ma il `kustomization.yaml` padre non lo include.
@@ -178,6 +207,9 @@ Il GitRepository Flux `flux-platform` usa inoltre il branch inesistente
 ---
 
 ### Q8 – Crossplane platform API
+
+Percorso: `~/course-alt/8`.
+
 
 In `~/course-alt/8/platform-api` sono presenti XRD, Composition e XR
 incompleti.
@@ -199,6 +231,9 @@ incompleti.
 
 ### Q9 – Backstage Software Template
 
+Percorso: `~/course-alt/9`.
+
+
 Completa `~/course-alt/9/backstage-template/template.yaml`.
 
 1. Crea un unico gruppo di parametri con i campi obbligatori:
@@ -218,6 +253,9 @@ Completa `~/course-alt/9/backstage-template/template.yaml`.
 ---
 
 ### Q10 – OpenTofu Kubernetes provider
+
+Percorso: `~/course-alt/10`.
+
 
 Il Namespace `team-a` esiste già. Il file
 `~/course-alt/10/tofu-k8s/main.tf` contiene solo il provider.
@@ -239,6 +277,9 @@ Il Namespace `team-a` esiste già. Il file
 
 ### Q11 – OpenTelemetry endpoint
 
+Percorso: `~/course-alt/11`.
+
+
 Il Deployment `telemetry-api` nel Namespace `obs-alt` usa
 `OTEL_EXPORTER_OTLP_ENDPOINT=http://wrong-collector:4317`.
 Il collector disponibile è `jaeger-collector.obs-alt:4317`.
@@ -252,6 +293,9 @@ Il collector disponibile è `jaeger-collector.obs-alt:4317`.
 ---
 
 ### Q12 – Grafana e Loki
+
+Percorso: `~/course-alt/12`.
+
 
 Grafana è su `http://<node>:30080`; Loki è la datasource predefinita.
 Il Deployment `telemetry-api` genera log `INFO` e `ERROR`.
@@ -273,6 +317,9 @@ Il Deployment `telemetry-api` genera log `INFO` e `ERROR`.
 
 ### Q13 – Gatekeeper owner label
 
+Percorso: `~/course-alt/13`.
+
+
 In `~/course-alt/13/gatekeeper` sono presenti template, Constraint e due
 Deployment di test.
 
@@ -288,6 +335,9 @@ Deployment di test.
 ---
 
 ### Q14 – Kyverno runAsNonRoot
+
+Percorso: `~/course-alt/14`.
+
 
 Completa `~/course-alt/14/kyverno/policy.yaml`.
 
@@ -305,6 +355,9 @@ Completa `~/course-alt/14/kyverno/policy.yaml`.
 ---
 
 ### Q15 – Pod Security Standards restricted
+
+Percorso: `~/course-alt/15`.
+
 
 Il Namespace `security-alt` non applica ancora Pod Security Standards e
 contiene il Deployment non conforme `legacy-worker`. Il manifest è
@@ -328,6 +381,9 @@ contiene il Deployment non conforme `legacy-worker`. Il manifest è
 
 ### Q16 – RBAC least privilege
 
+Percorso: `~/course-alt/16`.
+
+
 Nel Namespace `security-alt` esiste il ServiceAccount `report-reader`.
 Completa `~/course-alt/16/rbac/rbac.yaml`:
 
@@ -346,6 +402,9 @@ Completa `~/course-alt/16/rbac/rbac.yaml`:
 
 ### Q17 – KEDA cron scaling
 
+Percorso: `~/course-alt/17`.
+
+
 KEDA è installato. Nel Namespace `data-alt` esiste il Deployment
 `queue-worker`. Completa `~/course-alt/17/keda/scaledobject.yaml`.
 
@@ -363,6 +422,9 @@ KEDA è installato. Nel Namespace `data-alt` esiste il Deployment
 ---
 
 ### Q18 – OpenCost API
+
+Percorso: `~/course-alt/18`.
+
 
 OpenCost è installato nel Namespace `opencost`.
 
@@ -383,6 +445,9 @@ OpenCost è installato nel Namespace `opencost`.
 
 ### Q19 – Linkerd
 
+Percorso: `~/course-alt/19`.
+
+
 Nel Namespace `mesh-alt` esistono Deployment `mesh-server`, Deployment
 `mesh-client` e Service `mesh-server`, ma il Namespace non è annotato per
 l'injection.
@@ -401,6 +466,9 @@ l'injection.
 ---
 
 ### Q20 – Verifica finale
+
+Percorso: `~/course-alt/20`.
+
 
 Completa la verifica integrata e scrivi
 `~/course-alt/20/final/report.md`.

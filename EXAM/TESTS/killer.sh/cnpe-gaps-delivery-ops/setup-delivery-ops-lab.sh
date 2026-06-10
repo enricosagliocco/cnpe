@@ -606,7 +606,7 @@ cat > "$COURSE_DIR/20/checklist.md" <<'MD'
 - [ ] OTLP TCP 4317 reachable
 MD
 
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 echo "Delivery and Operations lab ready: $COURSE_DIR"

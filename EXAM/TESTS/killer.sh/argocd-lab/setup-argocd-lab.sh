@@ -403,7 +403,7 @@ YAML
 touch "$COURSE_DIR/20/final-report.md"
 
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 info "Argo CD lab ready: $COURSE_DIR"

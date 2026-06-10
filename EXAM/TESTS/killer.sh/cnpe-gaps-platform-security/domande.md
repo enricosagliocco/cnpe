@@ -29,9 +29,20 @@ kubectl config view --minify --raw
 Credenziali:
 - Non servono credenziali aggiuntive rispetto al kubeconfig Kubernetes.
 
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q1 – CRD structural schema
+
+Percorso: `~/course-platform-security/01`.
+
 
 La CRD starter accetta attualmente qualsiasi `spec`, quindi anche
 `01/invalid.yaml`.
@@ -45,6 +56,9 @@ La CRD starter accetta attualmente qualsiasi `spec`, quindi anche
 
 ### Q2 – CRD versioning
 
+Percorso: `~/course-platform-security/02`.
+
+
 `02/crd.yaml` espone soltanto `v1alpha1`.
 
 1. In `02/crd.yaml` aggiungi `v1beta1` served/storage e mantieni `v1alpha1` served/non-storage.
@@ -57,6 +71,9 @@ La CRD starter accetta attualmente qualsiasi `spec`, quindi anche
 
 ### Q3 – Status subresource
 
+Percorso: `~/course-platform-security/03`.
+
+
 La CRD in `03/` non abilita aggiornamenti indipendenti dello status.
 
 1. Abilita `subresources.status` in `03/crd.yaml`; crea `cache-a` e aggiorna solo lo status a `phase: Ready` senza modificare spec.
@@ -68,6 +85,9 @@ La CRD in `03/` non abilita aggiornamenti indipendenti dello status.
 
 ### Q4 – Printer columns
 
+Percorso: `~/course-platform-security/04`.
+
+
 `kubectl get databaseclaims` non mostra i dati operativi richiesti.
 
 1. Aggiungi colonne `Engine`, `Storage` e `Phase` in `04/crd.yaml` usando i JSONPath corretti.
@@ -78,6 +98,9 @@ La CRD in `03/` non abilita aggiornamenti indipendenti dello status.
 
 ### Q5 – Namespaced platform API
 
+Percorso: `~/course-platform-security/05`.
+
+
 L'XRD `AppEnvironment` contiene scope e schema incompleti.
 
 1. Completa `05/xrd.yaml` Crossplane v2, scope Namespaced, kind `AppEnvironment`, campi required `team` e `environment`, quest'ultimo enum dev/staging/prod.
@@ -87,6 +110,9 @@ L'XRD `AppEnvironment` contiene scope e schema incompleti.
 ---
 
 ### Q6 – Composition patching
+
+Percorso: `~/course-platform-security/06`.
+
 
 La Composition crea un ConfigMap senza Namespace e senza dati dell'XR.
 
@@ -99,6 +125,9 @@ La Composition crea un ConfigMap senza Namespace e senza dati dell'XR.
 
 ### Q7 – Composition transforms
 
+Percorso: `~/course-platform-security/07`.
+
+
 `07/composition.yaml` non traduce l'ambiente nel numero di repliche.
 
 1. In `07/composition.yaml` trasforma `spec.environment`: dev -> `1`, staging -> `2`, prod -> `3`, scrivendo il valore in `data.replicas`.
@@ -109,6 +138,9 @@ La Composition crea un ConfigMap senza Namespace e senza dati dell'XR.
 
 ### Q8 – Composition readiness
 
+Percorso: `~/course-platform-security/08`.
+
+
 L'XR diventa Ready senza attendere il segnale applicativo del ConfigMap.
 
 1. Aggiungi readiness check `MatchString` su `data.ready` valore `"true"` alla risorsa ConfigMap di `08/composition.yaml`.
@@ -118,6 +150,9 @@ L'XR diventa Ready senza attendere il segnale applicativo del ConfigMap.
 ---
 
 ### Q9 – Self-service claim validation
+
+Percorso: `~/course-platform-security/09`.
+
 
 `09/xr.yaml` contiene nome, Namespace e spec come placeholder.
 
@@ -130,6 +165,9 @@ L'XR diventa Ready senza attendere il segnale applicativo del ConfigMap.
 
 ### Q10 – Multi-tenancy quota
 
+Percorso: `~/course-platform-security/10`.
+
+
 Il ResourceQuota `tenant-budget` ha `hard` vuoto.
 
 1. Completa `10/quota.yaml` nel Namespace `tenant-a`: requests.cpu `2`, requests.memory `4Gi`, limits.cpu `4`, limits.memory `8Gi`, pods `20`, persistentvolumeclaims `5`.
@@ -140,6 +178,9 @@ Il ResourceQuota `tenant-budget` ha `hard` vuoto.
 ---
 
 ### Q11 – LimitRange defaults
+
+Percorso: `~/course-platform-security/11`.
+
 
 Il Pod `defaults-demo` non specifica risorse e il LimitRange è vuoto.
 
@@ -152,6 +193,9 @@ Il Pod `defaults-demo` non specifica risorse e il LimitRange è vuoto.
 
 ### Q12 – NetworkPolicy default deny
 
+Percorso: `~/course-platform-security/12`.
+
+
 Frontend, backend e Service backend sono già running; senza policy la
 comunicazione non è limitata.
 
@@ -163,6 +207,9 @@ comunicazione non è limitata.
 ---
 
 ### Q13 – RBAC tenant admin
+
+Percorso: `~/course-platform-security/13`.
+
 
 ServiceAccount, Role e RoleBinding esistono nel file, ma le regole e il
 subject sono vuoti.
@@ -177,6 +224,9 @@ subject sono vuoti.
 
 ### Q14 – Pod Security restricted
 
+Percorso: `~/course-platform-security/14`.
+
+
 Il Deployment `restricted-app` è già running con container privilegiato.
 
 1. Etichetta `tenant-a` con restricted/latest e correggi `14/deployment.yaml`: runAsNonRoot, runAsUser 1000, RuntimeDefault, no privilege escalation, drop ALL.
@@ -188,6 +238,9 @@ Il Deployment `restricted-app` è già running con container privilegiato.
 
 ### Q15 – Gatekeeper required owner
 
+Percorso: `~/course-platform-security/15`.
+
+
 Template e Constraint contengono schema, Rego e match mancanti.
 
 1. Completa template e Constraint in `15`: parametro annotation string, messaggio `Missing annotation: owner`, Deployment in `tenant-a`, deny.
@@ -197,6 +250,9 @@ Template e Constraint contengono schema, Rego e match mancanti.
 ---
 
 ### Q16 – Gatekeeper allowed repositories
+
+Percorso: `~/course-platform-security/16`.
+
 
 Il template non controlla ancora container e initContainer.
 
@@ -208,6 +264,9 @@ Il template non controlla ancora container e initContainer.
 ---
 
 ### Q17 – Audit and remediation
+
+Percorso: `~/course-platform-security/17`.
+
 
 Il Deployment `unallocated-cost` è già running senza label `cost-center`; la
 Constraint starter usa `dryrun`.
@@ -221,6 +280,9 @@ Constraint starter usa `dryrun`.
 
 ### Q18 – Supply-chain check
 
+Percorso: `~/course-platform-security/18`.
+
+
 Il file `18/sbom.json` contiene una licenza `NOASSERTION`, ma il Task Tekton
 non implementa alcun controllo.
 
@@ -233,6 +295,9 @@ non implementa alcun controllo.
 
 ### Q19 – Cost and right-sizing
 
+Percorso: `~/course-platform-security/19`.
+
+
 Il Deployment `right-sized` non definisce request o limit; `usage.csv`
 contiene i campioni da usare.
 
@@ -244,6 +309,9 @@ contiene i campioni da usare.
 ---
 
 ### Q20 – Simulazione a tempo
+
+Percorso: `~/course-platform-security/20`.
+
 
 Il report finale deve verificare risorse realmente create o corrette nelle
 domande precedenti.

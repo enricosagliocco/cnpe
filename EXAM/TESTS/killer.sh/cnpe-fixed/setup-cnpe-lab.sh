@@ -42,7 +42,7 @@ CALLER_HOME="${CALLER_HOME:-$HOME}"
 COURSE_DIR="${COURSE_DIR:-${CALLER_HOME}/course}"
 mkdir -p "$COURSE_DIR"
 cp "${SCRIPT_DIR}/domande.md" "${COURSE_DIR}/domande.md"
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md" plain
 
 banner "All done!"

@@ -33,6 +33,9 @@ kubectl -n kyverno logs deploy/kyverno-admission-controller
 
 ### Q1 – Namespace annotation obbligatoria
 
+Percorso: `~/course-kyverno/01`.
+
+
 La `ValidatingPolicy` `require-ns-annotation` contiene action ed espressione
 CEL mancanti.
 
@@ -47,6 +50,9 @@ CEL mancanti.
 
 ### Q2 – Mutation di label e annotation sui Pod
 
+Percorso: `~/course-kyverno/02`.
+
+
 La `NamespacedMutatingPolicy` `mutate-pods` in `apps` non contiene la patch.
 
 1. Completa una singola mutation `ApplyConfiguration`.
@@ -59,6 +65,9 @@ La `NamespacedMutatingPolicy` `mutate-pods` in `apps` non contiene la patch.
 
 ### Q3 – Label obbligatorie sui Deployment
 
+Percorso: `~/course-kyverno/03`.
+
+
 `require-deployment-labels` non valida ancora le label applicative.
 
 1. Richiedi `app.kubernetes.io/name` e `owner` su CREATE e UPDATE.
@@ -70,6 +79,9 @@ La `NamespacedMutatingPolicy` `mutate-pods` in `apps` non contiene la patch.
 
 ### Q4 – Numero minimo di repliche
 
+Percorso: `~/course-kyverno/04`.
+
+
 La policy `minimum-replicas` permette Deployment production con una replica.
 
 1. Applica la policy soltanto ai Deployment con label `environment=production`.
@@ -79,6 +91,9 @@ La policy `minimum-replicas` permette Deployment production con una replica.
 ---
 
 ### Q5 – Resource requests e limits
+
+Percorso: `~/course-kyverno/05`.
+
 
 `require-resources` non controlla tutti i container.
 
@@ -91,6 +106,9 @@ La policy `minimum-replicas` permette Deployment production con una replica.
 
 ### Q6 – Registry immagini consentiti
 
+Percorso: `~/course-kyverno/06`.
+
+
 `allowed-registries` deve limitare le immagini dei Pod nel Namespace `apps`.
 
 1. Consenti soltanto prefissi `registry.k8s.io/` e `ghcr.io/company/`.
@@ -101,6 +119,9 @@ La policy `minimum-replicas` permette Deployment production con una replica.
 ---
 
 ### Q7 – Vietare tag latest e immagini senza tag
+
+Percorso: `~/course-kyverno/07`.
+
 
 La policy `disallow-latest` è incompleta.
 
@@ -113,6 +134,9 @@ La policy `disallow-latest` è incompleta.
 
 ### Q8 – Pod runAsNonRoot
 
+Percorso: `~/course-kyverno/08`.
+
+
 `require-run-as-non-root` deve applicare il Pod Security Standard essenziale.
 
 1. Richiedi `spec.securityContext.runAsNonRoot: true`.
@@ -122,6 +146,9 @@ La policy `disallow-latest` è incompleta.
 ---
 
 ### Q9 – Container privilegiati e privilege escalation
+
+Percorso: `~/course-kyverno/09`.
+
 
 La policy `secure-containers` non ispeziona tutti i container.
 
@@ -134,6 +161,9 @@ La policy `secure-containers` non ispeziona tutti i container.
 
 ### Q10 – Volumi hostPath vietati
 
+Percorso: `~/course-kyverno/10`.
+
+
 `disallow-hostpath` deve bloccare accesso al filesystem del nodo.
 
 1. Nega qualsiasi volume con campo `hostPath`.
@@ -143,6 +173,9 @@ La policy `secure-containers` non ispeziona tutti i container.
 ---
 
 ### Q11 – Service NodePort e LoadBalancer vietati
+
+Percorso: `~/course-kyverno/11`.
+
 
 La policy `restrict-service-types` deve proteggere il Namespace `production`.
 
@@ -155,6 +188,9 @@ La policy `restrict-service-types` deve proteggere il Namespace `production`.
 
 ### Q12 – Ingress TLS obbligatorio
 
+Percorso: `~/course-kyverno/12`.
+
+
 `require-ingress-tls` permette Ingress senza TLS.
 
 1. Richiedi almeno una entry `spec.tls`.
@@ -164,6 +200,9 @@ La policy `restrict-service-types` deve proteggere il Namespace `production`.
 ---
 
 ### Q13 – Label team immutabile durante UPDATE
+
+Percorso: `~/course-kyverno/13`.
+
 
 La policy `immutable-team` deve consentire CREATE ma proteggere gli UPDATE.
 
@@ -179,6 +218,9 @@ La policy `immutable-team` deve consentire CREATE ma proteggere gli UPDATE.
 
 ### Q14 – Namespace selector ed esclusione
 
+Percorso: `~/course-kyverno/14`.
+
+
 `production-security` deve agire soltanto nei Namespace selezionati.
 
 1. Usa `namespaceSelector` per label `policy.kyverno.io/enabled=true`.
@@ -190,6 +232,9 @@ La policy `immutable-team` deve consentire CREATE ma proteggere gli UPDATE.
 
 ### Q15 – Policy namespaced per autonomia team
 
+Percorso: `~/course-kyverno/15`.
+
+
 La `NamespacedValidatingPolicy` in `team-a` non deve influire su `team-b`.
 
 1. Completa `team-a-owner` per richiedere annotation `owner` ai ConfigMap.
@@ -200,6 +245,9 @@ La `NamespacedValidatingPolicy` in `team-a` non deve influire su `team-b`.
 ---
 
 ### Q16 – Audit prima di Deny
+
+Percorso: `~/course-kyverno/16`.
+
 
 `require-cost-center` parte in modalità `Audit` e nel cluster esiste già un
 Deployment non conforme.
@@ -215,6 +263,9 @@ Deployment non conforme.
 
 ### Q17 – Messaggio dinamico con messageExpression
 
+Percorso: `~/course-kyverno/17`.
+
+
 La policy `required-owner-message` usa soltanto un messaggio generico.
 
 1. Richiedi annotation `owner` sui Deployment.
@@ -225,6 +276,9 @@ La policy `required-owner-message` usa soltanto un messaggio generico.
 ---
 
 ### Q18 – Mutation condizionale senza sovrascrittura
+
+Percorso: `~/course-kyverno/18`.
+
 
 `default-environment` deve aggiungere una label solo quando manca.
 
@@ -237,6 +291,9 @@ La policy `required-owner-message` usa soltanto un messaggio generico.
 
 ### Q19 – Default security context su tutti i container
 
+Percorso: `~/course-kyverno/19`.
+
+
 La MutatingPolicy `default-container-security` ha una patch incompleta.
 
 1. Usa CEL `map()` per tutti i container.
@@ -248,6 +305,9 @@ La MutatingPolicy `default-container-security` ha una patch incompleta.
 ---
 
 ### Q20 – Incident finale end-to-end
+
+Percorso: `~/course-kyverno/20`.
+
 
 La directory `20/` contiene un bundle con quattro errori: action Audit al posto
 di Deny, selector errato, CEL non sicura sui metadata assenti e mutation che

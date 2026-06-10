@@ -19,9 +19,20 @@ Credenziali:
 - Tekton Dashboard non richiede credenziali in questo lab.
 - Apri `http://<node>:30120` oppure `http://127.0.0.1:30120`.
 
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q1 – Task e parametri
+
+Percorso: `~/course-tekton/01`.
+
 
 Il Task `greet` e il relativo TaskRun sono incompleti in `01/`.
 
@@ -35,6 +46,9 @@ Il Task `greet` e il relativo TaskRun sono incompleti in `01/`.
 
 ### Q2 – Step sequenziali
 
+Percorso: `~/course-tekton/02`.
+
+
 Il Task `sequential-build` in `02/task.yaml` non contiene step.
 
 1. Implementa gli step `prepare`, `build` e `verify`.
@@ -47,6 +61,9 @@ Il Task `sequential-build` in `02/task.yaml` non contiene step.
 
 ### Q3 – Task results
 
+Percorso: `~/course-tekton/03`.
+
+
 Il Task `git-metadata` in `03/task.yaml` scrive un placeholder nel result.
 
 1. Correggi lo step affinché scriva `0123456789abcdef` nel result `commit`.
@@ -57,6 +74,9 @@ Il Task `git-metadata` in `03/task.yaml` scrive un placeholder nel result.
 ---
 
 ### Q4 – Workspace emptyDir
+
+Percorso: `~/course-tekton/04`.
+
 
 Task e TaskRun in `04/` hanno workspace e percorso mancanti.
 
@@ -69,6 +89,9 @@ Task e TaskRun in `04/` hanno workspace e percorso mancanti.
 
 ### Q5 – Workspace PVC
 
+Percorso: `~/course-tekton/05`.
+
+
 La Pipeline `build-pipeline` è completa, ma `05/pipelinerun.yaml` non fornisce
 lo storage richiesto.
 
@@ -80,6 +103,9 @@ lo storage richiesto.
 ---
 
 ### Q6 – Pipeline ordering
+
+Percorso: `~/course-tekton/06`.
+
 
 La Pipeline `ordered-build` contiene i tre Task ma `test` e `package` possono
 partire nel momento sbagliato e `test` non vede il workspace.
@@ -94,6 +120,9 @@ partire nel momento sbagliato e `test` non vede il workspace.
 
 ### Q7 – Parallel tasks
 
+Percorso: `~/course-tekton/07`.
+
+
 La Pipeline `parallel-tests` non definisce le dipendenze tra i Task.
 
 1. Fai partire `lint` e `unit` in parallelo dopo `clone`.
@@ -107,6 +136,9 @@ La Pipeline `parallel-tests` non definisce le dipendenze tra i Task.
 
 ### Q8 – Result propagation
 
+Percorso: `~/course-tekton/08`.
+
+
 La Pipeline `release` esegue `version` e `publish`, ma non passa il result.
 
 1. Applica `version-task.yaml`.
@@ -118,6 +150,9 @@ La Pipeline `release` esegue `version` e `publish`, ma non passa il result.
 ---
 
 ### Q9 – Pipeline results
+
+Percorso: `~/course-tekton/09`.
+
 
 La Pipeline `image-build` produce l'immagine nel Task `build`, ma non la
 espone nello status della Pipeline.
@@ -131,6 +166,9 @@ espone nello status della Pipeline.
 
 ### Q10 – When expression
 
+Percorso: `~/course-tekton/10`.
+
+
 Il Task `deploy` della Pipeline `conditional-deploy` viene sempre eseguito.
 
 1. Completa la `when` expression per accettare soltanto `staging` o `prod`.
@@ -141,6 +179,9 @@ Il Task `deploy` della Pipeline `conditional-deploy` viene sempre eseguito.
 ---
 
 ### Q11 – Finally
+
+Percorso: `~/course-tekton/11`.
+
 
 La Pipeline `failing-build` fallisce intenzionalmente e non ha cleanup finale.
 
@@ -154,6 +195,9 @@ La Pipeline `failing-build` fallisce intenzionalmente e non ha cleanup finale.
 
 ### Q12 – Retries
 
+Percorso: `~/course-tekton/12`.
+
+
 Il Task `unstable` fallisce al primo tentativo perché `retries` è impostato a
 zero.
 
@@ -165,6 +209,9 @@ zero.
 ---
 
 ### Q13 – Timeout
+
+Percorso: `~/course-tekton/13`.
+
 
 Il Task `slow` dorme 20 secondi e i timeout correnti sono troppo permissivi.
 
@@ -178,6 +225,9 @@ Il Task `slow` dorme 20 secondi e i timeout correnti sono troppo permissivi.
 
 ### Q14 – Matrix
 
+Percorso: `~/course-tekton/14`.
+
+
 La Pipeline `matrix-tests` contiene una matrix vuota.
 
 1. Abilita le API beta Tekton se richiesto dalla versione installata.
@@ -190,6 +240,9 @@ La Pipeline `matrix-tests` contiene una matrix vuota.
 
 ### Q15 – Optional workspace
 
+Percorso: `~/course-tekton/15`.
+
+
 Il Task `sign` dichiara un workspace opzionale, ma firma anche quando non è
 associato.
 
@@ -201,6 +254,9 @@ associato.
 ---
 
 ### Q16 – Secret credentials
+
+Percorso: `~/course-tekton/16`.
+
 
 Secret, ServiceAccount e Task sono presenti, ma il TaskRun non monta le
 credenziali.
@@ -215,6 +271,9 @@ credenziali.
 
 ### Q17 – RBAC del ServiceAccount
 
+Percorso: `~/course-tekton/17`.
+
+
 Il ServiceAccount `pipeline` esiste, ma Role e RoleBinding sono vuoti.
 
 1. Concedi soltanto `get`, `list` e `create` sui ConfigMap in `tekton-lab`.
@@ -227,6 +286,9 @@ Il ServiceAccount `pipeline` esiste, ma Role e RoleBinding sono vuoti.
 ---
 
 ### Q18 – Supply chain pipeline
+
+Percorso: `~/course-tekton/18`.
+
 
 La Pipeline `secure-build` in `18/pipeline.yaml` è priva di Task.
 
@@ -241,6 +303,9 @@ La Pipeline `secure-build` in `18/pipeline.yaml` è priva di Task.
 
 ### Q19 – Troubleshooting
 
+Percorso: `~/course-tekton/19`.
+
+
 `19/pipelinerun.yaml` punta a una Pipeline inesistente, usa un parametro errato
 e non associa il workspace richiesto.
 
@@ -253,6 +318,9 @@ e non associa il workspace richiesto.
 ---
 
 ### Q20 – Simulazione a tempo
+
+Percorso: `~/course-tekton/20`.
+
 
 `20/pipeline.yaml` e `20/pipelinerun.yaml` contengono soltanto lo scheletro
 della supply chain finale.

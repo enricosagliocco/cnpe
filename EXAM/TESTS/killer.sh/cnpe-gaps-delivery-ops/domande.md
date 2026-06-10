@@ -35,9 +35,20 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 - Grafana: user `admin`, password `admin`.
 - Argo Rollouts, Tekton, Prometheus e Jaeger non richiedono login nel lab.
 
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q1 – Argo CD source revision
+
+Percorso: `~/course-delivery-ops/01`.
+
 
 L'Application `storefront` in `01/application.yaml` contiene placeholder e non
 può essere creata correttamente.
@@ -51,6 +62,9 @@ può essere creata correttamente.
 
 ### Q2 – Argo CD staging promotion
 
+Percorso: `~/course-delivery-ops/02`.
+
+
 `02/application.yaml` è una copia incompleta della configurazione production.
 
 1. Partendo da `02/application.yaml`, crea `storefront-staging` nel Namespace `delivery-staging`, stesso repo/path della Q1, label `environment=staging` e sync manuale.
@@ -61,6 +75,9 @@ può essere creata correttamente.
 
 ### Q3 – Flux GitRepository
 
+Percorso: `~/course-delivery-ops/03`.
+
+
 Il GitRepository `platform-source` usa il branch inesistente `develop`.
 
 1. Correggi `03/source.yaml`: branch `main`, interval `1m`, URL `https://github.com/fluxcd/flux2-kustomize-helm-example`.
@@ -70,6 +87,9 @@ Il GitRepository `platform-source` usa il branch inesistente `develop`.
 ---
 
 ### Q4 – Flux Kustomization
+
+Percorso: `~/course-delivery-ops/04`.
+
 
 `04/kustomization.yaml` contiene una spec vuota e non è riconciliabile.
 
@@ -82,6 +102,9 @@ Il GitRepository `platform-source` usa il branch inesistente `develop`.
 
 ### Q5 – GitOps drift
 
+Percorso: `~/course-delivery-ops/05`.
+
+
 Il Deployment `drift-demo` è già running in `delivery-dev` con 2 repliche.
 
 1. Gestiscilo con una sorgente GitOps usando `05/deployment.yaml`.
@@ -93,6 +116,9 @@ Il Deployment `drift-demo` è già running in `delivery-dev` con 2 repliche.
 
 ### Q6 – Tekton task ordering
 
+Percorso: `~/course-delivery-ops/06`.
+
+
 La Pipeline `ordered-build` ha dipendenze e workspace mancanti.
 
 1. In `06/pipeline.yaml`, fai eseguire `test` dopo `clone` e `package` dopo `test`, condividendo il workspace `source`.
@@ -102,6 +128,9 @@ La Pipeline `ordered-build` ha dipendenze e workspace mancanti.
 ---
 
 ### Q7 – Tekton parallelism
+
+Percorso: `~/course-delivery-ops/07`.
+
 
 `07/pipeline.yaml` deve essere completata in modo che il grafo sia realmente
 parallelo.
@@ -115,6 +144,9 @@ parallelo.
 
 ### Q8 – Tekton results
 
+Percorso: `~/course-delivery-ops/08`.
+
+
 Il Task `calculate-version` produce ancora il valore `TODO`.
 
 1. Completa `08/task.yaml`: il Task `calculate-version` deve produrre il result `version` con valore `1.4.7`; la Pipeline deve passarlo al Task `print-version`.
@@ -124,6 +156,9 @@ Il Task `calculate-version` produce ancora il valore `TODO`.
 ---
 
 ### Q9 – Argo Rollouts canary
+
+Percorso: `~/course-delivery-ops/09`.
+
 
 I Service stable/canary esistono già, mentre `09/rollout.yaml` contiene
 placeholder nella strategia.
@@ -138,6 +173,9 @@ placeholder nella strategia.
 
 ### Q10 – AnalysisTemplate
 
+Percorso: `~/course-delivery-ops/10`.
+
+
 `10/analysis.yaml` non può essere usato perché address, query e condizione sono
 placeholder.
 
@@ -148,6 +186,9 @@ placeholder.
 ---
 
 ### Q11 – Rollback progressive delivery
+
+Percorso: `~/course-delivery-ops/11`.
+
 
 Il Rollout `checkout` deve rimanere disponibile anche durante una revisione
 non valida.
@@ -161,6 +202,9 @@ non valida.
 
 ### Q12 – Prometheus target discovery
 
+Percorso: `~/course-delivery-ops/12`.
+
+
 Il Deployment `traffic-api` è già running in `metrics-lab`, espone `/metrics`
 su `8080` ed è annotato, ma Prometheus non lo scopre.
 
@@ -171,6 +215,9 @@ su `8080` ed è annotato, ma Prometheus non lo scopre.
 ---
 
 ### Q13 – PromQL availability
+
+Percorso: `~/course-delivery-ops/13`.
+
 
 `traffic-api` espone metriche deterministiche, mentre `13/queries.txt` contiene
 solo placeholder.
@@ -185,6 +232,9 @@ solo placeholder.
 
 ### Q14 – Prometheus alert
 
+Percorso: `~/course-delivery-ops/14`.
+
+
 `14/rule.yaml` contiene una regola non valida con campi `TODO`.
 
 1. Completa `14/rule.yaml`: alert `HighErrorRate`, 5xx ratio maggiore di 5% per `5m`, severity `critical`, summary con label `app`.
@@ -194,6 +244,9 @@ solo placeholder.
 ---
 
 ### Q15 – Loki datasource health
+
+Percorso: `~/course-delivery-ops/15`.
+
 
 Grafana è running, ma `15/datasource.yaml` punta a `wrong-loki` e usa accesso
 diretto.
@@ -206,6 +259,9 @@ diretto.
 ---
 
 ### Q16 – LogQL incident
+
+Percorso: `~/course-delivery-ops/16`.
+
 
 I Deployment `log-heavy` e `log-light` stanno già producendo errori con
 frequenze diverse, raccolti da Promtail.
@@ -220,6 +276,9 @@ frequenze diverse, raccolti da Promtail.
 
 ### Q17 – OpenTelemetry endpoint
 
+Percorso: `~/course-delivery-ops/17`.
+
+
 Il Deployment `orders-api` è già running con endpoint OTLP e service name
 errati.
 
@@ -230,6 +289,9 @@ errati.
 ---
 
 ### Q18 – Trace correlation
+
+Percorso: `~/course-delivery-ops/18`.
+
 
 `18/log.json` simula il log di un incidente e contiene il campo `trace_id`.
 
@@ -242,6 +304,9 @@ errati.
 
 ### Q19 – Incident remediation
 
+Percorso: `~/course-delivery-ops/19`.
+
+
 La directory `19/` contiene contemporaneamente tre configurazioni guaste che
 riproducono i sintomi descritti in `incident.yaml`.
 
@@ -252,6 +317,9 @@ riproducono i sintomi descritti in `incident.yaml`.
 ---
 
 ### Q20 – Simulazione a tempo
+
+Percorso: `~/course-delivery-ops/20`.
+
 
 `20/checklist.md` è il test integrato del lab e deve riferirsi a risorse
 realmente create nelle domande precedenti.

@@ -1104,7 +1104,7 @@ EOF2
 touch "$COURSE_DIR/20/final/report.md"
 
 cp "${SCRIPT_DIR}/domande-alt.md" "$COURSE_DIR/domande-alt.md" 2>/dev/null || true
-source "$SCRIPT_DIR/../lab-question-layout.sh"
+source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande-alt.md" plain
 ok "Alternative lab ready in ${COURSE_DIR}"
 ok "Use domande-alt.md from this package or ${COURSE_DIR}/domande-alt.md"
