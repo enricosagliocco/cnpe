@@ -1,8 +1,8 @@
 # CNPE Storage Troubleshooting Lab
 
 Laboratorio pratico composto da 20 incidenti storage indipendenti in stile
-esame CNPE. Lo script genera manifest e comandi locali, ma non crea cluster e
-non applica risorse Kubernetes.
+esame CNPE. Lo script crea o riusa un cluster, genera manifest e comandi
+locali, ma non applica le risorse delle domande.
 
 Gli scenari coprono:
 
@@ -16,6 +16,15 @@ Gli scenari coprono:
 
 Ogni domanda usa il Namespace `storage-qNN` e la directory
 `~/course-storage-troubleshooting/qNN/`. Applicare una sola domanda per volta.
+
+## Avvio con Minikube
+
+Prerequisiti: un driver compatibile con Minikube, `minikube` e `kubectl`.
+Il setup predefinito crea un cluster a due nodi.
+
+```bash
+./setup-storage-troubleshooting-lab.sh
+```
 
 ## Avvio con kind
 
@@ -40,6 +49,8 @@ Per rigenerare tutti i manifest:
 ```bash
 LAB_FORCE=true ./setup-storage-troubleshooting-lab-kind.sh
 ```
+
+`LAB_FORCE=true` rigenera i file del corso senza eliminare il cluster.
 
 ## Esecuzione delle domande
 

@@ -14,8 +14,9 @@ La sola modifica del file, il solo dry-run client-side o una risposta teorica
 non completano il ticket. Conserva comando, errore iniziale, correzione e
 verifica finale nell'evidence file indicato dalla domanda.
 
-Lo script `setup-storage-troubleshooting-lab.sh` genera soltanto i file del
-corso: non crea cluster e non applica risorse. Ogni domanda usa la cartella
+Lo script `setup-storage-troubleshooting-lab.sh` crea o riusa il cluster
+Kubernetes e genera i file del corso, ma non applica le risorse delle
+domande. Ogni domanda usa la cartella
 `~/course-storage-troubleshooting/qNN/` e il Namespace `storage-qNN`.
 
 Per ogni ticket:

@@ -4,9 +4,66 @@ set -euo pipefail
 COURSE_DIR="${COURSE_DIR:-$HOME/course-storage-troubleshooting}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
+KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-storage}"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
+
+ensure_cluster() {
+  case "$CLUSTER_PROVIDER" in
+    kind)
+      command -v kind >/dev/null || die "kind is required"
+      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
+        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
+      else
+        info "Creating three-node kind cluster: $KIND_CLUSTER_NAME"
+        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s --config - <<'EOF'
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
+EOF
+      fi
+      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
+      ;;
+    minikube)
+      command -v minikube >/dev/null || die "minikube is required"
+      if minikube status >/dev/null 2>&1; then
+        info "Using existing minikube cluster"
+      else
+        info "Creating two-node minikube cluster"
+        minikube start --nodes=2 --cpus=3 --memory=6144
+      fi
+      minikube update-context >/dev/null
+      current_nodes="$(kubectl get nodes --no-headers 2>/dev/null | wc -l | tr -d ' ')"
+      if [ "${current_nodes:-0}" -lt 2 ]; then
+        info "Adding the second minikube node required by the storage lab"
+        minikube node add
+      fi
+      ;;
+    existing)
+      info "Using the current kubectl context"
+      ;;
+    *)
+      die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER"
+      ;;
+  esac
+
+  kubectl cluster-info >/dev/null 2>&1 ||
+    die "kubectl cannot reach the selected Kubernetes cluster"
+  kubectl wait --for=condition=Ready nodes --all --timeout=180s >/dev/null
+
+  local node_count
+  node_count="$(kubectl get nodes --no-headers | wc -l | tr -d ' ')"
+  [ "$node_count" -ge 2 ] ||
+    die "The storage lab requires at least two Kubernetes nodes"
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
 
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
   die "$COURSE_DIR already initialized; use LAB_FORCE=true"
@@ -1030,5 +1087,6 @@ prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md" q-prefixed
 touch "$COURSE_DIR/.initialized"
 
 info "Storage troubleshooting lab ready: $COURSE_DIR"
+info "Kubernetes cluster ready using provider: $CLUSTER_PROVIDER"
 info "Twenty self-contained questions are available in directories q01 through q20"
-info "No cluster resources were created by this generator"
+info "No question resources were applied; use qNN/create-resources.sh"

@@ -4,10 +4,49 @@ set -euo pipefail
 COURSE_DIR="${COURSE_DIR:-$HOME/course-resource-governance}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
-NAMESPACE="resource-governance"
+CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
+KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-resource-governance}"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
+
+ensure_cluster() {
+  case "$CLUSTER_PROVIDER" in
+    kind)
+      command -v kind >/dev/null || die "kind is required"
+      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
+        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
+      else
+        info "Creating kind cluster: $KIND_CLUSTER_NAME"
+        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s
+      fi
+      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
+      ;;
+    minikube)
+      command -v minikube >/dev/null || die "minikube is required"
+      if minikube status >/dev/null 2>&1; then
+        info "Using existing minikube cluster"
+      else
+        info "Creating minikube cluster"
+        minikube start --cpus=4 --memory=4096
+      fi
+      minikube update-context >/dev/null
+      ;;
+    existing)
+      info "Using the current kubectl context"
+      ;;
+    *)
+      die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER"
+      ;;
+  esac
+
+  kubectl cluster-info >/dev/null 2>&1 ||
+    die "kubectl cannot reach the selected Kubernetes cluster"
+  kubectl wait --for=condition=Ready nodes --all --timeout=180s >/dev/null
+}
+
+command -v kubectl >/dev/null || die "kubectl is required"
+ensure_cluster
 
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
   die "$COURSE_DIR already initialized; use LAB_FORCE=true"
@@ -367,4 +406,5 @@ prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md" q-prefixed
 touch "$COURSE_DIR/.initialized"
 
 info "ResourceQuota and LimitRange files ready: $COURSE_DIR"
-info "No cluster resources were created by this generator"
+info "Kubernetes cluster ready using provider: $CLUSTER_PROVIDER"
+info "No question resources were applied; use qNN/create-resources.sh"

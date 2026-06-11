@@ -1,9 +1,10 @@
 # Le 20 domande dell'esame - Resource Governance Troubleshooting Lab
 
-Lo script `setup-resource-quota-limitrange-lab.sh` genera soltanto i file del
-corso: non crea cluster e non applica risorse. Ogni domanda usa una cartella
-indipendente `~/course-resource-governance/qNN/`; tutte le risorse devono
-essere create nel Namespace `resource-governance`.
+Lo script `setup-resource-quota-limitrange-lab.sh` crea o riusa il cluster
+Kubernetes e genera i file del corso, ma non applica le risorse delle
+domande. Ogni domanda usa una cartella indipendente
+`~/course-resource-governance/qNN/`; tutte le risorse devono essere create
+nel Namespace `resource-governance`.
 
 Il laboratorio simula una coda di incidenti. Per ogni domanda devi tentare
 l'operazione richiesta, osservare il sintomo, identificare la causa, applicare
