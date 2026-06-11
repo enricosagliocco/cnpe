@@ -1,8 +1,8 @@
 # CNPE Storage Troubleshooting Lab
 
 Laboratorio pratico composto da 20 incidenti storage indipendenti in stile
-esame CNPE. Lo script genera i manifest, ma non li applica automaticamente:
-questo evita che i PV statici delle diverse domande competano tra loro.
+esame CNPE. Lo script genera manifest e comandi locali, ma non crea cluster e
+non applica risorse Kubernetes.
 
 Gli scenari coprono:
 
@@ -15,7 +15,7 @@ Gli scenari coprono:
 - volume mode e permessi per container non-root.
 
 Ogni domanda usa il Namespace `storage-qNN` e la directory
-`~/course-storage-troubleshooting/NN/`. Applicare una sola domanda per volta.
+`~/course-storage-troubleshooting/qNN/`. Applicare una sola domanda per volta.
 
 ## Avvio con kind
 
@@ -46,17 +46,15 @@ LAB_FORCE=true ./setup-storage-troubleshooting-lab-kind.sh
 Per avviare, ad esempio, Q03:
 
 ```bash
-cd ~/course-storage-troubleshooting/03
-kubectl apply -f namespace.yaml
-kubectl apply -f incident.yaml
+cd ~/course-storage-troubleshooting/q03
+./create-resources.sh
 ```
 
 Terminata la domanda, eliminare tutte le sue risorse prima di passare alla
 successiva:
 
 ```bash
-kubectl delete -f incident.yaml --ignore-not-found
-kubectl delete -f namespace.yaml --ignore-not-found
+./remove-resources.sh
 ```
 
 La cancellazione del Namespace non elimina PV e StorageClass, che sono risorse

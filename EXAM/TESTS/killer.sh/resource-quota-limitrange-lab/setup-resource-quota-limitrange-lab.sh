@@ -4,62 +4,28 @@ set -euo pipefail
 COURSE_DIR="${COURSE_DIR:-$HOME/course-resource-governance}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
-CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
-KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-cnpe-resource-governance}"
 NAMESPACE="resource-governance"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
-
-ensure_cluster() {
-  case "$CLUSTER_PROVIDER" in
-    minikube)
-      if ! kubectl cluster-info >/dev/null 2>&1; then
-        command -v minikube >/dev/null || die "Minikube is required"
-        minikube start --cpus=4 --memory=4096
-      fi
-      ;;
-    existing)
-      kubectl cluster-info >/dev/null 2>&1 ||
-        die "kubectl cannot reach a Kubernetes cluster"
-      ;;
-    kind)
-      command -v kind >/dev/null || die "kind is required"
-      if kind get clusters 2>/dev/null | grep -Fxq "$KIND_CLUSTER_NAME"; then
-        info "Using existing kind cluster: $KIND_CLUSTER_NAME"
-      else
-        info "Creating kind cluster: $KIND_CLUSTER_NAME"
-        kind create cluster --name "$KIND_CLUSTER_NAME" --wait 180s
-      fi
-      kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
-      kubectl cluster-info >/dev/null 2>&1 ||
-        die "kind started, but kubectl cannot reach the cluster"
-      ;;
-    *)
-      die "Unsupported CLUSTER_PROVIDER: $CLUSTER_PROVIDER"
-      ;;
-  esac
-}
-
-command -v kubectl >/dev/null || die "kubectl is required"
-ensure_cluster
 
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
   die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
 if [ "$LAB_FORCE" = "true" ]; then
-  info "Removing previous lab resources"
-  kubectl delete namespace "$NAMESPACE" --ignore-not-found --wait=true
+  info "Removing previously generated files"
   rm -rf "$COURSE_DIR"
 fi
 
-mkdir -p "$COURSE_DIR/01"
+mkdir -p "$COURSE_DIR/q01"
 
-kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml |
-  kubectl apply -f - >/dev/null
-
-kubectl apply -f - >/dev/null <<'YAML'
+cat > "$COURSE_DIR/q01/base-resources.yaml" <<'YAML'
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: resource-governance
+---
 apiVersion: v1
 kind: LimitRange
 metadata:
@@ -164,7 +130,7 @@ spec:
               memory: 512Mi
 YAML
 
-cat > "$COURSE_DIR/01/defaulted-pod.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/defaulted-pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
@@ -178,7 +144,7 @@ spec:
       image: nginx:1.27-alpine
 YAML
 
-cat > "$COURSE_DIR/01/oversized-pod.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/oversized-pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
@@ -198,7 +164,7 @@ spec:
           memory: 128Mi
 YAML
 
-cat > "$COURSE_DIR/01/burst-pod.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/burst-pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
@@ -218,7 +184,7 @@ spec:
           memory: 128Mi
 YAML
 
-cat > "$COURSE_DIR/01/below-minimum-pod.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/below-minimum-pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
@@ -238,7 +204,7 @@ spec:
           memory: 128Mi
 YAML
 
-cat > "$COURSE_DIR/01/multi-container-pod.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/multi-container-pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
@@ -268,7 +234,7 @@ spec:
           memory: 128Mi
 YAML
 
-cat > "$COURSE_DIR/01/missing-limit-pod.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/missing-limit-pod.yaml" <<'YAML'
 apiVersion: v1
 kind: Pod
 metadata:
@@ -285,7 +251,7 @@ spec:
           memory: 64Mi
 YAML
 
-cat > "$COURSE_DIR/01/batch-worker.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/batch-worker.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -315,7 +281,7 @@ spec:
               memory: 384Mi
 YAML
 
-cat > "$COURSE_DIR/01/broken-rollout.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/broken-rollout.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -338,7 +304,7 @@ spec:
           image: nginx:1.27-alpine
 YAML
 
-cat > "$COURSE_DIR/01/temporary-settings.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/temporary-settings.yaml" <<'YAML'
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -348,7 +314,7 @@ data:
   purpose: temporary
 YAML
 
-cat > "$COURSE_DIR/01/worker-settings.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/worker-settings.yaml" <<'YAML'
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -358,7 +324,7 @@ data:
   concurrency: "2"
 YAML
 
-cat > "$COURSE_DIR/01/extra-service.yaml" <<'YAML'
+cat > "$COURSE_DIR/q01/extra-service.yaml" <<'YAML'
 apiVersion: v1
 kind: Service
 metadata:
@@ -372,14 +338,33 @@ spec:
       targetPort: 80
 YAML
 
-touch "$COURSE_DIR/01/evidence.txt"
+for number in $(seq -w 2 20); do
+  mkdir -p "$COURSE_DIR/q$number"
+  cp "$COURSE_DIR/q01/"*.yaml "$COURSE_DIR/q$number/"
+done
+
+for number in $(seq -w 1 20); do
+  directory="$COURSE_DIR/q$number"
+  touch "$directory/evidence.txt"
+  cat > "$directory/create-resources.sh" <<'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+kubectl apply -f base-resources.yaml
+kubectl -n resource-governance rollout status deployment/platform-api --timeout=120s
+SCRIPT
+  cat > "$directory/remove-resources.sh" <<'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+kubectl delete namespace resource-governance --ignore-not-found --wait=true
+SCRIPT
+  chmod +x "$directory/create-resources.sh" "$directory/remove-resources.sh"
+done
+
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
 source "$SCRIPT_DIR/lab-question-layout.sh"
-prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
+prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md" q-prefixed
 touch "$COURSE_DIR/.initialized"
 
-kubectl -n "$NAMESPACE" rollout status deployment/platform-api --timeout=120s
-
-info "ResourceQuota and LimitRange lab ready: $COURSE_DIR"
-kubectl -n "$NAMESPACE" get deployment,pods,service,configmap
-kubectl -n "$NAMESPACE" get resourcequota,limitrange
+info "ResourceQuota and LimitRange files ready: $COURSE_DIR"
+info "No cluster resources were created by this generator"

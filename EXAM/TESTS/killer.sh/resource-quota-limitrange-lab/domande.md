@@ -1,8 +1,9 @@
 # Le 20 domande dell'esame - Resource Governance Troubleshooting Lab
 
-Scenario creato da `setup-resource-quota-limitrange-lab.sh`. I manifest
-modificabili si trovano in `~/course-resource-governance/01/`; tutte le
-risorse devono essere create nel Namespace `resource-governance`.
+Lo script `setup-resource-quota-limitrange-lab.sh` genera soltanto i file del
+corso: non crea cluster e non applica risorse. Ogni domanda usa una cartella
+indipendente `~/course-resource-governance/qNN/`; tutte le risorse devono
+essere create nel Namespace `resource-governance`.
 
 Il laboratorio simula una coda di incidenti. Per ogni domanda devi tentare
 l'operazione richiesta, osservare il sintomo, identificare la causa, applicare
@@ -10,12 +11,14 @@ la correzione minima e verificarne l'esito.
 
 Vincoli:
 
+- all'inizio eseguire `./create-resources.sh`;
+- alla fine eseguire `./remove-resources.sh`, anche dopo una prova fallita;
 - non modificare o eliminare il Deployment e il Service `platform-api`;
 - non modificare o eliminare `ResourceQuota` e `LimitRange`;
 - non aumentare la quota per aggirare un errore;
 - non eliminare risorse estranee all'incidente corrente;
 - usare il dry-run server-side quando richiesto;
-- salvare comandi, errori e verifiche in `01/evidence.txt`.
+- salvare comandi, errori e verifiche in `evidence.txt`.
 
 ---
 

@@ -13,7 +13,9 @@ prepare_question_layout() {
   }
 
   for number in $(seq 1 20); do
-    if [ "$directory_style" = "plain" ]; then
+    if [ "$directory_style" = "q-prefixed" ]; then
+      directory="q$(printf '%02d' "$number")"
+    elif [ "$directory_style" = "plain" ]; then
       directory="$number"
     else
       directory="$(printf '%02d' "$number")"
@@ -25,23 +27,41 @@ prepare_question_layout() {
 
   awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
     /^### Q[0-9]+ / {
+      if (question != "") {
+        print "\n## Pulizia finale\n\n```bash\n./remove-resources.sh\n```" > output
+      }
       heading = $0
       sub(/^### Q/, "", heading)
       split(heading, fields, " ")
-      if (directory_style == "plain") {
+      if (directory_style == "q-prefixed") {
+        question = "q" sprintf("%02d", fields[1])
+      } else if (directory_style == "plain") {
         question = fields[1] + 0
       } else {
         question = sprintf("%02d", fields[1])
       }
       output = course_dir "/" question "/QUESTION.md"
       print $0 > output
+      print "\n## Creazione delle risorse iniziali\n\n```bash" > output
+      print "cd " course_dir "/" question > output
+      print "./create-resources.sh\n```" > output
       next
     }
     /^### / {
       question = ""
     }
+    question != "" && /Percorso:/ {
+      sub(/Percorso:.*/, "Percorso: `" course_dir "/" question "`.")
+      print $0 > output
+      next
+    }
     question != "" {
       print $0 > output
+    }
+    END {
+      if (question != "") {
+        print "\n## Pulizia finale\n\n```bash\n./remove-resources.sh\n```" > output
+      }
     }
   ' "$questions_file"
 
@@ -49,7 +69,9 @@ prepare_question_layout() {
     echo "# Question index"
     echo
     for number in $(seq 1 20); do
-      if [ "$directory_style" = "plain" ]; then
+      if [ "$directory_style" = "q-prefixed" ]; then
+        directory="q$(printf '%02d' "$number")"
+      elif [ "$directory_style" = "plain" ]; then
         directory="$number"
       else
         directory="$(printf '%02d' "$number")"

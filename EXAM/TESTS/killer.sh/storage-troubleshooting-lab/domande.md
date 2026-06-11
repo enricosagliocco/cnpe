@@ -14,18 +14,19 @@ La sola modifica del file, il solo dry-run client-side o una risposta teorica
 non completano il ticket. Conserva comando, errore iniziale, correzione e
 verifica finale nell'evidence file indicato dalla domanda.
 
-Scenario creato da `setup-storage-troubleshooting-lab.sh`. Ogni domanda è un
-incidente indipendente già presente nel cluster. I file starter si trovano in
-`~/course-storage-troubleshooting/NN/` e le risorse nel Namespace
-`storage-qNN`.
+Lo script `setup-storage-troubleshooting-lab.sh` genera soltanto i file del
+corso: non crea cluster e non applica risorse. Ogni domanda usa la cartella
+`~/course-storage-troubleshooting/qNN/` e il Namespace `storage-qNN`.
 
 Per ogni ticket:
 
+- esegui `./create-resources.sh` nella cartella `qNN`;
 - individua la causa radice usando stato, eventi e log;
 - correggi soltanto le risorse coinvolte nel Namespace della domanda e gli
   eventuali PV o StorageClass indicati;
 - non risolvere il problema sostituendo il workload con uno differente;
-- conserva diagnosi, comandi e verifica finale in `NN/evidence.txt`.
+- conserva diagnosi, comandi e verifica finale in `qNN/evidence.txt`;
+- alla fine esegui `./remove-resources.sh`, anche dopo una prova fallita.
 
 Comandi utili:
 
