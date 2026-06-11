@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — Crossplane Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario deployato da `setup-crossplane-lab.sh`. Manifest e file starter in
 `~/course-crossplane/`. Le risorse composite namespaced devono essere create
 nel Namespace `platform-team`, salvo diversa indicazione.
@@ -41,6 +55,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – XRD namespaced
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/01`.
 
@@ -55,6 +70,7 @@ Percorso: `~/course-crossplane/01`.
 ---
 
 ### Q2 – Schema XRD
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/02`.
 
@@ -68,6 +84,7 @@ Percorso: `~/course-crossplane/02`.
 ---
 
 ### Q3 – Default e status
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/03`.
 
@@ -81,6 +98,7 @@ Percorso: `~/course-crossplane/03`.
 ---
 
 ### Q4 – Prima Composition
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/04`.
 
@@ -96,6 +114,7 @@ La Composition starter crea un ConfigMap senza Namespace e senza dati.
 ---
 
 ### Q5 – FromComposite patches
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/05`.
 
@@ -109,6 +128,7 @@ Il ConfigMap composto non riflette la spec dell'XR.
 ---
 
 ### Q6 – Composed Deployment
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/06`.
 
@@ -122,6 +142,7 @@ La Composition crea soltanto il ConfigMap.
 ---
 
 ### Q7 – Composed Service
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/07`.
 
@@ -135,6 +156,7 @@ L'app composta non è esposta da alcun Service.
 ---
 
 ### Q8 – String combine
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/08`.
 
@@ -148,6 +170,7 @@ Il Deployment composto non ha un'identità univoca leggibile.
 ---
 
 ### Q9 – Map transform
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/09`.
 
@@ -161,6 +184,7 @@ Il ConfigMap non contiene un log level derivato dall'ambiente.
 ---
 
 ### Q10 – Math transform
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/10`.
 
@@ -174,6 +198,7 @@ Il limite connessioni non viene calcolato dalla capacità richiesta.
 ---
 
 ### Q11 – Patch policy Required
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/11`.
 
@@ -189,6 +214,7 @@ obbligatoria.
 ---
 
 ### Q12 – ToComposite status
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/12`.
 
@@ -202,6 +228,7 @@ Lo status dell'XR non espone disponibilità o URL del workload composto.
 ---
 
 ### Q13 – Readiness checks
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/13`.
 
@@ -216,6 +243,7 @@ L'XR non attende correttamente tutte le risorse composte.
 ---
 
 ### Q14 – Composition selection
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/14`.
 
@@ -230,6 +258,7 @@ Due varianti di Composition devono essere selezionate tramite label.
 ---
 
 ### Q15 – Composition revisions
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/15`.
 
@@ -244,6 +273,7 @@ L'XRD starter usa ancora la policy automatica di aggiornamento.
 ---
 
 ### Q16 – EnvironmentConfig
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/16`.
 
@@ -265,6 +295,7 @@ Percorso: `~/course-crossplane/16`.
 ---
 
 ### Q17 – Patch sets
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/17`.
 
@@ -278,6 +309,7 @@ Namespace e label team sono duplicati o mancanti nelle risorse composte.
 ---
 
 ### Q18 – Function pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/18`.
 
@@ -293,6 +325,7 @@ né inserita nella pipeline.
 ---
 
 ### Q19 – Troubleshooting
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/19`.
 
@@ -307,6 +340,7 @@ prima della correzione.
 ---
 
 ### Q20 – Simulazione a tempo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-crossplane/20`.
 

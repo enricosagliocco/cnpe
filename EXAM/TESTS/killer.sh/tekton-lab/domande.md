@@ -1,333 +1,259 @@
-# Le 20 domande dell'esame — Tekton Lab (simulatore lab)
+# Le 20 domande dell'esame - Tekton Pipelines and Triggers Lab
 
-Scenario deployato da `setup-tekton-lab.sh`. Manifest e file starter in
-`~/course-tekton/`. Tutte le risorse degli esercizi devono essere create nel
-Namespace `tekton-lab`, salvo diversa indicazione.
+## Metodo operativo obbligatorio
 
-**Vincolo:** non disinstallare Tekton Pipelines o Tekton Dashboard. Puoi
-modificare Task, Pipeline, TaskRun, PipelineRun, workspace, RBAC e risorse
-applicative, ma non i componenti core installati nel Namespace
-`tekton-pipelines`.
+Ogni domanda è un ticket di troubleshooting. Devi:
 
-Accesso GUI (port-forward):
+1. riprodurre o osservare lo stato iniziale;
+2. raccogliere condizioni, eventi, log o risposta HTTP;
+3. identificare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla nel cluster.
 
-```bash
-kubectl -n tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 30120:9097
-```
+La sola modifica del file o una risposta teorica non completano il ticket.
+Salva comando, errore iniziale, correzione e verifica finale nel file
+`evidence.txt` della domanda.
 
-Credenziali:
-- Tekton Dashboard non richiede credenziali in questo lab.
-- Apri `http://<node>:30120` oppure `http://127.0.0.1:30120`.
+Scenario creato da `setup-tekton-lab.sh`. Gli starter si trovano in
+`~/course-tekton/`; tutte le risorse devono essere create nel Namespace
+`tekton-lab`.
+
+Vincoli:
+
+- non modificare o disinstallare Tekton Pipelines, Triggers o Dashboard;
+- non concedere `cluster-admin` e non usare wildcard RBAC;
+- non creare manualmente i PipelineRun che devono provenire da un webhook;
+- non esporre Secret nei log;
+- conservare nomi e Namespace indicati negli starter.
 
 Comandi utili:
 
 ```bash
-kubectl config current-context
-kubectl api-resources
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl -n tekton-lab get task,pipeline,taskrun,pipelinerun
+kubectl -n tekton-lab get triggerbinding,triggertemplate,eventlistener
+kubectl -n tekton-lab get events --sort-by=.lastTimestamp
+kubectl -n tekton-lab logs deploy/el-<nome-eventlistener>
 ```
 
 ---
 
-### Q1 – Task e parametri
+### Q1 - Task e parametri
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/01`.
 
+1. Applica `task.yaml` e `taskrun.yaml` e raccogli l'errore iniziale.
+2. Completa il Task `greet` con parametro stringa `name`, default `platform`.
+3. Passa `name=cnpe` dal TaskRun.
+4. Verifica `Succeeded=True` e log esatto `hello cnpe`.
 
-Il Task `greet` e il relativo TaskRun sono incompleti in `01/`.
-
-1. Completa `task.yaml` con il parametro string `name`, default `platform`.
-2. Usa il parametro nello step per produrre esattamente `hello <name>`.
-3. Completa `taskrun.yaml` passando `name=cnpe`.
-4. Applica entrambi i file e verifica un TaskRun `Succeeded=True` con log
-   `hello cnpe`.
-
----
-
-### Q2 – Step sequenziali
+### Q2 - Workspace condiviso
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/02`.
 
+1. Applica gli starter e diagnostica perché il Task non può produrre
+   l'artefatto.
+2. Dichiara il workspace `output`.
+3. Implementa gli step `prepare`, `build` e `verify` usando lo stesso path.
+4. Verifica ordine degli step e presenza di `artifact.txt`.
 
-Il Task `sequential-build` in `02/task.yaml` non contiene step.
-
-1. Implementa gli step `prepare`, `build` e `verify`.
-2. Usa il workspace `output` per creare e verificare
-   `/workspace/output/artifact.txt`.
-3. Applica `task.yaml` e `taskrun.yaml`.
-4. Verifica `Succeeded=True` e che i log mostrino i tre step nell'ordine.
-
----
-
-### Q3 – Task results
+### Q3 - Result di un Task
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/03`.
 
+1. Esegui il TaskRun e osserva il result errato.
+2. Correggi `task.yaml` affinché il result `commit` valga
+   `0123456789abcdef`.
+3. Crea un nuovo TaskRun.
+4. Verifica il valore nello status senza ricavarlo dai log.
 
-Il Task `git-metadata` in `03/task.yaml` scrive un placeholder nel result.
-
-1. Correggi lo step affinché scriva `0123456789abcdef` nel result `commit`.
-2. Applica `task.yaml` e `taskrun.yaml`.
-3. Verifica che il TaskRun riesca e che
-   `.status.results[?(@.name=="commit")].value` contenga il valore richiesto.
-
----
-
-### Q4 – Workspace emptyDir
+### Q4 - Workspace del TaskRun
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/04`.
 
+1. Tenta di applicare Task e TaskRun.
+2. Dichiara il workspace `source` nel Task e associa un `emptyDir`.
+3. Scrivi `app.txt` in `$(workspaces.source.path)`.
+4. Verifica `Succeeded=True`.
 
-Task e TaskRun in `04/` hanno workspace e percorso mancanti.
-
-1. Dichiara il workspace `source` nel Task.
-2. Scrivi `app.txt` in `$(workspaces.source.path)`.
-3. Associa il workspace a un `emptyDir` nel TaskRun.
-4. Applica i file e verifica `Succeeded=True`.
-
----
-
-### Q5 – Workspace PVC
+### Q5 - Workspace persistente
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/05`.
 
+1. Applica Pipeline e PipelineRun e diagnostica il binding mancante.
+2. Completa `volumeClaimTemplate` con `100Mi` e `ReadWriteOnce`.
+3. Crea un nuovo PipelineRun.
+4. Verifica PipelineRun, PVC e TaskRun associato.
 
-La Pipeline `build-pipeline` è completa, ma `05/pipelinerun.yaml` non fornisce
-lo storage richiesto.
-
-1. Completa il binding `source` con `volumeClaimTemplate`.
-2. Richiedi `100Mi` e access mode `ReadWriteOnce`.
-3. Applica Pipeline e PipelineRun.
-4. Verifica PipelineRun riuscito, PVC creato e TaskRun associato al PVC.
-
----
-
-### Q6 – Pipeline ordering
+### Q6 - Ordine della Pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/06`.
 
+1. Esegui la Pipeline e osserva TaskRun ed eventi.
+2. Configura l'ordine `clone -> test -> package`.
+3. Associa il workspace `source` anche a `test`.
+4. Verifica tre TaskRun riusciti nell'ordine richiesto.
 
-La Pipeline `ordered-build` contiene i tre Task ma `test` e `package` possono
-partire nel momento sbagliato e `test` non vede il workspace.
-
-1. Esegui `test` dopo `clone`.
-2. Esegui `package` dopo `test`.
-3. Associa `source` al Task `test`.
-4. Applica `pipeline.yaml` e `pipelinerun.yaml`.
-5. Verifica tre TaskRun riusciti nell'ordine `clone`, `test`, `package`.
-
----
-
-### Q7 – Parallel tasks
+### Q7 - Task paralleli
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/07`.
 
+1. Applica gli starter e osserva l'ordine iniziale.
+2. Esegui `lint` e `unit` in parallelo dopo `clone`.
+3. Esegui `report` soltanto dopo entrambi.
+4. Registra start e completion time in `result.txt`.
 
-La Pipeline `parallel-tests` non definisce le dipendenze tra i Task.
-
-1. Fai partire `lint` e `unit` in parallelo dopo `clone`.
-2. Fai attendere a `report` il completamento di entrambi.
-3. Applica Pipeline e PipelineRun.
-4. Verifica dalla Dashboard che gli intervalli temporali di `lint` e `unit`
-   si sovrappongano.
-5. Salva start time e completion time dei TaskRun in `07/result.txt`.
-
----
-
-### Q8 – Result propagation
+### Q8 - Propagazione di un result
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/08`.
 
+1. Esegui la Pipeline e diagnostica il parametro mancante.
+2. Passa il result `version` al Task `publish`.
+3. Crea un nuovo PipelineRun.
+4. Verifica il log esatto `publishing 2.3.1`.
 
-La Pipeline `release` esegue `version` e `publish`, ma non passa il result.
-
-1. Applica `version-task.yaml`.
-2. Passa `$(tasks.version.results.version)` al parametro `release` di
-   `publish`.
-3. Applica Pipeline e PipelineRun.
-4. Verifica `Succeeded=True` e il log esatto `publishing 2.3.1`.
-
----
-
-### Q9 – Pipeline results
+### Q9 - Result della Pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/09`.
 
+1. Esegui la Pipeline e verifica che il Task produca l'immagine ma il
+   PipelineRun non la esponga.
+2. Crea il result Pipeline `image`.
+3. Collegalo al result del Task `build`.
+4. Verifica `registry.example/app:1.0.0` nello status del PipelineRun.
 
-La Pipeline `image-build` produce l'immagine nel Task `build`, ma non la
-espone nello status della Pipeline.
-
-1. Aggiungi il result Pipeline `image` collegato al result del Task `build`.
-2. Applica Pipeline e PipelineRun.
-3. Verifica `Succeeded=True` e il result
-   `registry.example/app:1.0.0` nello status del PipelineRun.
-
----
-
-### Q10 – When expression
+### Q10 - Deploy condizionale
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/10`.
 
+1. Applica la Pipeline ed esegui `run-dev.yaml`.
+2. Diagnostica perché `deploy` viene eseguito anche per `dev`.
+3. Accetta soltanto `staging` e `prod` nella `when`.
+4. Verifica `Skipped` per dev e `Succeeded` per staging.
 
-Il Task `deploy` della Pipeline `conditional-deploy` viene sempre eseguito.
-
-1. Completa la `when` expression per accettare soltanto `staging` o `prod`.
-2. Applica la Pipeline.
-3. Esegui `run-dev.yaml` e verifica che `deploy` sia `Skipped`.
-4. Esegui `run-staging.yaml` e verifica che `deploy` sia `Succeeded`.
-
----
-
-### Q11 – Finally
+### Q11 - ServiceAccount dell'EventListener
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/11`.
 
+1. Applica `rbac.yaml` e individua i permessi mancanti.
+2. Consenti al ServiceAccount `tekton-trigger` di creare PipelineRun e leggere
+   TriggerBinding e TriggerTemplate nel solo Namespace `tekton-lab`.
+3. Completa il RoleBinding.
+4. Verifica i permessi con `kubectl auth can-i` e conferma che non possa
+   leggere Secret.
 
-La Pipeline `failing-build` fallisce intenzionalmente e non ha cleanup finale.
-
-1. Aggiungi il Task `notify` nella sezione `finally`.
-2. Fagli stampare `status=$(tasks.status)`.
-3. Applica Pipeline e PipelineRun.
-4. Verifica che `build` fallisca, che `notify` venga comunque eseguito e che
-   il suo log riporti lo stato aggregato.
-
----
-
-### Q12 – Retries
+### Q12 - TriggerTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/12`.
 
+1. Applica `pipeline.yaml` e tenta di applicare `triggertemplate.yaml`.
+2. Dichiara i parametri `repository` e `revision`.
+3. Genera un PipelineRun della Pipeline `webhook-build`, passando entrambi i
+   valori.
+4. Verifica server-side il template completato.
 
-Il Task `unstable` fallisce al primo tentativo perché `retries` è impostato a
-zero.
-
-1. Configura `retries: 2`.
-2. Applica Pipeline e PipelineRun.
-3. Verifica nei log i retry count `0`, `1` e `2`.
-4. Verifica che il PipelineRun termini `Succeeded=True` al terzo tentativo.
-
----
-
-### Q13 – Timeout
+### Q13 - TriggerBinding
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/13`.
 
+1. Ispeziona `payload.json` e il binding incompleto.
+2. Estrai `body.repository.clone_url` nel parametro `repository`.
+3. Estrai `body.after` nel parametro `revision`.
+4. Applica il TriggerBinding e verifica i campi salvati nel cluster.
 
-Il Task `slow` dorme 20 secondi e i timeout correnti sono troppo permissivi.
-
-1. Imposta il timeout del Task `slow` a `5s`.
-2. Imposta `timeouts.tasks: 30s` nel PipelineRun.
-3. Applica i file.
-4. Verifica che il Task termini per timeout dopo circa 5 secondi e che il
-   PipelineRun fallisca in meno di 30 secondi.
-
----
-
-### Q14 – Matrix
+### Q14 - EventListener
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/14`.
 
+1. Applica Pipeline, RBAC e risorse Trigger incomplete.
+2. Diagnostica perché l'EventListener non diventa Ready o non crea il
+   PipelineRun.
+3. Collega binding `git-push` e template `git-push`.
+4. Invia `payload.json` al Service `el-git-push` e verifica un PipelineRun
+   riuscito.
 
-La Pipeline `matrix-tests` contiene una matrix vuota.
-
-1. Abilita le API beta Tekton se richiesto dalla versione installata.
-2. Configura `python=3.11,3.12` e `os=alpine,debian`.
-3. Applica Pipeline e PipelineRun.
-4. Verifica la creazione di quattro combinazioni TaskRun e quattro log
-   distinti.
-
----
-
-### Q15 – Optional workspace
+### Q15 - Filtro CEL sul branch
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/15`.
 
+1. Invia `payload-main.json` e `payload-feature.json` allo starter.
+2. Diagnostica perché entrambi generano PipelineRun.
+3. Aggiungi un interceptor CEL che accetti soltanto
+   `body.ref == 'refs/heads/main'`.
+4. Verifica che main crei un PipelineRun e feature non ne crei alcuno.
 
-Il Task `sign` dichiara un workspace opzionale, ma firma anche quando non è
-associato.
-
-1. Condiziona lo step con `$(workspaces.credentials.bound)`.
-2. Applica Secret e Task.
-3. Esegui `run-unbound.yaml` e verifica che lo step sia saltato.
-4. Esegui `run-bound.yaml` e verifica il log `signed`.
-
----
-
-### Q16 – Secret credentials
+### Q16 - Mapping del payload
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/16`.
 
+1. Invia `payload.json` e osserva i parametri errati nel PipelineRun.
+2. Correggi TriggerBinding e TriggerTemplate affinché propaghino repository,
+   revision e nome branch.
+3. Non inserire valori statici nel PipelineRun generato.
+4. Verifica i tre parametri nello spec e nei log.
 
-Secret, ServiceAccount e Task sono presenti, ma il TaskRun non monta le
-credenziali.
-
-1. Applica `security.yaml` e `task.yaml`.
-2. Completa il workspace `dockerconfig` del TaskRun usando il Secret
-   `registry-credentials` in sola lettura.
-3. Assicurati che sia esposta soltanto la chiave `config.json`.
-4. Verifica `Succeeded=True` senza stampare il contenuto del Secret nei log.
-
----
-
-### Q17 – RBAC del ServiceAccount
+### Q17 - Trigger multipli
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/17`.
 
+1. Completa l'EventListener `release-events` con due trigger.
+2. Il trigger `main-push` deve accettare `refs/heads/main`.
+3. Il trigger `tag-push` deve accettare riferimenti con prefisso
+   `refs/tags/`.
+4. Invia i tre payload forniti e verifica due PipelineRun creati e il payload
+   feature rifiutato.
 
-Il ServiceAccount `pipeline` esiste, ma Role e RoleBinding sono vuoti.
-
-1. Concedi soltanto `get`, `list` e `create` sui ConfigMap in `tekton-lab`.
-2. Collega il Role al ServiceAccount `pipeline`.
-3. Applica RBAC, Task e TaskRun.
-4. Verifica che venga creato il ConfigMap `build-metadata`.
-5. Verifica con `kubectl auth can-i` che il ServiceAccount non possa leggere
-   Secret.
-
----
-
-### Q18 – Supply chain pipeline
+### Q18 - Sicurezza del webhook
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/18`.
 
+1. Applica lo scenario e verifica i privilegi iniziali del ServiceAccount.
+2. Rimuovi accesso a Secret, wildcard e verbi non necessari.
+3. Mantieni soltanto i permessi richiesti dall'EventListener per generare
+   PipelineRun.
+4. Verifica che il webhook continui a funzionare e salva test RBAC positivi e
+   negativi in `rbac-check.txt`.
 
-La Pipeline `secure-build` in `18/pipeline.yaml` è priva di Task.
-
-1. Implementa `clone -> test -> sbom -> scan -> publish`.
-2. Fai produrre a `scan` il result `passed`.
-3. Esegui `publish` solo quando il result vale `passed`.
-4. Aggiungi un Task `finally` che stampi lo stato aggregato.
-5. Crea ed esegui un PipelineRun con workspace `emptyDir`.
-6. Verifica ordine, gate di scansione, pubblicazione e Task finale.
-
----
-
-### Q19 – Troubleshooting
+### Q19 - Troubleshooting EventListener
+**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/19`.
 
+Lo scenario contiene più errori: ServiceAccount errato, binding inesistente e
+parametro non dichiarato.
 
-`19/pipelinerun.yaml` punta a una Pipeline inesistente, usa un parametro errato
-e non associa il workspace richiesto.
+1. Applica tutti gli starter e raccogli condizioni, eventi e log
+   dell'EventListener.
+2. Correggi i tre errori senza rinominare le risorse.
+3. Invia `payload.json`.
+4. Verifica un solo PipelineRun `Succeeded=True` e documenta causa e fix in
+   `report.md`.
 
-1. Riproduci il fallimento applicando il file e raccogli il messaggio.
-2. Crea o correggi la Pipeline mantenendo i nomi indicati.
-3. Correggi parametro e workspace senza rinominare il PipelineRun.
-4. Verifica un nuovo PipelineRun `Succeeded=True`.
-5. Documenta causa, fix e verifica in `19/report.md`.
-
----
-
-### Q20 – Simulazione a tempo
+### Q20 - Webhook end-to-end
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea gli elementi mancanti e verifica nel cluster.
 
 Percorso: `~/course-tekton/20`.
 
-
-`20/pipeline.yaml` e `20/pipelinerun.yaml` contengono soltanto lo scheletro
-della supply chain finale.
-
-1. Completa parametri `repo`, `revision`, `image` e workspace PVC.
-2. Implementa clone, test paralleli `lint`/`unit`, build, scan gate e publish.
-3. Aggiungi cleanup in `finally` e Pipeline results `commit`/`image`.
-4. Correggi il PipelineRun e avvialo.
-5. Verifica `Succeeded=True`, risultati valorizzati e cleanup eseguito.
-6. Salva i log completi in `20/run.log`.
+1. Completa Pipeline, RBAC, TriggerBinding, TriggerTemplate ed EventListener.
+2. Accetta soltanto push sul branch `main`.
+3. Genera un PipelineRun con repository e revision estratti dal payload.
+4. Invia prima `payload-feature.json`, poi `payload-main.json`.
+5. Verifica che soltanto main crei un PipelineRun riuscito.
+6. Salva risposta HTTP, risorse Trigger, PipelineRun e log in `run.log`.

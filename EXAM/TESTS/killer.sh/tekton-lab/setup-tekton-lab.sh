@@ -2,6 +2,7 @@
 set -euo pipefail
 
 TEKTON_VERSION="${TEKTON_VERSION:-v1.9.0}"
+TEKTON_TRIGGERS_VERSION="${TEKTON_TRIGGERS_VERSION:-v0.33.0}"
 COURSE_DIR="${COURSE_DIR:-$HOME/course-tekton}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
@@ -60,15 +61,25 @@ ensure_storage() {
 }
 
 command -v kubectl >/dev/null || die "kubectl is required"
+command -v curl >/dev/null || die "curl is required"
 ensure_cluster
 ensure_storage
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
   die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
 
+if [ "$LAB_FORCE" = "true" ]; then
+  kubectl delete namespace tekton-lab --ignore-not-found --wait=true
+  rm -rf "$COURSE_DIR"
+fi
+
 kubectl apply -f "https://infra.tekton.dev/tekton-releases/pipeline/previous/${TEKTON_VERSION}/release.yaml"
+kubectl apply -f "https://infra.tekton.dev/tekton-releases/triggers/previous/${TEKTON_TRIGGERS_VERSION}/release.yaml"
+kubectl apply -f "https://infra.tekton.dev/tekton-releases/triggers/previous/${TEKTON_TRIGGERS_VERSION}/interceptors.yaml"
 kubectl -n tekton-pipelines rollout status deploy/tekton-pipelines-controller --timeout=300s
 kubectl -n tekton-pipelines rollout status deploy/tekton-pipelines-webhook --timeout=300s
+kubectl -n tekton-pipelines rollout status deploy/tekton-triggers-controller --timeout=300s
+kubectl -n tekton-pipelines rollout status deploy/tekton-triggers-webhook --timeout=300s
 kubectl -n tekton-pipelines patch configmap feature-flags --type merge \
   -p '{"data":{"enable-api-fields":"beta"}}' >/dev/null
 kubectl apply -f "https://infra.tekton.dev/tekton-releases/dashboard/latest/release.yaml"
@@ -450,331 +461,643 @@ spec:
 YAML
 done
 
-cat > "$COURSE_DIR/11/pipeline.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: Pipeline
+cat > "$COURSE_DIR/11/rbac.yaml" <<'YAML'
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: failing-build
+  name: tekton-trigger
   namespace: tekton-lab
-spec:
-  tasks:
-    - name: build
-      taskSpec:
-        steps:
-          - name: fail
-            image: alpine:3.20
-            script: |
-              #!/bin/sh
-              exit 1
-  finally: [] # TODO notify with $(tasks.status)
-YAML
-cat > "$COURSE_DIR/11/pipelinerun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: PipelineRun
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
-  generateName: failing-build-
+  name: tekton-trigger
   namespace: tekton-lab
-spec:
-  pipelineRef:
-    name: failing-build
+rules: [] # TODO PipelineRun create; TriggerBinding and TriggerTemplate get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+subjects: [] # TODO ServiceAccount tekton-trigger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tekton-trigger
 YAML
 
 cat > "$COURSE_DIR/12/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: retry-build
+  name: webhook-build
   namespace: tekton-lab
 spec:
+  params:
+    - name: repository
+    - name: revision
   tasks:
-    - name: unstable
-      retries: 0 # TODO
+    - name: show-input
+      params:
+        - name: repository
+          value: $(params.repository)
+        - name: revision
+          value: $(params.revision)
       taskSpec:
+        params:
+          - name: repository
+          - name: revision
         steps:
-          - name: unstable
-            image: alpine:3.20
-            script: |
-              echo retry=$(context.task.retry-count)
-              test "$(context.task.retry-count)" -ge 2
-YAML
-cat > "$COURSE_DIR/12/pipelinerun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: PipelineRun
-metadata:
-  generateName: retry-build-
-  namespace: tekton-lab
-spec:
-  pipelineRef:
-    name: retry-build
-YAML
-
-cat > "$COURSE_DIR/13/pipeline.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: Pipeline
-metadata:
-  name: timeout-build
-  namespace: tekton-lab
-spec:
-  tasks:
-    - name: slow
-      timeout: 30s # TODO 5s
-      taskSpec:
-        steps:
-          - name: slow
+          - name: show
             image: alpine:3.20
             script: |
               #!/bin/sh
-              sleep 20
+              echo "repository=$(params.repository)"
+              echo "revision=$(params.revision)"
 YAML
-cat > "$COURSE_DIR/13/pipelinerun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: PipelineRun
+cat > "$COURSE_DIR/12/triggertemplate.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
 metadata:
-  generateName: timeout-build-
+  name: git-push
   namespace: tekton-lab
 spec:
-  pipelineRef:
-    name: timeout-build
-  timeouts:
-    pipeline: 2m
-    tasks: 2m # TODO 30s
+  params: [] # TODO repository and revision
+  resourcetemplates: [] # TODO PipelineRun for webhook-build
 YAML
+
+cat > "$COURSE_DIR/13/triggerbinding.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: git-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+      value: TODO
+    - name: revision
+      value: TODO
+YAML
+cat > "$COURSE_DIR/13/payload.json" <<'JSON'
+{
+  "ref": "refs/heads/main",
+  "after": "abc123def456",
+  "repository": {
+    "name": "portal",
+    "clone_url": "https://git.example/teams/portal.git"
+  }
+}
+JSON
 
 cat > "$COURSE_DIR/14/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: matrix-tests
+  name: webhook-build
   namespace: tekton-lab
 spec:
+  params:
+    - name: repository
+    - name: revision
   tasks:
-    - name: test
-      matrix: {} # TODO python x os
+    - name: show-input
       params:
-        - name: python
-          value:
-            - "$(params.python)"
-        - name: os
-          value:
-            - "$(params.os)"
+        - name: repository
+          value: $(params.repository)
+        - name: revision
+          value: $(params.revision)
       taskSpec:
         params:
-          - name: python
-          - name: os
+          - name: repository
+          - name: revision
         steps:
-          - name: test
+          - name: show
             image: alpine:3.20
             script: |
               #!/bin/sh
-              echo $(params.python)-$(params.os)
+              echo "$(params.repository)@$(params.revision)"
 YAML
-cat > "$COURSE_DIR/14/pipelinerun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: PipelineRun
-metadata:
-  generateName: matrix-tests-
-  namespace: tekton-lab
-spec:
-  pipelineRef:
-    name: matrix-tests
-YAML
-
-cat > "$COURSE_DIR/15/credentials.yaml" <<'YAML'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: signing-credentials
-  namespace: tekton-lab
-stringData:
-  key: training-key
-YAML
-cat > "$COURSE_DIR/15/task.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: Task
-metadata:
-  name: sign
-  namespace: tekton-lab
-spec:
-  workspaces:
-    - name: credentials
-      optional: true
-  steps:
-    - name: sign
-      image: alpine:3.20
-      script: | # TODO run only when credentials is bound
-        #!/bin/sh
-        echo signed
-YAML
-cat > "$COURSE_DIR/15/run-unbound.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: TaskRun
-metadata:
-  generateName: sign-unbound-
-  namespace: tekton-lab
-spec:
-  taskRef:
-    name: sign
-YAML
-cat > "$COURSE_DIR/15/run-bound.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: TaskRun
-metadata:
-  generateName: sign-bound-
-  namespace: tekton-lab
-spec:
-  taskRef:
-    name: sign
-  workspaces:
-    - name: credentials
-      secret:
-        secretName: signing-credentials
-YAML
-cat > "$COURSE_DIR/16/security.yaml" <<'YAML'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: registry-credentials
-  namespace: tekton-lab
-stringData:
-  config.json: '{"auths":{}}'
----
+cat > "$COURSE_DIR/14/rbac.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: pipeline
+  name: tekton-trigger
   namespace: tekton-lab
-YAML
-cat > "$COURSE_DIR/16/task.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: Task
-metadata:
-  name: read-docker-config
-  namespace: tekton-lab
-spec:
-  workspaces:
-    - name: dockerconfig
-  steps:
-    - name: read
-      image: alpine:3.20
-      script: |
-        #!/bin/sh
-        test -f $(workspaces.dockerconfig.path)/config.json
-YAML
-cat > "$COURSE_DIR/16/taskrun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: TaskRun
-metadata:
-  generateName: read-docker-config-
-  namespace: tekton-lab
-spec:
-  serviceAccountName: pipeline
-  taskRef:
-    name: read-docker-config
-  workspaces: [] # TODO read-only Secret binding
-YAML
-cat > "$COURSE_DIR/17/rbac.yaml" <<'YAML'
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: pipeline-configmaps
+  name: tekton-trigger
   namespace: tekton-lab
-rules: [] # TODO
+rules:
+  - apiGroups: ["tekton.dev"]
+    resources: ["pipelineruns"]
+    verbs: ["create"]
+  - apiGroups: ["triggers.tekton.dev"]
+    resources: ["triggerbindings", "triggertemplates"]
+    verbs: ["get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: pipeline-configmaps
+  name: tekton-trigger
   namespace: tekton-lab
-subjects: [] # TODO
+subjects:
+  - kind: ServiceAccount
+    name: tekton-trigger
+    namespace: tekton-lab
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: pipeline-configmaps
+  name: tekton-trigger
 YAML
-cat > "$COURSE_DIR/17/task.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: Task
+cat > "$COURSE_DIR/14/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
 metadata:
-  name: create-build-metadata
+  name: git-push
   namespace: tekton-lab
 spec:
-  steps:
-    - name: create
-      image: bitnami/kubectl:1.31
-      script: |
-        #!/bin/sh
-        kubectl create configmap build-metadata --from-literal=status=ready
-YAML
-cat > "$COURSE_DIR/17/taskrun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: TaskRun
+  params:
+    - name: repository
+      value: $(body.repository.clone_url)
+    - name: revision
+      value: $(body.after)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
 metadata:
-  generateName: create-build-metadata-
+  name: git-push
   namespace: tekton-lab
 spec:
-  serviceAccountName: pipeline
-  taskRef:
-    name: create-build-metadata
+  params:
+    - name: repository
+    - name: revision
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: webhook-build-
+      spec:
+        pipelineRef:
+          name: webhook-build
+        params:
+          - name: repository
+            value: $(tt.params.repository)
+          - name: revision
+            value: $(tt.params.revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: git-push
+  namespace: tekton-lab
+spec:
+  serviceAccountName: tekton-trigger
+  triggers:
+    - name: push
+      bindings:
+        - ref: missing-binding
+      template:
+        ref: missing-template
 YAML
-cat > "$COURSE_DIR/18/pipeline.yaml" <<'YAML'
+cat > "$COURSE_DIR/14/payload.json" <<'JSON'
+{"ref":"refs/heads/main","after":"abc123","repository":{"clone_url":"https://git.example/portal.git"}}
+JSON
+
+for q in 15 18; do
+  cp "$COURSE_DIR/14/pipeline.yaml" "$COURSE_DIR/$q/pipeline.yaml"
+  cp "$COURSE_DIR/14/rbac.yaml" "$COURSE_DIR/$q/rbac.yaml"
+done
+cat > "$COURSE_DIR/15/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: branch-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+      value: $(body.repository.clone_url)
+    - name: revision
+      value: $(body.after)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: branch-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+    - name: revision
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: branch-build-
+      spec:
+        pipelineRef:
+          name: webhook-build
+        params:
+          - name: repository
+            value: $(tt.params.repository)
+          - name: revision
+            value: $(tt.params.revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: branch-push
+  namespace: tekton-lab
+spec:
+  serviceAccountName: tekton-trigger
+  triggers:
+    - name: all-branches
+      interceptors: [] # TODO allow only refs/heads/main
+      bindings:
+        - ref: branch-push
+      template:
+        ref: branch-push
+YAML
+cat > "$COURSE_DIR/15/payload-main.json" <<'JSON'
+{"ref":"refs/heads/main","after":"main123","repository":{"clone_url":"https://git.example/portal.git"}}
+JSON
+cat > "$COURSE_DIR/15/payload-feature.json" <<'JSON'
+{"ref":"refs/heads/feature","after":"feature123","repository":{"clone_url":"https://git.example/portal.git"}}
+JSON
+
+cat > "$COURSE_DIR/16/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: secure-build
+  name: payload-build
   namespace: tekton-lab
 spec:
-  workspaces:
-    - name: source
-  tasks: [] # TODO clone, test, sbom, scan, publish
-  finally: [] # TODO report aggregate status
-YAML
-cat > "$COURSE_DIR/19/pipelinerun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: PipelineRun
-metadata:
-  generateName: broken-
-  namespace: tekton-lab
-spec:
-  pipelineRef:
-    name: missing-pipeline
   params:
-    - name: wrong-param
-      value: broken
-  workspaces: []
+    - name: repository
+    - name: revision
+    - name: branch
+  tasks:
+    - name: show-input
+      params:
+        - name: repository
+          value: $(params.repository)
+        - name: revision
+          value: $(params.revision)
+        - name: branch
+          value: $(params.branch)
+      taskSpec:
+        params:
+          - name: repository
+          - name: revision
+          - name: branch
+        steps:
+          - name: show
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "repository=$(params.repository)"
+              echo "revision=$(params.revision)"
+              echo "branch=$(params.branch)"
 YAML
-touch "$COURSE_DIR/19/report.md" "$COURSE_DIR/20/run.log"
+cp "$COURSE_DIR/14/rbac.yaml" "$COURSE_DIR/16/rbac.yaml"
+cat > "$COURSE_DIR/16/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: payload-map
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+      value: hard-coded
+    - name: revision
+      value: hard-coded
+    - name: branch
+      value: hard-coded
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: payload-map
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+    - name: revision
+    - name: branch
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: payload-build-
+      spec:
+        pipelineRef:
+          name: payload-build
+        params:
+          - name: repository
+            value: $(tt.params.repository)
+          - name: revision
+            value: $(tt.params.revision)
+          - name: branch
+            value: $(tt.params.branch)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: payload-map
+  namespace: tekton-lab
+spec:
+  serviceAccountName: tekton-trigger
+  triggers:
+    - name: push
+      bindings:
+        - ref: payload-map
+      template:
+        ref: payload-map
+YAML
+cat > "$COURSE_DIR/16/payload.json" <<'JSON'
+{"ref":"refs/heads/release","after":"def456","repository":{"clone_url":"https://git.example/payments.git"}}
+JSON
+
+cp "$COURSE_DIR/14/pipeline.yaml" "$COURSE_DIR/17/pipeline.yaml"
+cp "$COURSE_DIR/14/rbac.yaml" "$COURSE_DIR/17/rbac.yaml"
+cat > "$COURSE_DIR/17/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: release-event
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+      value: $(body.repository.clone_url)
+    - name: revision
+      value: $(body.after)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: release-event
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+    - name: revision
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: release-build-
+      spec:
+        pipelineRef:
+          name: webhook-build
+        params:
+          - name: repository
+            value: $(tt.params.repository)
+          - name: revision
+            value: $(tt.params.revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: release-events
+  namespace: tekton-lab
+spec:
+  serviceAccountName: tekton-trigger
+  triggers: [] # TODO main-push and tag-push with separate CEL filters
+YAML
+cat > "$COURSE_DIR/17/payload-main.json" <<'JSON'
+{"ref":"refs/heads/main","after":"main456","repository":{"clone_url":"https://git.example/portal.git"}}
+JSON
+cat > "$COURSE_DIR/17/payload-tag.json" <<'JSON'
+{"ref":"refs/tags/v2.0.0","after":"tag456","repository":{"clone_url":"https://git.example/portal.git"}}
+JSON
+cat > "$COURSE_DIR/17/payload-feature.json" <<'JSON'
+{"ref":"refs/heads/feature","after":"feature456","repository":{"clone_url":"https://git.example/portal.git"}}
+JSON
+
+cat > "$COURSE_DIR/18/rbac.yaml" <<'YAML'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+subjects:
+  - kind: ServiceAccount
+    name: tekton-trigger
+    namespace: tekton-lab
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tekton-trigger
+YAML
+cp "$COURSE_DIR/15/triggers.yaml" "$COURSE_DIR/18/triggers.yaml"
+cp "$COURSE_DIR/15/payload-main.json" "$COURSE_DIR/18/payload.json"
+touch "$COURSE_DIR/18/rbac-check.txt"
+
+cp "$COURSE_DIR/14/pipeline.yaml" "$COURSE_DIR/19/pipeline.yaml"
+cat > "$COURSE_DIR/19/rbac.yaml" <<'YAML'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+rules:
+  - apiGroups: ["tekton.dev"]
+    resources: ["pipelineruns"]
+    verbs: ["create"]
+  - apiGroups: ["triggers.tekton.dev"]
+    resources: ["triggerbindings", "triggertemplates"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tekton-trigger
+  namespace: tekton-lab
+subjects:
+  - kind: ServiceAccount
+    name: tekton-trigger
+    namespace: tekton-lab
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tekton-trigger
+YAML
+cat > "$COURSE_DIR/19/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: broken-hook
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+      value: $(body.repository.clone_url)
+    - name: revision
+      value: $(body.after)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: broken-hook
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: repaired-hook-
+      spec:
+        pipelineRef:
+          name: webhook-build
+        params:
+          - name: repository
+            value: $(tt.params.repository)
+          - name: revision
+            value: $(tt.params.revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: broken-hook
+  namespace: tekton-lab
+spec:
+  serviceAccountName: missing-service-account
+  triggers:
+    - name: push
+      bindings:
+        - ref: missing-binding
+      template:
+        ref: broken-hook
+YAML
+cat > "$COURSE_DIR/19/payload.json" <<'JSON'
+{"ref":"refs/heads/main","after":"repair123","repository":{"clone_url":"https://git.example/repaired.git"}}
+JSON
+touch "$COURSE_DIR/19/report.md"
+
 cat > "$COURSE_DIR/20/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: final-build
+  name: final-webhook-build
   namespace: tekton-lab
 spec:
-  params: [] # TODO repo, revision, image
-  workspaces:
-    - name: source
-  tasks: [] # TODO clone, parallel lint/unit, build, scan, publish
-  finally: [] # TODO cleanup
-  results: [] # TODO commit and image
-YAML
-cat > "$COURSE_DIR/20/pipelinerun.yaml" <<'YAML'
-apiVersion: tekton.dev/v1
-kind: PipelineRun
-metadata:
-  generateName: final-build-
-  namespace: tekton-lab
-spec:
-  pipelineRef:
-    name: final-build
   params:
-    - name: repo
-      value: https://example.invalid/app.git
+    - name: repository
     - name: revision
-      value: main
-    - name: image
-      value: registry.example/app:2.0.0
-  workspaces: [] # TODO PVC
+  tasks:
+    - name: validate-input
+      params:
+        - name: repository
+          value: $(params.repository)
+        - name: revision
+          value: $(params.revision)
+      taskSpec:
+        params:
+          - name: repository
+          - name: revision
+        steps:
+          - name: validate
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              test -n "$(params.repository)"
+              test -n "$(params.revision)"
+              echo "$(params.repository)@$(params.revision)"
 YAML
+cat > "$COURSE_DIR/20/rbac.yaml" <<'YAML'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: final-trigger
+  namespace: tekton-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: final-trigger
+  namespace: tekton-lab
+rules: [] # TODO least privilege for EventListener
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: final-trigger
+  namespace: tekton-lab
+subjects: [] # TODO final-trigger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: final-trigger
+YAML
+cat > "$COURSE_DIR/20/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: final-webhook
+  namespace: tekton-lab
+spec:
+  params: [] # TODO repository and revision from body
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: final-webhook
+  namespace: tekton-lab
+spec:
+  params: [] # TODO repository and revision
+  resourcetemplates: [] # TODO PipelineRun final-webhook-build
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: final-webhook
+  namespace: tekton-lab
+spec:
+  serviceAccountName: final-trigger
+  triggers:
+    - name: main
+      interceptors: [] # TODO CEL main branch
+      bindings: [] # TODO final-webhook
+      template:
+        ref: final-webhook
+YAML
+cat > "$COURSE_DIR/20/payload-main.json" <<'JSON'
+{"ref":"refs/heads/main","after":"final123","repository":{"clone_url":"https://git.example/final.git"}}
+JSON
+cat > "$COURSE_DIR/20/payload-feature.json" <<'JSON'
+{"ref":"refs/heads/feature","after":"skip123","repository":{"clone_url":"https://git.example/final.git"}}
+JSON
+touch "$COURSE_DIR/20/run.log"
 source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"

@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — Platform APIs and Security Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario deployato da `setup-platform-security-lab.sh`. Manifest e file
 starter in `~/course-platform-security/`. Ogni esercizio specifica nomi,
 parametri e risultato atteso.
@@ -40,6 +54,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – CRD structural schema
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/01`.
 
@@ -55,6 +70,7 @@ La CRD starter accetta attualmente qualsiasi `spec`, quindi anche
 ---
 
 ### Q2 – CRD versioning
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/02`.
 
@@ -70,6 +86,7 @@ Percorso: `~/course-platform-security/02`.
 ---
 
 ### Q3 – Status subresource
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/03`.
 
@@ -84,6 +101,7 @@ La CRD in `03/` non abilita aggiornamenti indipendenti dello status.
 ---
 
 ### Q4 – Printer columns
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/04`.
 
@@ -97,6 +115,7 @@ Percorso: `~/course-platform-security/04`.
 ---
 
 ### Q5 – Namespaced platform API
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/05`.
 
@@ -110,6 +129,7 @@ L'XRD `AppEnvironment` contiene scope e schema incompleti.
 ---
 
 ### Q6 – Composition patching
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/06`.
 
@@ -124,6 +144,7 @@ La Composition crea un ConfigMap senza Namespace e senza dati dell'XR.
 ---
 
 ### Q7 – Composition transforms
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/07`.
 
@@ -137,6 +158,7 @@ Percorso: `~/course-platform-security/07`.
 ---
 
 ### Q8 – Composition readiness
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/08`.
 
@@ -150,6 +172,7 @@ L'XR diventa Ready senza attendere il segnale applicativo del ConfigMap.
 ---
 
 ### Q9 – Self-service claim validation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/09`.
 
@@ -164,6 +187,7 @@ Percorso: `~/course-platform-security/09`.
 ---
 
 ### Q10 – Multi-tenancy quota
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/10`.
 
@@ -178,6 +202,7 @@ Il ResourceQuota `tenant-budget` ha `hard` vuoto.
 ---
 
 ### Q11 – LimitRange defaults
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/11`.
 
@@ -192,6 +217,7 @@ Il Pod `defaults-demo` non specifica risorse e il LimitRange è vuoto.
 ---
 
 ### Q12 – NetworkPolicy default deny
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/12`.
 
@@ -207,6 +233,7 @@ comunicazione non è limitata.
 ---
 
 ### Q13 – RBAC tenant admin
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/13`.
 
@@ -223,6 +250,7 @@ subject sono vuoti.
 ---
 
 ### Q14 – Pod Security restricted
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/14`.
 
@@ -237,6 +265,7 @@ Il Deployment `restricted-app` è già running con container privilegiato.
 ---
 
 ### Q15 – Gatekeeper required owner
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/15`.
 
@@ -250,6 +279,7 @@ Template e Constraint contengono schema, Rego e match mancanti.
 ---
 
 ### Q16 – Gatekeeper allowed repositories
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/16`.
 
@@ -264,6 +294,7 @@ Il template non controlla ancora container e initContainer.
 ---
 
 ### Q17 – Audit and remediation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/17`.
 
@@ -279,6 +310,7 @@ Constraint starter usa `dryrun`.
 ---
 
 ### Q18 – Supply-chain check
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/18`.
 
@@ -294,6 +326,7 @@ non implementa alcun controllo.
 ---
 
 ### Q19 – Cost and right-sizing
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/19`.
 
@@ -309,6 +342,7 @@ contiene i campioni da usare.
 ---
 
 ### Q20 – Simulazione a tempo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-security/20`.
 

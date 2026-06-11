@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — GitOps and Progressive Delivery Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-gitops-progressive-delivery-lab.sh`. Gli starter
 sono in `~/course-gitops-progressive-delivery/`.
 
@@ -18,6 +32,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – Diagnosi Argo CD Application
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -25,12 +40,14 @@ Percorso: `~/course-gitops-progressive-delivery/01`.
    errati in `01/application.yaml`.
 
 ### Q2 – Source e destination Argo CD
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
 1. Imposta branch `master`, path `guestbook` e Namespace `gitops-apps`.
 
 ### Q3 – Sync policy
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -39,6 +56,7 @@ Percorso: `~/course-gitops-progressive-delivery/01`.
 2. Applica e verifica `Synced/Healthy`.
 
 ### Q4 – Drift e self-heal
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -48,6 +66,7 @@ Percorso: `~/course-gitops-progressive-delivery/01`.
 ---
 
 ### Q5 – Diagnosi Flux Source
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -55,6 +74,7 @@ Percorso: `~/course-gitops-progressive-delivery/02`.
    alcun artifact.
 
 ### Q6 – Correzione GitRepository
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -62,6 +82,7 @@ Percorso: `~/course-gitops-progressive-delivery/02`.
    reconcile.
 
 ### Q7 – Correzione Kustomization
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -69,6 +90,7 @@ Percorso: `~/course-gitops-progressive-delivery/02`.
    interval `5m`, `prune: true`, wait e health check.
 
 ### Q8 – Flux drift remediation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -78,6 +100,7 @@ Percorso: `~/course-gitops-progressive-delivery/02`.
 ---
 
 ### Q9 – Dipendenze Pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -85,6 +108,7 @@ Percorso: `~/course-gitops-progressive-delivery/03`.
    `prepare-promotion` dopo `test`.
 
 ### Q10 – Workspace condiviso
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -92,6 +116,7 @@ Percorso: `~/course-gitops-progressive-delivery/03`.
    clonato sia disponibile al test.
 
 ### Q11 – Artefatto di promozione
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -99,6 +124,7 @@ Percorso: `~/course-gitops-progressive-delivery/03`.
    l'immagine parametrica e che il Pipeline result esponga il path.
 
 ### Q12 – Esecuzione GitOps CI
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -108,6 +134,7 @@ Percorso: `~/course-gitops-progressive-delivery/03`.
 ---
 
 ### Q13 – Service canary
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -115,12 +142,14 @@ Percorso: `~/course-gitops-progressive-delivery/04`.
    canary `canary-preview`.
 
 ### Q14 – Canary steps
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
 1. Configura peso 25%, pausa 20 secondi, peso 50%, pausa manuale e peso 100%.
 
 ### Q15 – Promozione canary
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -128,6 +157,7 @@ Percorso: `~/course-gitops-progressive-delivery/04`.
    promuovi esplicitamente.
 
 ### Q16 – Rollback canary
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -137,6 +167,7 @@ Percorso: `~/course-gitops-progressive-delivery/04`.
 ---
 
 ### Q17 – Configurazione Blue/Green
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 
@@ -144,6 +175,7 @@ Percorso: `~/course-gitops-progressive-delivery/05`.
    `bluegreen-preview`, promozione manuale e delay 30 secondi.
 
 ### Q18 – Preview verification
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 
@@ -151,6 +183,7 @@ Percorso: `~/course-gitops-progressive-delivery/05`.
    v2.
 
 ### Q19 – Promotion e abort
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 
@@ -158,6 +191,7 @@ Percorso: `~/course-gitops-progressive-delivery/05`.
    senza spostare il traffico active.
 
 ### Q20 – Verifica finale delivery
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 

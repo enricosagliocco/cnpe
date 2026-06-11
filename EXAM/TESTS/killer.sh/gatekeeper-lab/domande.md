@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — OPA Gatekeeper Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-gatekeeper-lab.sh`. I file si trovano in
 `~/course-gatekeeper`.
 
@@ -52,6 +66,7 @@ negativi richiesti dalle tracce.
 ---
 
 ### Q1 – RequiredAnnotations parametrica
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/01`.
 
@@ -81,6 +96,7 @@ Il primo comando deve essere negato con un messaggio contenente
 ---
 
 ### Q2 – RequiredLabels con array
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/02`.
 
@@ -100,6 +116,7 @@ Verifica inoltre che la Constraint compaia in `kubectl get constraints`.
 ---
 
 ### Q3 – Repository immagini consentiti
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/03`.
 
@@ -125,6 +142,7 @@ Verifica infine che il Pod consentito non compaia nelle violazioni audit.
 ---
 
 ### Q4 – Numero minimo di repliche
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/04`.
 
@@ -142,6 +160,7 @@ La policy deve gestire anche `spec.replicas` assente, considerandolo uguale a
 ---
 
 ### Q5 – Match ed esclusioni
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/05`.
 
@@ -158,6 +177,7 @@ Percorso: `~/course-gatekeeper/05`.
 ---
 
 ### Q6 – Audit con enforcement dryrun
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/06`.
 
@@ -176,6 +196,7 @@ la label mancante.
 ---
 
 ### Q7 – Enforcement warn
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/07`.
 
@@ -191,6 +212,7 @@ Percorso: `~/course-gatekeeper/07`.
 ---
 
 ### Q8 – Namespace selector
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/08`.
 
@@ -211,6 +233,7 @@ policy.gatekeeper/enabled: "true"
 ---
 
 ### Q9 – Vietare Service NodePort
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/09`.
 
@@ -226,6 +249,7 @@ Percorso: `~/course-gatekeeper/09`.
 ---
 
 ### Q10 – Host Ingress univoci con inventory
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/10`.
 
@@ -242,6 +266,7 @@ existing-shared-host exercise=updated --overwrite` abbia successo.
 ---
 
 ### Q11 – Resource requests e limits
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/11`.
 
@@ -261,6 +286,7 @@ Percorso: `~/course-gatekeeper/11`.
 ---
 
 ### Q12 – Security context
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/12`.
 
@@ -279,6 +305,7 @@ Percorso: `~/course-gatekeeper/12`.
 ---
 
 ### Q13 – Service type parametrico
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/13`.
 
@@ -293,6 +320,7 @@ Percorso: `~/course-gatekeeper/13`.
 ---
 
 ### Q14 – Label immutabile durante UPDATE
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/14`.
 
@@ -311,6 +339,7 @@ Applica `deployment.yaml`, quindi:
 ---
 
 ### Q15 – Container, initContainer ed ephemeralContainer
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/15`.
 
@@ -329,6 +358,7 @@ Percorso: `~/course-gatekeeper/15`.
 ---
 
 ### Q16 – ExpansionTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/16`.
 
@@ -353,6 +383,7 @@ securityContext:
 ---
 
 ### Q17 – Troubleshooting ConstraintTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/17`.
 
@@ -371,6 +402,7 @@ dimostrare che il kind generato funziona.
 ---
 
 ### Q18 – Schema avanzato dei parametri
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/18`.
 
@@ -393,6 +425,7 @@ Percorso: `~/course-gatekeeper/18`.
 ---
 
 ### Q19 – Policy bundle con Kustomize
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/19/policy-bundle`.
 
@@ -418,6 +451,7 @@ Percorso: `~/course-gatekeeper/19/policy-bundle`.
 ---
 
 ### Q20 – Incident finale
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/20`.
 

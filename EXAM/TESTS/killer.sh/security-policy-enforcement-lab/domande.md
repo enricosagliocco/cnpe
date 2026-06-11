@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Security and Policy Enforcement Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-security-policy-enforcement-lab.sh`. Manifest e file
 starter si trovano in `~/course-security-policy-enforcement/`.
 
@@ -39,6 +53,7 @@ kubectl -n security-pipeline get pipeline,pipelinerun,taskrun
 ---
 
 ### Q1 - Diagnosi della comunicazione sicura
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -54,6 +69,7 @@ NetworkPolicy inizialmente chiusa.
 ---
 
 ### Q2 - Endpoint mTLS
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -68,6 +84,7 @@ Percorso: `~/course-security-policy-enforcement/01`.
 ---
 
 ### Q3 - NetworkPolicy per payments
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -82,6 +99,7 @@ Completa `networkpolicy.yaml`:
 ---
 
 ### Q4 - Autenticazione e isolamento
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -99,6 +117,7 @@ Dimostra tutti i casi seguenti:
 ---
 
 ### Q5 - Diagnosi dei privilegi auditor
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -113,6 +132,7 @@ Il ServiceAccount `platform-auditor` parte con privilegi eccessivi, ma senza
 ---
 
 ### Q6 - RBAC read-only
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -129,6 +149,7 @@ Correggi `rbac.yaml` mantenendo ServiceAccount, ClusterRole e binding:
 ---
 
 ### Q7 - Verifiche negative RBAC
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -146,6 +167,7 @@ Ogni comando deve restituire `no`.
 ---
 
 ### Q8 - Evidenza least privilege
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -159,6 +181,7 @@ Percorso: `~/course-security-policy-enforcement/02`.
 ---
 
 ### Q9 - Policy audit sui metadata
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -174,6 +197,7 @@ Completa `audit-policy.yaml`:
 ---
 
 ### Q10 - PolicyReport iniziale
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -188,6 +212,7 @@ Il Deployment `legacy-api` esiste già ed è non conforme.
 ---
 
 ### Q11 - Remediation dei metadata
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -201,6 +226,7 @@ Correggi il Deployment esistente senza modificarne immagine o configurazione:
 ---
 
 ### Q12 - Compliance report finale
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -213,6 +239,7 @@ Percorso: `~/course-security-policy-enforcement/03`.
 ---
 
 ### Q13 - Governance Pod con namespace selector
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -227,6 +254,7 @@ Completa `governance-policy.yaml`:
 ---
 
 ### Q14 - Security context
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -241,6 +269,7 @@ Completa la CEL affinché:
 ---
 
 ### Q15 - Immagini referenziate tramite digest
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -253,6 +282,7 @@ Percorso: `~/course-security-policy-enforcement/04`.
 ---
 
 ### Q16 - Test admission
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -267,6 +297,7 @@ Applica la policy e poi, nell'ordine:
 ---
 
 ### Q17 - Validazione SBOM
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -282,6 +313,7 @@ Completa lo step `verify` del task inline `compliance-gate` in
 ---
 
 ### Q18 - Vulnerability report
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -297,6 +329,7 @@ Nello stesso step:
 ---
 
 ### Q19 - Gate di deploy
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -312,6 +345,7 @@ Percorso: `~/course-security-policy-enforcement/05`.
 ---
 
 ### Q20 - Verifica finale security
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 

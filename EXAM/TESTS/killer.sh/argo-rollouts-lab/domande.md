@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Argo Rollouts Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-argo-rollouts-lab.sh`. Gli starter sono in
 `~/course-argo-rollouts/` e le risorse nel Namespace `argo-rollouts-lab`.
 
@@ -17,6 +31,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 - Rollout base
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/01`.
 
@@ -25,6 +40,7 @@ Percorso: `~/course-argo-rollouts/01`.
 2. Applica e verifica `Healthy` con tre repliche.
 
 ### Q2 - Canary steps
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/02`.
 
@@ -32,6 +48,7 @@ Percorso: `~/course-argo-rollouts/02`.
    manuale e peso 100%.
 
 ### Q3 - Stable e canary Service
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/03`.
 
@@ -40,6 +57,7 @@ Percorso: `~/course-argo-rollouts/03`.
 2. Durante un update verifica gli hash aggiunti ai selector.
 
 ### Q4 - Promozione manuale
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/04`.
 
@@ -47,6 +65,7 @@ Percorso: `~/course-argo-rollouts/04`.
    e revisioni in `04/evidence.txt`.
 
 ### Q5 - Abort
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/05`.
 
@@ -55,6 +74,7 @@ Percorso: `~/course-argo-rollouts/05`.
    precedente.
 
 ### Q6 - Undo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/06`.
 
@@ -63,6 +83,7 @@ Percorso: `~/course-argo-rollouts/06`.
 2. Documenta immagini, revisioni e stato finale.
 
 ### Q7 - Blue/green
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/07`.
 
@@ -70,6 +91,7 @@ Percorso: `~/course-argo-rollouts/07`.
    e `scaleDownDelaySeconds: 30`.
 
 ### Q8 - Preview verification
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/08`.
 
@@ -78,6 +100,7 @@ Percorso: `~/course-argo-rollouts/08`.
 2. Salva selector e endpoint in `08/evidence.txt`.
 
 ### Q9 - Blue/green promotion
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/09`.
 
@@ -85,6 +108,7 @@ Percorso: `~/course-argo-rollouts/09`.
    prima dello scale-down del vecchio ReplicaSet.
 
 ### Q10 - Pre-promotion analysis
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/10`.
 
@@ -93,6 +117,7 @@ Percorso: `~/course-argo-rollouts/10`.
 2. Una verifica riuscita deve consentire la promozione.
 
 ### Q11 - Post-promotion analysis
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/11`.
 
@@ -100,6 +125,7 @@ Percorso: `~/course-argo-rollouts/11`.
    o stato degradato senza perdita del Service active.
 
 ### Q12 - Background analysis
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/12`.
 
@@ -107,6 +133,7 @@ Percorso: `~/course-argo-rollouts/12`.
    alla fine dell'update.
 
 ### Q13 - Metric success condition
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/13`.
 
@@ -114,6 +141,7 @@ Percorso: `~/course-argo-rollouts/13`.
    accettare risultato `0`, con tre misurazioni e failure limit 1.
 
 ### Q14 - Analysis arguments
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/14`.
 
@@ -122,6 +150,7 @@ Percorso: `~/course-argo-rollouts/14`.
 2. Verifica gli argomenti nell'AnalysisRun generato.
 
 ### Q15 - Inconclusive e retry
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/15`.
 
@@ -130,6 +159,7 @@ Percorso: `~/course-argo-rollouts/15`.
 2. Riproduci uno stato inconclusive e documenta il comportamento.
 
 ### Q16 - Experiment
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/16`.
 
@@ -139,6 +169,7 @@ Percorso: `~/course-argo-rollouts/16`.
 2. Verifica ReplicaSet e AnalysisRun associati.
 
 ### Q17 - Anti-affinity
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/17`.
 
@@ -146,6 +177,7 @@ Percorso: `~/course-argo-rollouts/17`.
    sui nodi disponibili senza rendere impossibile lo scheduling su kind.
 
 ### Q18 - Scale-down controls
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/18`.
 
@@ -155,6 +187,7 @@ Percorso: `~/course-argo-rollouts/18`.
 2. Verifica il numero di pod durante promote e abort.
 
 ### Q19 - Troubleshooting
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/19`.
 
@@ -164,6 +197,7 @@ Percorso: `~/course-argo-rollouts/19`.
    `19/report.md`.
 
 ### Q20 - Simulazione a tempo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/20`.
 

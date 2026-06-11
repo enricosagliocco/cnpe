@@ -1,196 +1,228 @@
-# Le 20 domande dell'esame - ResourceQuota e LimitRange Lab
+# Le 20 domande dell'esame - Resource Governance Troubleshooting Lab
 
 Scenario creato da `setup-resource-quota-limitrange-lab.sh`. I manifest
-modificabili si trovano in `~/course-resource-governance/01/`; le risorse sono
-nel Namespace `resource-governance`.
+modificabili si trovano in `~/course-resource-governance/01/`; tutte le
+risorse devono essere create nel Namespace `resource-governance`.
+
+Il laboratorio simula una coda di incidenti. Per ogni domanda devi tentare
+l'operazione richiesta, osservare il sintomo, identificare la causa, applicare
+la correzione minima e verificarne l'esito.
 
 Vincoli:
 
-- non modificare o eliminare il Deployment `platform-api`;
-- non eliminare `ResourceQuota` o `LimitRange`;
-- correggere soltanto i file starter indicati;
+- non modificare o eliminare il Deployment e il Service `platform-api`;
+- non modificare o eliminare `ResourceQuota` e `LimitRange`;
+- non aumentare la quota per aggirare un errore;
+- non eliminare risorse estranee all'incidente corrente;
 - usare il dry-run server-side quando richiesto;
-- salvare comandi, errori e risultati in `01/evidence.txt`.
+- salvare comandi, errori e verifiche in `01/evidence.txt`.
 
 ---
 
-### Q1 - Inventario iniziale
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Elenca Pod, Deployment, Service, ConfigMap, ResourceQuota e LimitRange.
-2. Registra stato e risorse richieste dal Deployment `platform-api`.
-3. Non effettuare modifiche.
-
-### Q2 - Analisi del ResourceQuota
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Descrivi `team-budget`.
-2. Registra valori `hard` e `used` per CPU, memoria, Pod, Service e ConfigMap.
-3. Calcola la capacità residua per ogni risorsa.
-
-### Q3 - Analisi del LimitRange
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Descrivi `container-policy`.
-2. Identifica default request, default limit, minimo, massimo e
-   `maxLimitRequestRatio`.
-3. Spiega che la validazione avviene per singolo container.
-
-### Q4 - Correlazione admission
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Spiega l'ordine logico tra defaulting del LimitRange, validazione dei
-   container e controllo aggregato del ResourceQuota.
-2. Prevedi le risorse assegnate a un container che non dichiara `resources`.
-3. Salva la previsione in `evidence.txt`.
-
----
-
-### Q5 - Default automatici
+### Q1 - Pod senza resources
 
 Percorso: `~/course-resource-governance/01`.
 
 1. Applica `defaulted-pod.yaml`.
-2. Ispeziona il Pod creato e registra request e limit effettivi.
-3. Confrontali con i default del LimitRange.
+2. Verifica che il Pod venga creato ma che request e limit non corrispondano a
+   valori dichiarati nel file.
+3. Individua quale risorsa di admission li ha aggiunti.
+4. Registra valori effettivi e stato del Pod in `evidence.txt`.
 
-### Q6 - Aggiornamento della quota usata
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Attendi l'aggiornamento di `team-budget`.
-2. Registra il nuovo consumo di Pod, CPU e memoria.
-3. Calcola nuovamente la capacità residua.
-
-### Q7 - Superamento del massimo
+### Q2 - Manifest esplicito
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Esegui un dry-run server-side di `oversized-pod.yaml`.
-2. Identifica il campo che supera il massimo imposto dal LimitRange.
-3. Registra integralmente il messaggio di admission.
+1. Crea `explicit-pod.yaml` per un Pod `explicit-pod` con immagine
+   `nginx:1.27-alpine`.
+2. Dichiara request `cpu: 100m`, `memory: 64Mi` e limit `cpu: 200m`,
+   `memory: 128Mi`.
+3. Esegui un dry-run server-side, crea il Pod e verifica che i valori non
+   vengano modificati.
+4. Elimina `explicit-pod` dopo la verifica.
 
-### Q8 - Correzione del massimo
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Correggi `oversized-pod.yaml` impostando request CPU non superiore a
-   `500m` e limit CPU non superiore a `500m`.
-2. Mantieni memoria e immagine invariate.
-3. Verifica con dry-run server-side che il manifest superi il LimitRange.
-4. Non creare ancora il Pod.
-
----
-
-### Q9 - Rapporto limit/request
+### Q3 - Request oltre il massimo
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Esegui un dry-run server-side di `burst-pod.yaml`.
-2. Calcola il rapporto CPU limit/request.
-3. Identifica il rapporto massimo consentito e registra il rifiuto.
+1. Tenta la creazione server-side di `oversized-pod.yaml`.
+2. Usa il messaggio di admission per individuare container, risorsa e soglia
+   violata.
+3. Correggi solo CPU request e limit portandoli al massimo consentito.
+4. Ripeti il dry-run fino a ottenere esito positivo, senza creare il Pod.
 
-### Q10 - Correzione del rapporto
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Correggi soltanto il limit CPU di `burst-pod.yaml`.
-2. Mantieni request CPU a `100m`.
-3. Usa il limit massimo ammesso dal rapporto.
-4. Conferma con dry-run server-side che il manifest sia valido.
-
-### Q11 - Quota aggregata del Deployment
+### Q4 - Rapporto limit/request
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Applica `batch-worker.yaml` e attendi la riconciliazione del ReplicaSet.
-2. Distingui le risorse per replica dal consumo totale delle due repliche.
-3. Descrivi Deployment e ReplicaSet e identifica l'evento `FailedCreate`
-   causato dalla quota aggregata.
-4. Elimina il Deployment `batch-worker` dopo aver raccolto le evidenze.
-5. Verifica che i relativi Pod siano stati rimossi.
+1. Tenta la creazione server-side di `burst-pod.yaml`.
+2. Calcola il rapporto CPU configurato e ricava dal cluster quello ammesso.
+3. Correggi soltanto il limit CPU usando il valore massimo valido.
+4. Verifica con dry-run server-side senza creare il Pod.
 
-### Q12 - Dimensionamento entro budget
+### Q5 - Request sotto il minimo
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Correggi `batch-worker.yaml` mantenendo due repliche.
-2. Imposta per container request `cpu: 100m`, `memory: 64Mi`.
-3. Imposta limit `cpu: 200m`, `memory: 128Mi`.
-4. Verifica il manifest con dry-run server-side senza applicarlo.
+1. Tenta la creazione server-side di `below-minimum-pod.yaml`.
+2. Identifica il minimo CPU richiesto dal `LimitRange`.
+3. Correggi soltanto la request CPU con il minimo consentito.
+4. Crea il Pod, verifica le risorse effettive e poi eliminalo.
 
----
-
-### Q13 - Quota dei ConfigMap
+### Q6 - Errore nascosto nel sidecar
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Conta i ConfigMap presenti escludendo quelli di sistema fuori Namespace.
-2. Applica prima `temporary-settings.yaml`, poi `worker-settings.yaml`.
-3. Identifica quale oggetto viene accettato e quale supera la quota.
-4. Registra l'errore e lo stato aggiornato di `team-budget`.
+1. Tenta la creazione server-side di `multi-container-pod.yaml`.
+2. Individua quale dei due container viola il `LimitRange`; non correggere il
+   container già conforme.
+3. Correggi il rapporto CPU del solo sidecar.
+4. Crea il Pod, verifica entrambi i container e poi eliminalo.
 
-### Q14 - Recupero object count
+### Q7 - Limite aggiunto automaticamente
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Elimina soltanto il ConfigMap `temporary-settings`.
-2. Applica nuovamente `worker-settings.yaml`.
-3. Verifica che il numero usato resti entro `configmaps: 3`.
+1. Tenta la creazione server-side di `missing-limit-pod.yaml`.
+2. Confronta l'output YAML del dry-run con il file originale.
+3. Individua il limit aggiunto dal `LimitRange` e verifica che il rapporto
+   risultante sia valido.
+4. Crea il Pod e registra request e limit osservati.
 
-### Q15 - Quota dei Service
+### Q8 - Quota CPU esaurita
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Tenta di applicare `oversized-pod.yaml`, già corretto in Q3.
+2. Diagnostica il nuovo rifiuto, distinguendolo dall'errore di `LimitRange`.
+3. Identifica quali Pod consumano la quota CPU.
+4. Elimina soltanto `missing-limit-pod`, riprova la creazione e verifica che
+   `oversized-pod` sia Running.
+
+### Q9 - ReplicaSet senza Pod
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Applica `batch-worker.yaml`.
+2. Diagnostica perché il Deployment esiste ma non raggiunge due repliche.
+3. Usa eventi di Deployment e ReplicaSet per dimostrare il rifiuto da parte
+   della quota.
+4. Elimina `batch-worker` e verifica che non restino Pod associati.
+
+### Q10 - Ridimensionamento del Deployment
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Elimina `oversized-pod` per liberare il budget usato nel test precedente.
+2. Correggi `batch-worker.yaml` mantenendo due repliche e impostando, per
+   container, request `100m/64Mi` e limit `200m/128Mi`.
+3. Esegui dry-run server-side, applica il Deployment e attendi due Pod Ready.
+4. Verifica il consumo aggregato reale.
+
+### Q11 - Pod count esaurito
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Crea `pod-slot-test.yaml` per un Pod `pod-slot-test` conforme al
+   `LimitRange`, con request `50m/64Mi` e limit `100m/128Mi`.
+2. Tenta di crearlo e diagnostica il rifiuto.
+3. Dimostra con `ResourceQuota` che il problema è il numero di Pod e non CPU o
+   memoria.
+4. Non eliminare workload per far passare il test.
+
+### Q12 - Recupero di uno slot Pod
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Elimina soltanto `defaulted-pod`.
+2. Applica nuovamente `pod-slot-test.yaml`.
+3. Verifica che il Pod sia Running e che la quota Pod sia nuovamente satura.
+4. Elimina `pod-slot-test` al termine.
+
+### Q13 - ConfigMap count
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Applica `temporary-settings.yaml` e `worker-settings.yaml` in quest'ordine.
+2. Diagnostica perché solo una delle due creazioni riesce.
+3. Identifica gli oggetti che occupano la quota ConfigMap.
+4. Elimina soltanto `temporary-settings`, crea `worker-settings` e verifica il
+   nuovo valore `used`.
+
+### Q14 - Service negato
 
 Percorso: `~/course-resource-governance/01`.
 
 1. Esegui un dry-run server-side di `extra-service.yaml`.
-2. Identifica la quota per numero di Service che impedisce la creazione.
-3. Non eliminare il Service `platform-api`.
+2. Diagnostica il rifiuto e identifica i Service che occupano gli slot.
+3. Verifica che selector e porta del manifest siano altrimenti validi.
+4. Non eliminare `platform-api` e non applicare il Service.
 
-### Q16 - Scelta operativa
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Spiega perché aumentare una quota e ridurre il consumo sono decisioni
-   diverse, non semplici correzioni sintattiche.
-2. Non modificare `team-budget`.
-3. Lascia `extra-service.yaml` non applicato e registra la decisione.
-
----
-
-### Q17 - Applicazione del worker
+### Q15 - Service senza endpoint
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Applica il `batch-worker.yaml` corretto.
-2. Attendi due Pod Ready.
-3. Verifica request e limit effettivi su entrambi i Pod.
+1. Ispeziona il Service headless `worker-headless` e i relativi EndpointSlice.
+2. Diagnostica perché non produce endpoint pronti nonostante `batch-worker`
+   sia disponibile.
+3. Esporta il Service in `worker-headless.yaml`.
+4. Correggi soltanto il selector, applica il file e verifica gli endpoint.
 
-### Q18 - Stato finale della quota
-
-Percorso: `~/course-resource-governance/01`.
-
-1. Attendi la riconciliazione di `team-budget`.
-2. Registra `hard`, `used` e capacità residua.
-3. Conferma che nessun valore `used` superi il corrispondente `hard`.
-
-### Q19 - Test negativo finale
+### Q16 - Rollout bloccato da resources mancanti
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Riesegui il dry-run server-side di `extra-service.yaml`.
-2. Conferma che il rifiuto sia ancora dovuto alla quota Service.
-3. Verifica che il rifiuto non abbia creato oggetti parziali.
+1. Applica `broken-rollout.yaml` e osserva il rollout parziale.
+2. Ispeziona il Pod creato e individua request e limit aggiunti
+   automaticamente.
+3. Usa gli eventi del ReplicaSet e la quota per diagnosticare perché la
+   seconda replica non viene creata.
+4. Non eliminare il Deployment: conserva le evidenze per la correzione
+   successiva.
 
-### Q20 - Evidenza conclusiva
+### Q17 - Creazione entro il budget
 
 Percorso: `~/course-resource-governance/01`.
 
-1. Conferma `platform-api` e `batch-worker` disponibili.
-2. Conferma che `defaulted-pod` sia Running.
-3. Riassumi in `evidence.txt` un caso di defaulting, un rifiuto LimitRange, un
-   rifiuto ResourceQuota e lo stato finale conforme.
-4. Includi i comandi usati e i relativi output essenziali.
+1. Correggi `broken-rollout.yaml` dichiarando request `50m/64Mi` e limit
+   `100m/128Mi`.
+2. Applica il manifest e verifica che il nuovo ReplicaSet resti inizialmente
+   con una sola replica.
+3. Dimostra con quota ed eventi che il quinto Pod impedisce la seconda
+   creazione.
+4. Scala `batch-worker` a una replica senza modificarne il template e verifica
+   che `diagnostic-worker` raggiunga due repliche.
+
+### Q18 - Drift delle risorse
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Modifica nel cluster il Deployment `diagnostic-worker` impostando request
+   CPU `300m` e limit CPU `500m`.
+2. Osserva il rollout e diagnostica l'eventuale `FailedCreate` senza eliminare
+   i Pod sani.
+3. Ripristina il Deployment applicando `broken-rollout.yaml`.
+4. Verifica che non restino ReplicaSet in errore attivo.
+
+### Q19 - Ripristino stato operativo
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Elimina `worker-headless`, `worker-settings` e `diagnostic-worker`.
+2. Riporta `batch-worker` a due repliche.
+3. Attendi la riconciliazione e diagnostica qualsiasi Pod non Ready o evento
+   di quota residuo.
+4. Verifica che `platform-api` non abbia subito modifiche.
+
+### Q20 - Verifica finale
+
+Percorso: `~/course-resource-governance/01`.
+
+1. Conferma che `platform-api` e `batch-worker` siano disponibili con due
+   repliche ciascuno.
+2. Verifica che non esistano Pod Pending o ReplicaSet con `FailedCreate`
+   recente.
+3. Registra valori `hard`, `used` e capacità residua di tutte le dimensioni
+   della quota.
+4. Completa `evidence.txt` con almeno un rifiuto `LimitRange`, un rifiuto
+   `ResourceQuota`, una creazione corretta e una correzione di selector.

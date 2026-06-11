@@ -1,7 +1,8 @@
-# Tekton Dedicated Lab
+# Tekton Pipelines and Triggers Lab
 
 Laboratorio autonomo con 20 esercizi deterministici dedicati a Tekton
-Pipelines.
+Pipelines, TriggerBinding, TriggerTemplate, EventListener, interceptor CEL e
+webhook end-to-end.
 
 ## Avvio con Minikube
 
@@ -31,9 +32,10 @@ KIND_CLUSTER_NAME=cnpe ./setup-tekton-lab-kind.sh
 La variante kind installa anche il local-path provisioner e lo configura come
 StorageClass predefinita, necessario per gli esercizi che creano PVC.
 
-Il setup installa Tekton Pipelines v1.9.0 LTS, Tekton Dashboard e crea gli
-starter in `~/course-tekton`. Ogni directory contiene una risorsa incompleta o
-guasta e un Run con cui verificare la correzione. Per aprire la GUI:
+Il setup installa Tekton Pipelines v1.9.0 LTS, Tekton Triggers v0.33.0,
+interceptor CEL e Tekton Dashboard. Gli starter vengono creati in
+`~/course-tekton`; ogni directory contiene una risorsa incompleta o guasta e
+gli input con cui verificare la correzione. Per aprire la GUI:
 
 ```bash
 kubectl -n tekton-pipelines port-forward svc/tekton-dashboard 30120:9097

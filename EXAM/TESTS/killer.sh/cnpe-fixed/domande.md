@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — CNPE Full Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario deployato da `setup-cnpe-lab.sh`. Manifest in `~/course/`.  
 Lo script è diviso in 3 parti (part1, part2, part3) eseguite dall'entrypoint.
 
@@ -16,6 +30,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – Operator Pattern, CRD, Kustomize, Git
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/1`.
 
@@ -29,6 +44,7 @@ La CRD `TeamMonitoring` è installata nel cluster dal repository locale `/course
 ---
 
 ### Q2 – Prometheus Monitoring
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/2`.
 
@@ -54,6 +70,7 @@ kubectl -n prometheus get ingress,svc,secret
 ---
 
 ### Q3 – Argo CD
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/3`.
 
@@ -100,6 +117,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.pas
 ---
 
 ### Q4 – Flagger Blue/Green Deployments
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/4`.
 
@@ -135,6 +153,7 @@ analysis:
 ---
 
 ### Q5 – OPA Gatekeeper + Helm
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/5`.
 
@@ -153,6 +172,7 @@ OPA Gatekeeper è installato. In `/course/5/infra-opa`:
 ---
 
 ### Q6 – OpenTofu / Terraform
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/6`.
 
@@ -168,6 +188,7 @@ Il tuo team usa OpenTofu per gestire risorse Kubernetes.
 ---
 
 ### Q7 – OpenCost + Prometheus
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/7`.
 
@@ -199,6 +220,7 @@ kubectl -n prometheus get svc,ingress,secret
 ---
 
 ### Q8 – Grafana, Loki, Logging
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/8`.
 
@@ -230,6 +252,7 @@ kubectl -n monitoring get secret grafana -o jsonpath='{.data.admin-password}' | 
 ---
 
 ### Q9 – Kustomize + Prometheus Operator CRDs
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/9`.
 
@@ -252,6 +275,7 @@ kubectl apply -k /course/9/prom-config/overlays/production
 ---
 
 ### Q10 – ResourceQuota + Git
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/10`.
 
@@ -268,6 +292,7 @@ Limita l'uso dello storage nei Namespace `caspian-pipeline1`, `caspian-pipeline2
 ---
 
 ### Q11 – Argo Workflows
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/11`.
 
@@ -298,6 +323,7 @@ kubectl -n argo get secret,cm | grep -Ei 'argo|auth|server'
 ---
 
 ### Q12 – Tekton
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/12`.
 
@@ -333,6 +359,7 @@ kubectl -n tekton-pipelines get sa,secret
 ---
 
 ### Q13 – Pod Security Standards
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/13`.
 
@@ -344,6 +371,7 @@ Il Namespace `ammersee-legacy` non ha Pod Security Standards applicati. I manife
 ---
 
 ### Q14 – Jaeger
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/14`.
 
@@ -370,6 +398,7 @@ kubectl -n eyre get svc,ingress,secret
 ---
 
 ### Q15 – Vertical Pod Autoscaler (VPA)
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/15`.
 
@@ -384,6 +413,7 @@ Un singolo `etcd` è in esecuzione nel Namespace `sargasso`.
 ---
 
 ### Q16 – Argo Rollouts, Canary
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/16`.
 
@@ -412,6 +442,7 @@ kubectl -n argo-rollouts get svc,secret,sa
 ---
 
 ### Q17 – FluxCD
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/17`.
 
@@ -425,6 +456,7 @@ FluxCD è installato e la CLI `flux` è disponibile.
 ---
 
 ### Q18 – Kyverno
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/18`.
 
@@ -441,6 +473,7 @@ Poi:
 ---
 
 ### Q19 – Crossplane
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/19`.
 
@@ -457,6 +490,7 @@ Crossplane è installato. Il team ha creato una `CompositeResourceDefinition` `r
 ---
 
 ### Q20 – Linkerd + Gateway API
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course/20`.
 

@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Argo Workflows Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-argo-workflows-lab.sh`. Gli starter sono in
 `~/course-argo-workflows/` e le risorse degli esercizi nel Namespace
 `argo-workflows-lab`.
@@ -18,6 +32,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 - Workflow container
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/01`.
 
@@ -26,6 +41,7 @@ Percorso: `~/course-argo-workflows/01`.
 2. Il Workflow deve terminare `Succeeded` e stampare esattamente `hello cnpe`.
 
 ### Q2 - Parametri
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/02`.
 
@@ -35,6 +51,7 @@ Percorso: `~/course-argo-workflows/02`.
 2. Esegui con `name=cnpe`.
 
 ### Q3 - Steps sequenziali
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/03`.
 
@@ -44,6 +61,7 @@ Percorso: `~/course-argo-workflows/03`.
 2. Verifica ordine dei node e log.
 
 ### Q4 - Steps paralleli
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/04`.
 
@@ -53,6 +71,7 @@ Percorso: `~/course-argo-workflows/04`.
 2. Salva tempi dei node in `04/evidence.txt`.
 
 ### Q5 - DAG dependencies
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/05`.
 
@@ -60,6 +79,7 @@ Percorso: `~/course-argo-workflows/05`.
    dipendente da entrambi.
 
 ### Q6 - Output parameters
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/06`.
 
@@ -69,6 +89,7 @@ Percorso: `~/course-argo-workflows/06`.
 2. Verifica il log `publishing 2.3.1`.
 
 ### Q7 - Artifacts
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/07`.
 
@@ -76,6 +97,7 @@ Percorso: `~/course-argo-workflows/07`.
    lo riceve come artifact e ne verifica il contenuto.
 
 ### Q8 - Volumi
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/08`.
 
@@ -83,6 +105,7 @@ Percorso: `~/course-argo-workflows/08`.
    file tra due template.
 
 ### Q9 - PVC dinamico
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/09`.
 
@@ -92,6 +115,7 @@ Percorso: `~/course-argo-workflows/09`.
 2. Verifica PVC, mount e garbage collection.
 
 ### Q10 - when
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/10`.
 
@@ -101,6 +125,7 @@ Percorso: `~/course-argo-workflows/10`.
 2. Prova i valori `dev` e `staging`.
 
 ### Q11 - Retry strategy
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/11`.
 
@@ -110,6 +135,7 @@ Percorso: `~/course-argo-workflows/11`.
 2. Verifica i retry node e il backoff.
 
 ### Q12 - Timeout e deadline
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/12`.
 
@@ -119,6 +145,7 @@ Percorso: `~/course-argo-workflows/12`.
 2. Il task che dorme 20 secondi deve fallire per timeout.
 
 ### Q13 - Exit handler
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/13`.
 
@@ -128,6 +155,7 @@ Percorso: `~/course-argo-workflows/13`.
    `status=<workflow.status>`.
 
 ### Q14 - Continue on failure
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/14`.
 
@@ -135,6 +163,7 @@ Percorso: `~/course-argo-workflows/14`.
    usando `depends` con gli stati appropriati.
 
 ### Q15 - WorkflowTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/15`.
 
@@ -142,6 +171,7 @@ Percorso: `~/course-argo-workflows/15`.
    passando il parametro richiesto.
 
 ### Q16 - ClusterWorkflowTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/16`.
 
@@ -150,6 +180,7 @@ Percorso: `~/course-argo-workflows/16`.
 2. Verifica il riferimento e limita il ServiceAccount con RBAC.
 
 ### Q17 - CronWorkflow
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/17`.
 
@@ -157,6 +188,7 @@ Percorso: `~/course-argo-workflows/17`.
    `Europe/Rome`, concurrency policy `Forbid` e history limit 2/1.
 
 ### Q18 - Mutex e sincronizzazione
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/18`.
 
@@ -166,6 +198,7 @@ Percorso: `~/course-argo-workflows/18`.
 2. Verifica che non entrino insieme nella sezione critica.
 
 ### Q19 - Troubleshooting
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/19`.
 
@@ -175,6 +208,7 @@ Percorso: `~/course-argo-workflows/19`.
    `19/report.md`.
 
 ### Q20 - Simulazione a tempo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/20`.
 

@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — Capacity and Autoscaling Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-capacity-autoscaling-lab.sh`. Gli starter sono in
 `~/course-capacity-autoscaling/`.
 
@@ -21,6 +35,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – Diagnosi ResourceQuota
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -31,6 +46,7 @@ Percorso: `~/course-capacity-autoscaling/01`.
    `01/diagnosi.txt`.
 
 ### Q2 – Correzione ResourceQuota
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -40,6 +56,7 @@ Percorso: `~/course-capacity-autoscaling/01`.
 2. Applica il file senza riavviare il Deployment.
 
 ### Q3 – Accounting della quota
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -48,6 +65,7 @@ Percorso: `~/course-capacity-autoscaling/01`.
 2. Registra hard, used, request e limit effettivi in `01/diagnosi.txt`.
 
 ### Q4 – Test di saturazione quota
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -58,6 +76,7 @@ Percorso: `~/course-capacity-autoscaling/01`.
 ---
 
 ### Q5 – Riproduzione errore LimitRange
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -65,6 +84,7 @@ Percorso: `~/course-capacity-autoscaling/02`.
    LimitRange e ResourceQuota in `limits-lab`.
 
 ### Q6 – Default request e limit
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -72,6 +92,7 @@ Percorso: `~/course-capacity-autoscaling/02`.
    `500m/512Mi`, senza modificare `02/pod.yaml`.
 
 ### Q7 – Limiti massimi container
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -81,6 +102,7 @@ Percorso: `~/course-capacity-autoscaling/02`.
    limit.
 
 ### Q8 – Test positivo e negativo LimitRange
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -92,6 +114,7 @@ Percorso: `~/course-capacity-autoscaling/02`.
 ---
 
 ### Q9 – Diagnosi VPA
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -100,6 +123,7 @@ Percorso: `~/course-capacity-autoscaling/03`.
 2. Registra perché non produce raccomandazioni.
 
 ### Q10 – Correzione TargetRef VPA
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -107,6 +131,7 @@ Percorso: `~/course-capacity-autoscaling/03`.
    mantenendo `updateMode: "Off"` e i limiti min/max esistenti.
 
 ### Q11 – Lettura raccomandazioni VPA
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -114,6 +139,7 @@ Percorso: `~/course-capacity-autoscaling/03`.
    upper bound e uncapped target in `03/recommendation.txt`.
 
 ### Q12 – Verifica modalità recommendation-only
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -125,6 +151,7 @@ Percorso: `~/course-capacity-autoscaling/03`.
 ---
 
 ### Q13 – Diagnosi HPA
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -133,6 +160,7 @@ Percorso: `~/course-capacity-autoscaling/04`.
 2. Individua target e configurazioni errate.
 
 ### Q14 – Configurazione HPA CPU
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -142,6 +170,7 @@ Percorso: `~/course-capacity-autoscaling/04`.
 2. Verifica che la metrica non sia `<unknown>`.
 
 ### Q15 – Scale-up sotto carico
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -149,6 +178,7 @@ Percorso: `~/course-capacity-autoscaling/04`.
    repliche superano uno e salva il massimo osservato in `04/result.txt`.
 
 ### Q16 – Stabilizzazione e scale-down
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -158,6 +188,7 @@ Percorso: `~/course-capacity-autoscaling/04`.
 ---
 
 ### Q17 – Diagnosi ScaledObject
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -166,6 +197,7 @@ Percorso: `~/course-capacity-autoscaling/05`.
 2. Spiega perché `queue-worker` resta a zero.
 
 ### Q18 – Correzione KEDA
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -174,6 +206,7 @@ Percorso: `~/course-capacity-autoscaling/05`.
    replicas `3`.
 
 ### Q19 – HPA gestito da KEDA
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -183,6 +216,7 @@ Percorso: `~/course-capacity-autoscaling/05`.
 2. Non creare un secondo HPA.
 
 ### Q20 – Verifica finale autoscaling
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 

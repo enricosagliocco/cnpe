@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Platform Automation Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-platform-automation-lab.sh`. Gli starter sono in
 `~/course-platform-automation/`.
 
@@ -22,6 +36,7 @@ kubectl auth can-i --list
 ---
 
 ### Q1 - Gatekeeper ConstraintTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/01`.
 
@@ -34,6 +49,7 @@ Completa `template.yaml` affinche i Deployment:
 Applica il ConstraintTemplate e attendi che sia `Created=True`.
 
 ### Q2 - Gatekeeper enforcement e test
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/01`.
 
@@ -46,6 +62,7 @@ Percorso: `~/course-platform-automation/01`.
 ---
 
 ### Q3 - Crossplane XRD
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/02`.
 
@@ -59,6 +76,7 @@ Completa `xrd.yaml` per una API namespaced `WebApp`:
 Applica la XRD e verifica la CRD generata.
 
 ### Q4 - Crossplane Composition
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/02`.
 
@@ -74,6 +92,7 @@ references in `crossplane-check.txt`.
 ---
 
 ### Q5 - Tekton TriggerBinding e TriggerTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/03`.
 
@@ -85,6 +104,7 @@ Completa `triggers.yaml`:
 4. usa il ServiceAccount `tekton-trigger`.
 
 ### Q6 - EventListener e webhook
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/03`.
 
@@ -98,6 +118,7 @@ Percorso: `~/course-platform-automation/03`.
 ---
 
 ### Q7 - OpenTelemetry Collector pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/04`.
 
@@ -111,6 +132,7 @@ Correggi `collector-config.yaml`:
 Applica ConfigMap e Deployment e verifica il rollout.
 
 ### Q8 - Invio e verifica trace
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/04`.
 
@@ -122,6 +144,7 @@ Percorso: `~/course-platform-automation/04`.
 ---
 
 ### Q9 - RBAC least privilege
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/05`.
 
@@ -133,6 +156,7 @@ Completa `rbac.yaml` affinche `release-bot` nel Namespace `team-a` possa:
 4. non creare o eliminare Deployment.
 
 ### Q10 - Test RBAC positivi e negativi
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/05`.
 
@@ -148,6 +172,7 @@ Salva comandi, output ed exit code in `rbac-check.txt`.
 ---
 
 ### Q11 - NetworkPolicy ingress
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/06`.
 
@@ -156,6 +181,7 @@ backend TCP 8080 soltanto dai Pod `app=frontend` nel Namespace
 `network-client`.
 
 ### Q12 - NetworkPolicy egress e verifica
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/06`.
 
@@ -167,6 +193,7 @@ Percorso: `~/course-platform-automation/06`.
 ---
 
 ### Q13 - Taint e toleration
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/07`.
 
@@ -178,6 +205,7 @@ Il worker con label `workload.cnpe.io/tier=dedicated` ha il taint
 3. Applica e verifica che le due repliche siano sul nodo corretto.
 
 ### Q14 - Pod anti-affinity
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/07`.
 
@@ -189,6 +217,7 @@ Percorso: `~/course-platform-automation/07`.
 ---
 
 ### Q15 - Helm templating
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/08/app-chart`.
 
@@ -199,6 +228,7 @@ Correggi il chart affinche:
 3. `helm lint` e `helm template` non producano errori.
 
 ### Q16 - Helm install e upgrade
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/08`.
 
@@ -210,6 +240,7 @@ Percorso: `~/course-platform-automation/08`.
 ---
 
 ### Q17 - StorageClass e binding ritardato
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/09`.
 
@@ -221,6 +252,7 @@ Correggi `storage.yaml`:
 4. PVC da `1Gi`, `ReadWriteOnce`, StorageClass corretta.
 
 ### Q18 - PVC, scheduling e persistenza
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/09`.
 
@@ -232,6 +264,7 @@ Percorso: `~/course-platform-automation/09`.
 ---
 
 ### Q19 - HPA CPU
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/10`.
 
@@ -246,6 +279,7 @@ Genera carico con `load-generator.yaml` e salva il comportamento in
 `autoscaling-check.txt`.
 
 ### Q20 - KEDA ScaledObject
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/10`.
 

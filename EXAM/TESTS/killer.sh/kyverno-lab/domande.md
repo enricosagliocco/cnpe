@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — Kyverno Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario deployato da `setup-kyverno-lab.sh`. Manifest e file starter in
 `~/course-kyverno/`.
 
@@ -32,6 +46,7 @@ kubectl -n kyverno logs deploy/kyverno-admission-controller
 ---
 
 ### Q1 – Namespace annotation obbligatoria
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/01`.
 
@@ -49,6 +64,7 @@ CEL mancanti.
 ---
 
 ### Q2 – Mutation di label e annotation sui Pod
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/02`.
 
@@ -64,6 +80,7 @@ La `NamespacedMutatingPolicy` `mutate-pods` in `apps` non contiene la patch.
 ---
 
 ### Q3 – Label obbligatorie sui Deployment
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/03`.
 
@@ -78,6 +95,7 @@ Percorso: `~/course-kyverno/03`.
 ---
 
 ### Q4 – Numero minimo di repliche
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/04`.
 
@@ -91,6 +109,7 @@ La policy `minimum-replicas` permette Deployment production con una replica.
 ---
 
 ### Q5 – Resource requests e limits
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/05`.
 
@@ -105,6 +124,7 @@ Percorso: `~/course-kyverno/05`.
 ---
 
 ### Q6 – Registry immagini consentiti
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/06`.
 
@@ -119,6 +139,7 @@ Percorso: `~/course-kyverno/06`.
 ---
 
 ### Q7 – Vietare tag latest e immagini senza tag
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/07`.
 
@@ -133,6 +154,7 @@ La policy `disallow-latest` è incompleta.
 ---
 
 ### Q8 – Pod runAsNonRoot
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/08`.
 
@@ -146,6 +168,7 @@ Percorso: `~/course-kyverno/08`.
 ---
 
 ### Q9 – Container privilegiati e privilege escalation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/09`.
 
@@ -160,6 +183,7 @@ La policy `secure-containers` non ispeziona tutti i container.
 ---
 
 ### Q10 – Volumi hostPath vietati
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/10`.
 
@@ -173,6 +197,7 @@ Percorso: `~/course-kyverno/10`.
 ---
 
 ### Q11 – Service NodePort e LoadBalancer vietati
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/11`.
 
@@ -187,6 +212,7 @@ La policy `restrict-service-types` deve proteggere il Namespace `production`.
 ---
 
 ### Q12 – Ingress TLS obbligatorio
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/12`.
 
@@ -200,6 +226,7 @@ Percorso: `~/course-kyverno/12`.
 ---
 
 ### Q13 – Label team immutabile durante UPDATE
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/13`.
 
@@ -217,6 +244,7 @@ La policy `immutable-team` deve consentire CREATE ma proteggere gli UPDATE.
 ---
 
 ### Q14 – Namespace selector ed esclusione
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/14`.
 
@@ -231,6 +259,7 @@ Percorso: `~/course-kyverno/14`.
 ---
 
 ### Q15 – Policy namespaced per autonomia team
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/15`.
 
@@ -245,6 +274,7 @@ La `NamespacedValidatingPolicy` in `team-a` non deve influire su `team-b`.
 ---
 
 ### Q16 – Audit prima di Deny
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/16`.
 
@@ -262,6 +292,7 @@ Deployment non conforme.
 ---
 
 ### Q17 – Messaggio dinamico con messageExpression
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/17`.
 
@@ -276,6 +307,7 @@ La policy `required-owner-message` usa soltanto un messaggio generico.
 ---
 
 ### Q18 – Mutation condizionale senza sovrascrittura
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/18`.
 
@@ -290,6 +322,7 @@ Percorso: `~/course-kyverno/18`.
 ---
 
 ### Q19 – Default security context su tutti i container
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/19`.
 
@@ -305,6 +338,7 @@ La MutatingPolicy `default-container-security` ha una patch incompleta.
 ---
 
 ### Q20 – Incident finale end-to-end
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/20`.
 

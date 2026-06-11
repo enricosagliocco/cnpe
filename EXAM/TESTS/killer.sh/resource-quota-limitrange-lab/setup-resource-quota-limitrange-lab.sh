@@ -96,7 +96,7 @@ spec:
     limits.cpu: "2"
     limits.memory: 2Gi
     pods: "5"
-    services: "1"
+    services: "2"
     configmaps: "3"
 ---
 apiVersion: v1
@@ -118,6 +118,19 @@ spec:
   ports:
     - port: 80
       targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-headless
+  namespace: resource-governance
+spec:
+  clusterIP: None
+  selector:
+    app: batch
+  ports:
+    - port: 80
+      targetPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -205,6 +218,73 @@ spec:
           memory: 128Mi
 YAML
 
+cat > "$COURSE_DIR/01/below-minimum-pod.yaml" <<'YAML'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: below-minimum-pod
+  namespace: resource-governance
+spec:
+  containers:
+    - name: worker
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+YAML
+
+cat > "$COURSE_DIR/01/multi-container-pod.yaml" <<'YAML'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-pod
+  namespace: resource-governance
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 100m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+    - name: sidecar
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 300m
+          memory: 128Mi
+YAML
+
+cat > "$COURSE_DIR/01/missing-limit-pod.yaml" <<'YAML'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-limit-pod
+  namespace: resource-governance
+spec:
+  containers:
+    - name: worker
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 100m
+          memory: 64Mi
+YAML
+
 cat > "$COURSE_DIR/01/batch-worker.yaml" <<'YAML'
 apiVersion: apps/v1
 kind: Deployment
@@ -233,6 +313,29 @@ spec:
             limits:
               cpu: 500m
               memory: 384Mi
+YAML
+
+cat > "$COURSE_DIR/01/broken-rollout.yaml" <<'YAML'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: diagnostic-worker
+  namespace: resource-governance
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: diagnostic-worker
+  template:
+    metadata:
+      labels:
+        app: diagnostic-worker
+    spec:
+      containers:
+        - name: worker
+          image: nginx:1.27-alpine
 YAML
 
 cat > "$COURSE_DIR/01/temporary-settings.yaml" <<'YAML'

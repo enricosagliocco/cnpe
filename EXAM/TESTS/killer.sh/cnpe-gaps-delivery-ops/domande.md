@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — Delivery and Operations Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario deployato da `setup-delivery-ops-lab.sh`. Manifest e file starter in
 `~/course-delivery-ops/`.
 
@@ -46,6 +60,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – Argo CD source revision
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/01`.
 
@@ -61,6 +76,7 @@ può essere creata correttamente.
 ---
 
 ### Q2 – Argo CD staging promotion
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/02`.
 
@@ -74,6 +90,7 @@ Percorso: `~/course-delivery-ops/02`.
 ---
 
 ### Q3 – Flux GitRepository
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/03`.
 
@@ -87,6 +104,7 @@ Il GitRepository `platform-source` usa il branch inesistente `develop`.
 ---
 
 ### Q4 – Flux Kustomization
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/04`.
 
@@ -101,6 +119,7 @@ Percorso: `~/course-delivery-ops/04`.
 ---
 
 ### Q5 – GitOps drift
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/05`.
 
@@ -115,6 +134,7 @@ Il Deployment `drift-demo` è già running in `delivery-dev` con 2 repliche.
 ---
 
 ### Q6 – Tekton task ordering
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/06`.
 
@@ -128,6 +148,7 @@ La Pipeline `ordered-build` ha dipendenze e workspace mancanti.
 ---
 
 ### Q7 – Tekton parallelism
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/07`.
 
@@ -143,6 +164,7 @@ parallelo.
 ---
 
 ### Q8 – Tekton results
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/08`.
 
@@ -156,6 +178,7 @@ Il Task `calculate-version` produce ancora il valore `TODO`.
 ---
 
 ### Q9 – Argo Rollouts canary
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/09`.
 
@@ -172,6 +195,7 @@ placeholder nella strategia.
 ---
 
 ### Q10 – AnalysisTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/10`.
 
@@ -186,6 +210,7 @@ placeholder.
 ---
 
 ### Q11 – Rollback progressive delivery
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/11`.
 
@@ -201,6 +226,7 @@ non valida.
 ---
 
 ### Q12 – Prometheus target discovery
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/12`.
 
@@ -215,6 +241,7 @@ su `8080` ed è annotato, ma Prometheus non lo scopre.
 ---
 
 ### Q13 – PromQL availability
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/13`.
 
@@ -231,6 +258,7 @@ solo placeholder.
 ---
 
 ### Q14 – Prometheus alert
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/14`.
 
@@ -244,6 +272,7 @@ Percorso: `~/course-delivery-ops/14`.
 ---
 
 ### Q15 – Loki datasource health
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/15`.
 
@@ -259,6 +288,7 @@ diretto.
 ---
 
 ### Q16 – LogQL incident
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/16`.
 
@@ -275,6 +305,7 @@ frequenze diverse, raccolti da Promtail.
 ---
 
 ### Q17 – OpenTelemetry endpoint
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/17`.
 
@@ -289,6 +320,7 @@ errati.
 ---
 
 ### Q18 – Trace correlation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/18`.
 
@@ -303,6 +335,7 @@ Percorso: `~/course-delivery-ops/18`.
 ---
 
 ### Q19 – Incident remediation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/19`.
 
@@ -317,6 +350,7 @@ riproducono i sintomi descritti in `incident.yaml`.
 ---
 
 ### Q20 – Simulazione a tempo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/20`.
 

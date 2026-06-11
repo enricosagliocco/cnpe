@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Flagger Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-flagger-lab.sh`. Manifest e file starter si trovano
 in `~/course-flagger/`. Le risorse applicative devono risiedere nel Namespace
 `flagger-lab`.
@@ -31,6 +45,7 @@ kubectl -n flagger-system logs deploy/flagger-loadtester
 ---
 
 ### Q1 - Canary base
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/01`.
 
@@ -47,6 +62,7 @@ Completa `canary.yaml`:
 ---
 
 ### Q2 - Target reference
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/02`.
 
@@ -60,6 +76,7 @@ Percorso: `~/course-flagger/02`.
 ---
 
 ### Q3 - Configurazione del Service
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/03`.
 
@@ -75,6 +92,7 @@ Correggi la sezione `service` di `canary.yaml`:
 ---
 
 ### Q4 - Intervallo e progressione
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/04`.
 
@@ -90,6 +108,7 @@ Percorso: `~/course-flagger/04`.
 ---
 
 ### Q5 - Iterazioni di analisi
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/05`.
 
@@ -102,6 +121,7 @@ Percorso: `~/course-flagger/05`.
 ---
 
 ### Q6 - Promozione riuscita
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/06`.
 
@@ -115,6 +135,7 @@ Percorso: `~/course-flagger/06`.
 ---
 
 ### Q7 - Rollout fallito
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/07`.
 
@@ -127,6 +148,7 @@ Percorso: `~/course-flagger/07`.
 ---
 
 ### Q8 - Metriche integrate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/08`.
 
@@ -244,6 +266,7 @@ kubectl -n flagger-lab delete pod metrics-test
 ---
 
 ### Q9 - MetricTemplate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/09`.
 
@@ -257,6 +280,7 @@ Percorso: `~/course-flagger/09`.
 ---
 
 ### Q10 - Soglie di una metrica custom
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/10`.
 
@@ -269,6 +293,7 @@ Percorso: `~/course-flagger/10`.
 ---
 
 ### Q11 - Webhook pre-rollout
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/11`.
 
@@ -284,6 +309,7 @@ Completa il webhook `pre-rollout-check`:
 ---
 
 ### Q12 - Webhook rollout
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/12`.
 
@@ -296,6 +322,7 @@ Percorso: `~/course-flagger/12`.
 ---
 
 ### Q13 - Conferma della promozione
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/13`.
 
@@ -308,6 +335,7 @@ Percorso: `~/course-flagger/13`.
 ---
 
 ### Q14 - Webhook post-rollout
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/14`.
 
@@ -322,6 +350,7 @@ Percorso: `~/course-flagger/14`.
 ---
 
 ### Q15 - AlertProvider
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/15`.
 
@@ -336,6 +365,7 @@ Percorso: `~/course-flagger/15`.
 ---
 
 ### Q16 - Strategia blue/green
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/16`.
 
@@ -350,6 +380,7 @@ Percorso: `~/course-flagger/16`.
 ---
 
 ### Q17 - A/B testing
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/17`.
 
@@ -363,6 +394,7 @@ Percorso: `~/course-flagger/17`.
 ---
 
 ### Q18 - Gateway API e HTTPRoute generato
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/18`.
 
@@ -378,6 +410,7 @@ Percorso: `~/course-flagger/18`.
 ---
 
 ### Q19 - Troubleshooting
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/19`.
 
@@ -393,6 +426,7 @@ Percorso: `~/course-flagger/19`.
 ---
 
 ### Q20 - Simulazione a tempo finale
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/20`.
 

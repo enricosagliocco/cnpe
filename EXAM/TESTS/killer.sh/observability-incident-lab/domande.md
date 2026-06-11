@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame — Observability and Incident Response Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-observability-incident-lab.sh`. Gli starter sono in
 `~/course-observability-incident/`.
 
@@ -18,12 +32,14 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 – Diagnosi target Prometheus
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/01`.
 
 1. Analizza Service, ServiceMonitor e target discovery di `incident-api`.
 
 ### Q2 – Correzione ServiceMonitor
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -31,6 +47,7 @@ Percorso: `~/course-observability-incident/01`.
    `metrics`, path `/metrics`.
 
 ### Q3 – PromQL error rate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -38,6 +55,7 @@ Percorso: `~/course-observability-incident/01`.
    serie valida.
 
 ### Q4 – Alerting
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -47,6 +65,7 @@ Percorso: `~/course-observability-incident/01`.
 ---
 
 ### Q5 – Diagnosi datasource Loki
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -54,6 +73,7 @@ Percorso: `~/course-observability-incident/02`.
    datasource.
 
 ### Q6 – Correzione datasource
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -61,6 +81,7 @@ Percorso: `~/course-observability-incident/02`.
    true.
 
 ### Q7 – Query LogQL
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -68,6 +89,7 @@ Percorso: `~/course-observability-incident/02`.
    JSON di `trace_id`.
 
 ### Q8 – Evidenza logging
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -77,6 +99,7 @@ Percorso: `~/course-observability-incident/02`.
 ---
 
 ### Q9 – Diagnosi collector OTLP
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -84,6 +107,7 @@ Percorso: `~/course-observability-incident/03`.
    `03/otel-collector.yaml`.
 
 ### Q10 – Receiver ed exporter
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -91,6 +115,7 @@ Percorso: `~/course-observability-incident/03`.
    insecure.
 
 ### Q11 – Traces pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -98,6 +123,7 @@ Percorso: `~/course-observability-incident/03`.
    del collector.
 
 ### Q12 – Generazione e ricerca trace
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -107,6 +133,7 @@ Percorso: `~/course-observability-incident/03`.
 ---
 
 ### Q13 – Deployment frequency
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/04`.
 
@@ -114,18 +141,21 @@ Percorso: `~/course-observability-incident/04`.
    di misurazione.
 
 ### Q14 – Change failure rate
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/04`.
 
 1. Crea la recording rule failure/deployment e confrontala con target 15%.
 
 ### Q15 – Lead time e MTTR
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/04`.
 
 1. Crea le due medie da sum/count e compila i valori in `04/baseline.md`.
 
 ### Q16 – Availability e piano miglioramento
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/04`.
 
@@ -137,6 +167,7 @@ Percorso: `~/course-observability-incident/04`.
 ---
 
 ### Q17 – Triage incidente
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/05`.
 
@@ -144,6 +175,7 @@ Percorso: `~/course-observability-incident/05`.
    con Prometheus.
 
 ### Q18 – Correlazione log-trace
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/05`.
 
@@ -151,6 +183,7 @@ Percorso: `~/course-observability-incident/05`.
    identifica lo span in errore.
 
 ### Q19 – Remediation
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/05`.
 
@@ -158,6 +191,7 @@ Percorso: `~/course-observability-incident/05`.
    ricaricare la ConfigMap e verifica HTTP 200, nuovi log e trace sane.
 
 ### Q20 – Verifica finale incident response
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-observability-incident/05`.
 

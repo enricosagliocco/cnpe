@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Argo CD Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-argocd-lab.sh`. Manifest e file starter sono in
 `~/course-argocd/`. Le Application risiedono in `argocd` e distribuiscono i
 workload nei Namespace indicati.
@@ -19,6 +33,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ---
 
 ### Q1 - Application source
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/01`.
 
@@ -29,6 +44,7 @@ Percorso: `~/course-argocd/01`.
 2. Applica e verifica che Argo CD riesca a generare i manifest.
 
 ### Q2 - Destination
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/02`.
 
@@ -38,6 +54,7 @@ Percorso: `~/course-argocd/02`.
 2. Verifica server e Namespace nello status.
 
 ### Q3 - Sync automatica
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/03`.
 
@@ -47,6 +64,7 @@ Percorso: `~/course-argocd/03`.
 2. Sincronizza e verifica `Synced/Healthy`.
 
 ### Q4 - CreateNamespace
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/04`.
 
@@ -56,6 +74,7 @@ Percorso: `~/course-argocd/04`.
    riesca.
 
 ### Q5 - Prune
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/05`.
 
@@ -64,6 +83,7 @@ Percorso: `~/course-argocd/05`.
    desiderate.
 
 ### Q6 - Self-heal
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/06`.
 
@@ -73,6 +93,7 @@ Percorso: `~/course-argocd/06`.
 2. Salva history, eventi e diff in `06/evidence.txt`.
 
 ### Q7 - Ignore differences
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/07`.
 
@@ -82,6 +103,7 @@ Percorso: `~/course-argocd/07`.
 2. Verifica che una variazione delle repliche non renda l'app OutOfSync.
 
 ### Q8 - Sync options
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/08`.
 
@@ -91,6 +113,7 @@ Percorso: `~/course-argocd/08`.
 2. Verifica le opzioni effettive.
 
 ### Q9 - AppProject destinations
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/09`.
 
@@ -100,6 +123,7 @@ Percorso: `~/course-argocd/09`.
 2. Collega e sincronizza l'Application.
 
 ### Q10 - AppProject resource policy
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/10`.
 
@@ -110,6 +134,7 @@ Percorso: `~/course-argocd/10`.
    non consentita.
 
 ### Q11 - Orphaned resources
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/11`.
 
@@ -119,6 +144,7 @@ Percorso: `~/course-argocd/11`.
    eliminarlo.
 
 ### Q12 - ApplicationSet list generator
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/12`.
 
@@ -128,6 +154,7 @@ Percorso: `~/course-argocd/12`.
 2. Verifica due Application healthy.
 
 ### Q13 - ApplicationSet git generator
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/13`.
 
@@ -137,6 +164,7 @@ Percorso: `~/course-argocd/13`.
 2. Limita il generator ai path applicativi validi.
 
 ### Q14 - Helm values
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/14`.
 
@@ -146,6 +174,7 @@ Percorso: `~/course-argocd/14`.
 2. Verifica i parametri renderizzati.
 
 ### Q15 - Kustomize overrides
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/15`.
 
@@ -153,6 +182,7 @@ Percorso: `~/course-argocd/15`.
    namePrefix `lab-` e la label comune `managed-by=argocd`.
 
 ### Q16 - Multi-source
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/16`.
 
@@ -162,6 +192,7 @@ Percorso: `~/course-argocd/16`.
    resource warning.
 
 ### Q17 - Sync windows
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/17`.
 
@@ -171,6 +202,7 @@ Percorso: `~/course-argocd/17`.
 2. Dimostra l'effetto con `argocd app sync` o status.
 
 ### Q18 - RBAC
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/18`.
 
@@ -180,6 +212,7 @@ Percorso: `~/course-argocd/18`.
 2. Associa il gruppo `team-dev`.
 
 ### Q19 - Troubleshooting
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/19`.
 
@@ -189,6 +222,7 @@ Percorso: `~/course-argocd/19`.
    `19/report.md`.
 
 ### Q20 - Simulazione a tempo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/20`.
 

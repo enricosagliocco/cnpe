@@ -1,5 +1,19 @@
 # Le 20 domande dell'esame - Platform API and Operator Lab (simulatore lab)
 
+## Metodo operativo obbligatorio
+
+Ogni domanda e un ticket di troubleshooting. Devi:
+
+1. riprodurre o osservare lo stato iniziale nel cluster;
+2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
+3. identificare e registrare la causa radice;
+4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
+5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
+
+La sola modifica del file, il solo dry-run client-side o una risposta teorica
+non completano il ticket. Conserva comando, errore iniziale, correzione e
+verifica finale nell'evidence file indicato dalla domanda.
+
 Scenario creato da `setup-platform-api-operator-lab.sh`. Manifest e file
 starter si trovano in `~/course-platform-api-operator/`.
 
@@ -38,6 +52,7 @@ kubectl -n self-service get pipeline,pipelinerun,taskrun
 ---
 
 ### Q1 - Schema strutturale della CRD
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -54,6 +69,7 @@ Correggi `platformservice-crd.yaml`:
 ---
 
 ### Q2 - Validazione PlatformService
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -69,6 +85,7 @@ Completa le validazioni OpenAPI:
 ---
 
 ### Q3 - Status e printer columns
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -83,6 +100,7 @@ Nella versione `v1alpha1`:
 ---
 
 ### Q4 - Test della Platform API
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -97,6 +115,7 @@ Percorso: `~/course-platform-api-operator/01`.
 ---
 
 ### Q5 - Diagnosi RBAC developer
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -112,6 +131,7 @@ Il ServiceAccount `developer` possiede inizialmente accesso read-only ai
 ---
 
 ### Q6 - RBAC self-service write
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -126,6 +146,7 @@ Completa `developer-rbac.yaml`:
 ---
 
 ### Q7 - Confini del Namespace
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -140,6 +161,7 @@ Usando impersonation:
 ---
 
 ### Q8 - Test dei privilegi negativi
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -157,6 +179,7 @@ Tutti i test devono essere eseguiti con `kubectl auth can-i` e registrati in
 ---
 
 ### Q9 - Diagnosi dell'operator
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -172,6 +195,7 @@ incompleto.
 ---
 
 ### Q10 - RBAC su custom resource e status
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -186,6 +210,7 @@ Completa `operator-rbac.yaml`:
 ---
 
 ### Q11 - RBAC sulle risorse gestite
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -198,6 +223,7 @@ Percorso: `~/course-platform-api-operator/03`.
 ---
 
 ### Q12 - Reconciliation e drift
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -211,6 +237,7 @@ Percorso: `~/course-platform-api-operator/03`.
 ---
 
 ### Q13 - Dipendenza della Pipeline
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -224,6 +251,7 @@ Completa `provisioning-pipeline.yaml`:
 ---
 
 ### Q14 - ServiceAccount provisioner
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -237,6 +265,7 @@ Percorso: `~/course-platform-api-operator/04`.
 ---
 
 ### Q15 - Provisioning positivo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -250,6 +279,7 @@ Percorso: `~/course-platform-api-operator/04`.
 ---
 
 ### Q16 - Provisioning negativo
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -262,6 +292,7 @@ Percorso: `~/course-platform-api-operator/04`.
 ---
 
 ### Q17 - Finalizer
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -276,6 +307,7 @@ Percorso: `~/course-platform-api-operator/05`.
 ---
 
 ### Q18 - Cleanup delle dipendenze
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -293,6 +325,7 @@ Riapplica il ConfigMap e riavvia l'operator.
 ---
 
 ### Q19 - Idempotenza e recovery
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -307,6 +340,7 @@ Percorso: `~/course-platform-api-operator/05`.
 ---
 
 ### Q20 - Verifica finale Platform API
+**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
