@@ -1,72 +1,24 @@
-# Le 20 domande dell'esame — OPA Gatekeeper Lab (simulatore lab)
+# OPA Gatekeeper Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-gatekeeper-lab.sh`. I file si trovano in
-`~/course-gatekeeper`.
-
-Ogni domanda contiene file starter, valori obbligatori e test positivi o
-negativi. Non è richiesto inventare nomi, parametri o workload aggiuntivi.
-
-Vincoli:
-
-- Non disinstallare Gatekeeper.
-- Non modificare i Deployment in `gatekeeper-system`, salvo quando una domanda
-  richiede esplicitamente troubleshooting.
-- Conservare i nomi di ConstraintTemplate e Constraint indicati.
-- Dopo ogni modifica verificare sia admission sia audit.
-- Le domande sono progressive. Se una Constraint `deny` di una domanda
-  precedente interferisce con un test successivo, portala temporaneamente a
-  `dryrun` invece di cancellare il ConstraintTemplate.
-
-Ogni domanda contiene almeno uno starter incompleto e workload di test
-positivi o negativi. Devi applicare ConstraintTemplate e Constraint, attendere
-la CRD generata, eseguire realmente i workload e verificare admission e audit.
-La sola compilazione del Rego o la modifica del file non completa
-l'esercizio.
 
 Comandi utili:
 
 ```bash
-kubectl get constrainttemplates
-kubectl get constraints
-kubectl describe <constraint-kind> <constraint-name>
-kubectl get <constraint-kind> <constraint-name> -o yaml
-kubectl -n gatekeeper-system logs deploy/gatekeeper-controller-manager
-kubectl -n gatekeeper-system logs deploy/gatekeeper-audit
-```
-
-Accesso GUI:
-
-Gatekeeper non include una dashboard web dedicata. Usa Lens/OpenLens con il
-kubeconfig corrente. In **Custom Resources** cerca `ConstraintTemplate` e i
-kind dei Constraint; usa **Events** e **Pod Logs** per controller e audit.
-
-```bash
 kubectl config current-context
-kubectl config view --minify --raw
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
 ```
-
-Non sono richieste credenziali ulteriori rispetto al kubeconfig. Mantieni il
-terminale per applicare i file starter e per i test di admission positivi e
-negativi richiesti dalle tracce.
 
 ---
-
 ### Q1 – RequiredAnnotations parametrica
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/01`.
 
@@ -93,10 +45,30 @@ kubectl apply -f deployment-good.yaml
 Il primo comando deve essere negato con un messaggio contenente
 `Missing annotation: owner`; il secondo deve creare `deployment/has-owner`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q2 – RequiredLabels con array
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/02`.
 
@@ -113,10 +85,31 @@ Usa `pod-bad.yaml` e `deployment-good.yaml`. Il Pod deve essere negato con
 entrambe le label nel messaggio; il Deployment deve essere accettato.
 Verifica inoltre che la Constraint compaia in `kubectl get constraints`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod-bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/02
+kubectl apply -f pod-bad.yaml
+kubectl apply -f deployment-good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q3 – Repository immagini consentiti
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/03`.
 
@@ -139,10 +132,31 @@ il messaggio deve contenere container `web` e immagine
 `docker.io/library/httpd:2-alpine`.
 Verifica infine che il Pod consentito non compaia nelle violazioni audit.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod-allowed.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/03
+kubectl apply -f pod-allowed.yaml
+kubectl apply -f pod-denied.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q4 – Numero minimo di repliche
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/04`.
 
@@ -157,10 +171,32 @@ La policy deve gestire anche `spec.replicas` assente, considerandolo uguale a
 1. Verifica che `deployment-no-replicas.yaml` venga negato. Correggi infine
 `prod-api.yaml` impostando `replicas: 2`: deve essere accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f constraint.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/04
+kubectl apply -f constraint.yaml
+kubectl apply -f deployment-no-replicas.yaml
+kubectl apply -f prod-api.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 – Match ed esclusioni
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/05`.
 
@@ -174,10 +210,33 @@ Percorso: `~/course-gatekeeper/05`.
    `dev-pod.yaml`.
 4. Verifica che solo il Deployment in `dev` venga negato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f constraint.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/05
+kubectl apply -f constraint.yaml
+kubectl apply -f dev-deployment.yaml
+kubectl apply -f legacy-deployment.yaml
+kubectl apply -f dev-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q6 – Audit con enforcement dryrun
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/06`.
 
@@ -193,10 +252,30 @@ Il setup contiene `team-a-api` senza label e `team-b-worker` con
 Usa `new-deployment.yaml` per il test admission; deve essere creato nonostante
 la label mancante.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f new-deployment.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/06
+kubectl apply -f new-deployment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q7 – Enforcement warn
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/07`.
 
@@ -209,10 +288,30 @@ Percorso: `~/course-gatekeeper/07`.
 4. Verifica che il Pod `warning-demo` venga creato e che l'output contenga il
    nome della Constraint `warn-missing-environment`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q8 – Namespace selector
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/08`.
 
@@ -230,10 +329,32 @@ policy.gatekeeper/enabled: "true"
 4. Usa `staging-bad.yaml`, `prod-good.yaml` ed `exempt-bad.yaml`.
 5. Verifica che il primo venga negato e gli altri due accettati.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f staging-bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/08
+kubectl apply -f staging-bad.yaml
+kubectl apply -f prod-good.yaml
+kubectl apply -f exempt-bad.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 – Vietare Service NodePort
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/09`.
 
@@ -246,10 +367,30 @@ Percorso: `~/course-gatekeeper/09`.
    `type: ClusterIP`.
 5. Verifica che il file corretto venga accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f public-api.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/09
+kubectl apply -f public-api.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q10 – Host Ingress univoci con inventory
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/10`.
 
@@ -263,10 +404,30 @@ La policy non deve considerare l'oggetto stesso come duplicato durante UPDATE.
 Verifica quindi anche che `kubectl annotate ingress -n dev
 existing-shared-host exercise=updated --overwrite` abbia successo.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f duplicate.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/10
+kubectl apply -f duplicate.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q11 – Resource requests e limits
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/11`.
 
@@ -283,10 +444,30 @@ Percorso: `~/course-gatekeeper/11`.
    - limits CPU `100m` e memory `64Mi`.
 5. Verifica che dopo la correzione il Pod venga creato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f worker.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/11
+kubectl apply -f worker.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q12 – Security context
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/12`.
 
@@ -302,10 +483,30 @@ Percorso: `~/course-gatekeeper/12`.
 6. Correggilo con `hostNetwork: false`, `privileged: false` e
    `allowPrivilegeEscalation: false`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/12
+kubectl apply -f pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 – Service type parametrico
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/13`.
 
@@ -317,10 +518,32 @@ Percorso: `~/course-gatekeeper/13`.
    `service-nodeport.yaml`.
 5. Verifica che i primi due vengano accettati e il terzo negato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f service-default.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/13
+kubectl apply -f service-default.yaml
+kubectl apply -f service-external.yaml
+kubectl apply -f service-nodeport.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q14 – Label immutabile durante UPDATE
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/14`.
 
@@ -336,10 +559,32 @@ Applica `deployment.yaml`, quindi:
 1. applica `change-team-label.yaml`: deve riuscire;
 2. applica `change-app-label.yaml`: deve essere negato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f deployment.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/14
+kubectl apply -f deployment.yaml
+kubectl apply -f change-team-label.yaml
+kubectl apply -f change-app-label.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q15 – Container, initContainer ed ephemeralContainer
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/15`.
 
@@ -355,10 +600,31 @@ Percorso: `~/course-gatekeeper/15`.
 5. Verifica che il Rego iteri in sicurezza su `ephemeralContainers` senza
    assumere che il campo esista.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod-init-denied.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/15
+kubectl apply -f pod-init-denied.yaml
+kubectl apply -f pod-all-allowed.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q16 – ExpansionTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/16`.
 
@@ -380,10 +646,32 @@ securityContext:
    seleziona esclusivamente `Pod`.
 5. Verifica che `deployment-good.yaml` venga accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f expansion.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/16
+kubectl apply -f expansion.yaml
+kubectl apply -f deployment-bad.yaml
+kubectl apply -f deployment-good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 – Troubleshooting ConstraintTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/17`.
 
@@ -399,10 +687,31 @@ essere `missing team label: <nome-label>`. Crea infine la Constraint
 `require-team-label` da `constraint.yaml`, con parametro `label: team`, per
 dimostrare che il kind generato funziona.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f broken-template.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/17
+kubectl apply -f broken-template.yaml
+kubectl apply -f constraint.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q18 – Schema avanzato dei parametri
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/18`.
 
@@ -422,10 +731,31 @@ Percorso: `~/course-gatekeeper/18`.
    - proprietà `unexpected`, non consentita.
 4. Verifica che `valid-parameters.yaml` venga accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f invalid-parameters.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/18
+kubectl apply -f invalid-parameters.yaml
+kubectl apply -f valid-parameters.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q19 – Policy bundle con Kustomize
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/19/policy-bundle`.
 
@@ -448,10 +778,31 @@ Percorso: `~/course-gatekeeper/19/policy-bundle`.
 5. Verifica che l'esecuzione sia ripetibile, che il workload conforme venga
    accettato e quello non conforme negato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/19/policy-bundle` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f install.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/19/policy-bundle
+kubectl apply -f workload-good.yaml
+kubectl apply -f workload-bad.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q20 – Incident finale
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-gatekeeper/20`.
 
@@ -481,3 +832,25 @@ usare la stessa `labelSelector`.
 4. Porta le Constraint a `deny`.
 5. Applica `bad-new-workload.yaml`: deve essere negato.
 6. Salva in `report.md`: causa, modifiche, verifica e rollback.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-gatekeeper/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f constraints.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/20
+kubectl apply -f constraints.yaml
+kubectl apply -f bad-new-workload.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```

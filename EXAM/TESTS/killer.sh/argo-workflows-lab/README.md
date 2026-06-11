@@ -1,5 +1,8 @@
 # Argo Workflows Dedicated Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio autonomo con 20 esercizi dedicati ad Argo Workflows.
 
 ## Avvio con Minikube o cluster esistente

@@ -1,5 +1,8 @@
 # CNPE Capacity and Autoscaling Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio pratico con cinque esercizi:
 
 1. ResourceQuota che impedisce la seconda replica;

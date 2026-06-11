@@ -1,5 +1,8 @@
 # CNPE Platform Architecture and Efficiency Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio pratico dedicato a:
 
 1. networking e isolamento multi-tenant;

@@ -1,25 +1,13 @@
-# Le 20 domande dell'esame - Argo Workflows Lab (simulatore lab)
+# Argo Workflows Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-argo-workflows-lab.sh`. Gli starter sono in
-`~/course-argo-workflows/` e le risorse degli esercizi nel Namespace
-`argo-workflows-lab`.
-
-**Vincolo:** non modificare controller, server o CRD nel Namespace `argo`.
-Usa Workflow, WorkflowTemplate, ClusterWorkflowTemplate e CronWorkflow.
 
 Comandi utili:
 
@@ -30,9 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Workflow container
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/01`.
 
@@ -40,8 +26,30 @@ Percorso: `~/course-argo-workflows/01`.
 
 2. Il Workflow deve terminare `Succeeded` e stampare esattamente `hello cnpe`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 01/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/01
+kubectl apply -f 01/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q2 - Parametri
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/02`.
 
@@ -50,8 +58,30 @@ Percorso: `~/course-argo-workflows/02`.
 
 2. Esegui con `name=cnpe`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 02/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/02
+kubectl apply -f 02/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q3 - Steps sequenziali
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/03`.
 
@@ -60,8 +90,30 @@ Percorso: `~/course-argo-workflows/03`.
 
 2. Verifica ordine dei node e log.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 03/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/03
+kubectl apply -f 03/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q4 - Steps paralleli
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/04`.
 
@@ -70,16 +122,60 @@ Percorso: `~/course-argo-workflows/04`.
 
 2. Salva tempi dei node in `04/evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 04/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/04
+kubectl apply -f 04/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q5 - DAG dependencies
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/05`.
 
 1. Completa il DAG in `05/workflow.yaml`: `clone`, test paralleli e `package`
    dipendente da entrambi.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 05/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/05
+kubectl apply -f 05/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q6 - Output parameters
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/06`.
 
@@ -88,24 +184,90 @@ Percorso: `~/course-argo-workflows/06`.
 
 2. Verifica il log `publishing 2.3.1`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q7 - Artifacts
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/07`.
 
 1. Correggi `07/workflow.yaml`: `generate` crea `/tmp/report.txt`, `consume`
    lo riceve come artifact e ne verifica il contenuto.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 07/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/07
+kubectl apply -f 07/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q8 - Volumi
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/08`.
 
 1. Associa un `emptyDir` al volume `work` in `08/workflow.yaml` e condividi un
    file tra due template.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 08/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/08
+kubectl apply -f 08/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q9 - PVC dinamico
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/09`.
 
@@ -114,8 +276,30 @@ Percorso: `~/course-argo-workflows/09`.
 
 2. Verifica PVC, mount e garbage collection.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 09/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/09
+kubectl apply -f 09/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q10 - when
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/10`.
 
@@ -124,8 +308,30 @@ Percorso: `~/course-argo-workflows/10`.
 
 2. Prova i valori `dev` e `staging`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 10/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/10
+kubectl apply -f 10/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q11 - Retry strategy
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/11`.
 
@@ -134,8 +340,30 @@ Percorso: `~/course-argo-workflows/11`.
 
 2. Verifica i retry node e il backoff.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q12 - Timeout e deadline
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/12`.
 
@@ -144,8 +372,30 @@ Percorso: `~/course-argo-workflows/12`.
 
 2. Il task che dorme 20 secondi deve fallire per timeout.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/12
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q13 - Exit handler
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/13`.
 
@@ -154,24 +404,91 @@ Percorso: `~/course-argo-workflows/13`.
 2. L'handler deve essere eseguito anche dopo il fallimento e stampare
    `status=<workflow.status>`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 13/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/13
+kubectl apply -f 13/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q14 - Continue on failure
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/14`.
 
 1. Configura il DAG affinché `report` venga eseguito anche se `test` fallisce,
    usando `depends` con gli stati appropriati.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q15 - WorkflowTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/15`.
 
 1. Completa e applica `15/template.yaml`, poi referenzialo da `workflow.yaml`
    passando il parametro richiesto.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 15/template.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/15
+kubectl apply -f 15/template.yaml
+kubectl apply -f workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q16 - ClusterWorkflowTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/16`.
 
@@ -179,16 +496,60 @@ Percorso: `~/course-argo-workflows/16`.
 
 2. Verifica il riferimento e limita il ServiceAccount con RBAC.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/16
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q17 - CronWorkflow
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/17`.
 
 1. Configura `17/cronworkflow.yaml` ogni cinque minuti, timezone
    `Europe/Rome`, concurrency policy `Forbid` e history limit 2/1.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 17/cronworkflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/17
+kubectl apply -f 17/cronworkflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q18 - Mutex e sincronizzazione
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/18`.
 
@@ -197,8 +558,30 @@ Percorso: `~/course-argo-workflows/18`.
 
 2. Verifica che non entrino insieme nella sezione critica.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/18
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q19 - Troubleshooting
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/19`.
 
@@ -207,8 +590,30 @@ Percorso: `~/course-argo-workflows/19`.
 2. Riproduci, correggi e documenta causa, node status ed eventi in
    `19/report.md`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/19` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 19/workflow.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/19
+kubectl apply -f 19/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q20 - Simulazione a tempo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-workflows/20`.
 
@@ -223,3 +628,24 @@ kubectl -n argo-workflows-lab get workflow final-build -o yaml
 ```
 
 3. Salva node, output e log in `20/run.log`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-workflows/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/20
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```

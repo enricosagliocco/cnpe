@@ -29,15 +29,21 @@ while IFS= read -r -d '' directory; do
 
   head -n 1 "$file" | grep -Eq '^# .+' ||
     fail "$name" "titolo H1 mancante"
-  grep -Eqi 'Scenario (creato|deployato)' "$file" ||
-    fail "$name" "descrizione scenario mancante"
-  grep -Eqi 'Vincol' "$file" ||
-    fail "$name" "vincoli mancanti"
-  grep -Fq 'Comandi utili:' "$file" ||
+  grep -Eq 'Comandi utili:|Useful commands:' "$file" ||
     fail "$name" "sezione Comandi utili mancante"
 
+  exam_style=false
+  if grep -Fq 'exam-style tasks' "$file"; then
+    exam_style=true
+  else
+    grep -Eqi 'Scenario (creato|deployato)' "$file" ||
+      fail "$name" "descrizione scenario mancante"
+    grep -Eqi 'Vincol' "$file" ||
+      fail "$name" "vincoli mancanti"
+  fi
+
   mapfile -t numbers < <(
-    sed -nE 's/^### Q([0-9]+) (–|-).*/\1/p' "$file"
+    sed -nE 's/^### Q([0-9]+) .*/\1/p' "$file"
   )
   if [ "${#numbers[@]}" -ne 20 ]; then
     fail "$name" "attese 20 domande, trovate ${#numbers[@]}"
@@ -52,33 +58,52 @@ while IFS= read -r -d '' directory; do
     expected=$((expected + 1))
   done
 
-  paths="$(grep -Ec '^Percorso: ' "$file" || true)"
+  paths="$(
+    grep -Eo 'Percorso:|Work in `' "$file" | wc -l | tr -d ' '
+  )"
   if [ "$paths" -ne 20 ]; then
     fail "$name" "attesi 20 percorsi, trovati $paths"
   fi
-  numbered_questions="$(
-    awk '
-      /^### Q[0-9]+ (–|-)/ {
-        if (question && numbered) count++
-        question = 1
-        numbered = 0
-        next
-      }
-      question && /^1\. / {
-        numbered = 1
-      }
-      END {
-        if (question && numbered) count++
-        print count + 0
-      }
-    ' "$file"
-  )"
-  if [ "$numbered_questions" -ne 20 ]; then
-    fail "$name" "attese 20 checklist numerate, trovate $numbered_questions"
+
+  if [ "$exam_style" = true ]; then
+    tips="$(grep -Ec '^\*\*Tip 1\*\*$' "$file" || true)"
+    solutions="$(grep -Ec '^\*\*Solution\*\*$' "$file" || true)"
+    tickets="$(grep -Ec '^\*\*Ticket:' "$file" || true)"
+    if [ "$tips" -lt 1 ]; then
+      fail "$name" "sezioni Tip mancanti"
+    fi
+    if [ "$solutions" -ne 20 ]; then
+      fail "$name" "attese 20 soluzioni, trovate $solutions"
+    fi
+    if [ "$tickets" -ne 0 ]; then
+      fail "$name" "il formato exam-style contiene ancora Ticket"
+    fi
+  else
+    numbered_questions="$(
+      awk '
+        /^### Q[0-9]+ / {
+          if (question && numbered) count++
+          question = 1
+          numbered = 0
+          next
+        }
+        question && /^1\. / {
+          numbered = 1
+        }
+        END {
+          if (question && numbered) count++
+          print count + 0
+        }
+      ' "$file"
+    )"
+    if [ "$numbered_questions" -ne 20 ]; then
+      fail "$name" \
+        "attese 20 checklist numerate, trovate $numbered_questions"
+    fi
+    grep -Eqi 'verifica finale|simulazione a tempo|incident finale' "$file" ||
+      fail "$name" "verifica finale mancante"
   fi
 
-  grep -Eqi 'verifica finale|simulazione a tempo|incident finale' "$file" ||
-    fail "$name" "verifica finale mancante"
   grep -Eq '```bash|kubectl|helm|flux|argocd|kyverno|tofu|git ' "$file" ||
     fail "$name" "verifica runtime mancante"
   grep -Rq 'prepare_question_layout' "$directory"/*.sh ||
@@ -89,6 +114,7 @@ while IFS= read -r -d '' directory; do
     "$directory"/*.sh; then
     fail "$name" "setup dipendente dal layout nella directory padre"
   fi
+
   while IFS= read -r setup; do
     bash -n "$setup" ||
       fail "$name" "sintassi Bash non valida in ${setup##*/}"
@@ -119,7 +145,9 @@ while IFS= read -r -d '' directory; do
   rm -rf "$layout_tmp"
 
   printf '[OK]   %-34s %2d domande\n' "$name" "${#numbers[@]}"
-done < <(find "$ROOT" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+done < <(
+  find "$ROOT" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z
+)
 
 printf '\nControllate %d cartelle.\n' "$checked"
 if [ "$failures" -ne 0 ]; then

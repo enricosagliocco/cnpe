@@ -1,59 +1,24 @@
-# Le 20 domande dell'esame - Security and Policy Enforcement Lab (simulatore lab)
+# Security and Policy Enforcement Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-security-policy-enforcement-lab.sh`. Manifest e file
-starter si trovano in `~/course-security-policy-enforcement/`.
-
-Le 20 domande sono organizzate in cinque scenari progressivi:
-
-- Q1-Q4: directory `01`, comunicazione mTLS e NetworkPolicy;
-- Q5-Q8: directory `02`, RBAC least privilege;
-- Q9-Q12: directory `03`, audit e PolicyReport Kyverno;
-- Q13-Q16: directory `04`, governance admission;
-- Q17-Q20: directory `05`, compliance gate Tekton.
-
-Vincoli:
-
-- Non modificare i Deployment `frontend` e `payments`.
-- Non stampare, decodificare o copiare il contenuto dei Secret mTLS.
-- Non modificare i componenti core di Kyverno o Tekton.
-- Non assegnare `cluster-admin` né permessi wildcard.
-- Conservare nomi e Namespace indicati nei file starter.
-- Eseguire realmente i test consentiti e negati richiesti dalle tracce.
-
-Le domande di ogni scenario sono progressive e condividono gli stessi file.
-Completa quindi Q1-Q4 nell'ordine, poi Q5-Q8 e così via. Il completamento di
-una singola domanda non richiede la cancellazione delle risorse dello stesso
-scenario.
 
 Comandi utili:
 
 ```bash
-kubectl -n security-apps get deploy,pods,svc,networkpolicy
-kubectl auth can-i --as=system:serviceaccount:security-platform:platform-auditor --list
-kubectl get validatingpolicies
-kubectl get policyreports,clusterpolicyreports -A
-kubectl -n kyverno logs deploy/kyverno-reports-controller
-kubectl -n security-pipeline get pipeline,pipelinerun,taskrun
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Diagnosi della comunicazione sicura
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -66,10 +31,30 @@ NetworkPolicy inizialmente chiusa.
 4. Non modificare direttamente i Deployment durante la diagnosi.
 5. Registra in `verification.txt` URL errato e regola di rete mancante.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q2 - Endpoint mTLS
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -81,10 +66,30 @@ Percorso: `~/course-security-policy-enforcement/01`.
    variabile, senza modificare il Deployment.
 5. Verifica nei log che il client utilizzi HTTPS e la porta `8443`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f app-config.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/01
+kubectl apply -f app-config.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q3 - NetworkPolicy per payments
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -96,10 +101,30 @@ Completa `networkpolicy.yaml`:
 4. Applica la NetworkPolicy.
 5. Verifica che non siano state aperte altre porte o sorgenti.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f networkpolicy.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/01
+kubectl apply -f networkpolicy.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q4 - Autenticazione e isolamento
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/01`.
 
@@ -114,10 +139,30 @@ Dimostra tutti i casi seguenti:
 4. Non mostrare il contenuto dei Secret durante i test.
 5. Salva comandi, exit code e risultati in `verification.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 - Diagnosi dei privilegi auditor
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -129,10 +174,30 @@ Il ServiceAccount `platform-auditor` parte con privilegi eccessivi, ma senza
 3. Identifica l'accesso improprio a Secret e risorse RBAC.
 4. Salva lo stato iniziale in `auth-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q6 - RBAC read-only
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -146,10 +211,30 @@ Correggi `rbac.yaml` mantenendo ServiceAccount, ClusterRole e binding:
 5. Non consentire accesso a Secret, risorse RBAC o Node.
 6. Applica il file corretto e verifica le regole effettive.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f rbac.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/02
+kubectl apply -f rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q7 - Verifiche negative RBAC
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -164,10 +249,30 @@ Usando `kubectl auth can-i` con impersonation, verifica che
 
 Ogni comando deve restituire `no`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q8 - Evidenza least privilege
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/02`.
 
@@ -178,10 +283,30 @@ Percorso: `~/course-security-policy-enforcement/02`.
    `auth-check.txt`.
 5. Verifica che non siano presenti verbi o risorse wildcard.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 - Policy audit sui metadata
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -194,10 +319,30 @@ Completa `audit-policy.yaml`:
 4. Gestisci in modo sicuro metadata o label assenti nella CEL.
 5. Applica la `ValidatingPolicy`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f audit-policy.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/03
+kubectl apply -f audit-policy.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q10 - PolicyReport iniziale
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -209,10 +354,30 @@ Il Deployment `legacy-api` esiste già ed è non conforme.
 4. Individua la violazione di `security-apps/legacy-api`.
 5. Salva in `audit-before.txt` policy, rule, risorsa, messaggio e timestamp.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q11 - Remediation dei metadata
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -223,10 +388,30 @@ Correggi il Deployment esistente senza modificarne immagine o configurazione:
 3. Verifica che entrambe siano presenti sul Deployment.
 4. Non modificare il Pod template se non richiesto dalla patch.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q12 - Compliance report finale
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/03`.
 
@@ -236,10 +421,30 @@ Percorso: `~/course-security-policy-enforcement/03`.
 4. Salva stato della policy e assenza della violazione in
    `audit-after.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 - Governance Pod con namespace selector
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -251,10 +456,30 @@ Completa `governance-policy.yaml`:
 3. Mantieni il match sui Pod in CREATE e UPDATE.
 4. Verifica che il Namespace `security-exempt` resti escluso.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f governance-policy.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/04
+kubectl apply -f governance-policy.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q14 - Security context
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -266,10 +491,30 @@ Completa la CEL affinché:
 4. richieda la capability `ALL` in `capabilities.drop`;
 5. controlli tutti i container senza fallire su campi opzionali assenti.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q15 - Immagini referenziate tramite digest
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -279,10 +524,30 @@ Percorso: `~/course-security-policy-enforcement/04`.
 4. Mantieni un messaggio di diniego che descriva i requisiti.
 5. Verifica lato client la sintassi della policy completata.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q16 - Test admission
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/04`.
 
@@ -294,10 +559,32 @@ Applica la policy e poi, nell'ordine:
    non è selezionato;
 4. salva output admission, messaggi e risorse create in `admission.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod-bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/04
+kubectl apply -f pod-bad.yaml
+kubectl apply -f pod-good.yaml
+kubectl apply -f pod-excluded.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 - Validazione SBOM
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -310,10 +597,31 @@ Completa lo step `verify` del task inline `compliance-gate` in
 4. termina con exit code diverso da zero in caso di errore;
 5. non scrivere ancora `passed` prima di aver completato tutti i controlli.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pipeline.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/05
+kubectl apply -f pipeline.yaml
+kubectl apply -f generated-sbom.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q18 - Vulnerability report
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -326,10 +634,30 @@ Nello stesso step:
    check riusciti;
 5. applica la Pipeline completata.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f scan-report.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/05
+kubectl apply -f scan-report.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q19 - Gate di deploy
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -342,10 +670,32 @@ Percorso: `~/course-security-policy-enforcement/05`.
 4. Ricrea il ConfigMap `security-inputs` dai file corretti.
 5. Crea un nuovo PipelineRun e verifica l'esecuzione di `deploy`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pipelinerun.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/05
+kubectl apply -f pipelinerun.yaml
+kubectl apply -f sbom.json
+kubectl apply -f scan-report.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q20 - Verifica finale security
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-security-policy-enforcement/05`.
 
@@ -366,3 +716,24 @@ Completa `pipeline-result.txt` con:
 3. prova che il primo deploy sia stato bloccato;
 4. result `decision=passed` del secondo tentativo;
 5. log `deployment approved` del deploy eseguito.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-security-policy-enforcement/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-security-policy-enforcement/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```

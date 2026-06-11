@@ -37,66 +37,29 @@ ensure_cluster() {
   esac
 }
 
-command -v kubectl >/dev/null || die "kubectl is required"
-command -v helm >/dev/null || die "helm is required"
-ensure_cluster
-if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
-  die "$COURSE_DIR already initialized; use LAB_FORCE=true"
-fi
+write_scenario() {
+  local number="$1"
+  local kind="$2"
+  local plural="$3"
+  local composition="$4"
+  local field="$5"
+  local annotation="$6"
+  local child_name="$7"
+  local directory="$COURSE_DIR/$number"
 
-helm repo add crossplane-stable https://charts.crossplane.io/stable >/dev/null 2>&1 || true
-helm repo update >/dev/null
-helm upgrade --install crossplane crossplane-stable/crossplane \
-  -n crossplane-system --create-namespace --version "$CROSSPLANE_VERSION" --wait
-kubectl apply -f - <<'YAML'
-apiVersion: pkg.crossplane.io/v1
-kind: Function
-metadata:
-  name: function-patch-and-transform
-spec:
-  package: xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.8.2
-YAML
-kubectl wait --for=condition=Healthy function/function-patch-and-transform --timeout=300s
-kubectl create ns platform-team --dry-run=client -o yaml | kubectl apply -f - >/dev/null
-mkdir -p "$COURSE_DIR"
-for n in $(seq -w 1 20); do mkdir -p "$COURSE_DIR/$n"; done
-cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
+  mkdir -p "$directory"
 
-cat > "$COURSE_DIR/base-xrd.yaml" <<'YAML'
+  cat > "$directory/xrd.yaml" <<YAML
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: apps.platform.example.io
+  name: ${plural}.platform.example.com
 spec:
-  scope: TODO
-  group: TODO
+  scope: Cluster
+  group: platform.example.com
   names:
-    kind: TODO
-    plural: TODO
-  versions:
-    - name: v1alpha1
-      served: TODO
-      referenceable: TODO
-      schema:
-        openAPIV3Schema:
-          type: object
-          properties:
-            spec:                                # TODO
-              type: object
-              properties: {}
-YAML
-cp "$COURSE_DIR/base-xrd.yaml" "$COURSE_DIR/01/xrd.yaml"
-cat > "$COURSE_DIR/02/xrd.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v2
-kind: CompositeResourceDefinition
-metadata:
-  name: apps.platform.example.io
-spec:
-  scope: Namespaced
-  group: platform.example.io
-  names:
-    kind: App
-    plural: apps
+    kind: ${kind}
+    plural: ${plural}
   versions:
     - name: v1alpha1
       served: true
@@ -104,138 +67,25 @@ spec:
       schema:
         openAPIV3Schema:
           type: object
-          properties:
-            spec:                                # TODO schema
-              type: object
-              properties: {}
-YAML
-cat > "$COURSE_DIR/03/xrd.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v2
-kind: CompositeResourceDefinition
-metadata:
-  name: apps.platform.example.io
-spec:
-  scope: Namespaced
-  group: platform.example.io
-  names:
-    kind: App
-    plural: apps
-  versions:
-    - name: v1alpha1
-      served: true
-      referenceable: true
-      schema:
-        openAPIV3Schema:
-          type: object
-          required:
-            - spec
           properties:
             spec:
               type: object
+              properties:
+                ${field}:
+                  type: string
               required:
-                - image
-                - environment
-              properties:
-                image:
-                  type: string
-                replicas:
-                  type: integer
-                  minimum: 1
-                  maximum: 10
-                environment:
-                  type: string
-                  enum:
-                    - dev
-                    - staging
-                    - prod
-            status:                                # TODO url and readyReplicas
-              type: object
-              properties: {}
-YAML
-cat > "$COURSE_DIR/15/xrd.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v2
-kind: CompositeResourceDefinition
-metadata:
-  name: apps.platform.example.io
-spec:
-  scope: Namespaced
-  group: platform.example.io
-  names:
-    kind: App
-    plural: apps
-  # TODO defaultCompositionUpdatePolicy: Manual
-  versions:
-    - name: v1alpha1
-      served: true
-      referenceable: true
-      schema:
-        openAPIV3Schema:
-          type: object
-          required:
-            - spec
-          properties:
-            spec:
-              type: object
-              required:
-                - image
-                - environment
-              properties:
-                image:
-                  type: string
-                replicas:
-                  type: integer
-                  minimum: 1
-                  maximum: 10
-                  default: 1
-                environment:
-                  type: string
-                  enum:
-                    - dev
-                    - staging
-                    - prod
-            status:
-              type: object
-              properties:
-                url:
-                  type: string
-                readyReplicas:
-                  type: integer
-YAML
-cat > "$COURSE_DIR/02/valid.yaml" <<'YAML'
-apiVersion: platform.example.io/v1alpha1
-kind: App
-metadata:
-  name: valid
-  namespace: platform-team
-spec:
-  image: nginx:1-alpine
-  replicas: 2
-  environment: dev
-YAML
-cat > "$COURSE_DIR/02/invalid.yaml" <<'YAML'
-apiVersion: platform.example.io/v1alpha1
-kind: App
-metadata:
-  name: invalid
-  namespace: platform-team
-spec:
-  replicas: 0
-  environment: qa
+                - ${field}
 YAML
 
-# Install the valid prerequisite used by the Composition exercises.
-kubectl apply -f "$COURSE_DIR/03/xrd.yaml"
-kubectl wait --for=condition=Established crd/apps.platform.example.io --timeout=120s
-
-cat > "$COURSE_DIR/base-composition.yaml" <<'YAML'
+  cat > "$directory/composition.yaml" <<YAML
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: app
+  name: ${composition}
 spec:
   compositeTypeRef:
-    apiVersion: platform.example.io/v1alpha1
-    kind: App
+    apiVersion: platform.example.com/v1alpha1
+    kind: ${kind}
   mode: Pipeline
   pipeline:
     - step: patch-and-transform
@@ -245,156 +95,160 @@ spec:
         apiVersion: pt.fn.crossplane.io/v1beta1
         kind: Resources
         resources:
-          - name: app-config
+          - name: namespace
+            base:
+              apiVersion: v1
+              kind: Namespace
+            patches:
+              - fromFieldPath: metadata.name
+                toFieldPath: metadata.name
+              - fromFieldPath: spec.${field}
+                toFieldPath: metadata.annotations[platform.example.com/${annotation}]
+            readinessChecks:
+              - type: None
+          - name: configuration
             base:
               apiVersion: v1
               kind: ConfigMap
               metadata:
-                name: app-config
+                name: ${child_name}
               data: {}
-            patches: [] # TODO
+            patches:
+              - fromFieldPath: metadata.name
+                toFieldPath: metadata.namespace
+              - fromFieldPath: spec.${field}
+                toFieldPath: data.${field}
+            readinessChecks:
+              - type: None
 YAML
-for n in $(seq -w 4 17); do cp "$COURSE_DIR/base-composition.yaml" "$COURSE_DIR/$n/composition.yaml"; done
-cat > "$COURSE_DIR/base-xr.yaml" <<'YAML'
-apiVersion: platform.example.io/v1alpha1
-kind: App
-metadata:
-  name: demo
-  namespace: platform-team
-spec:
-  image: nginx:1-alpine
-  replicas: 2
-  environment: dev
-YAML
-for n in $(seq -w 4 17); do cp "$COURSE_DIR/base-xr.yaml" "$COURSE_DIR/$n/xr.yaml"; done
-cat > "$COURSE_DIR/11/missing-image.yaml" <<'YAML'
-apiVersion: platform.example.io/v1alpha1
-kind: App
-metadata:
-  name: missing-image
-  namespace: platform-team
-spec:
-  replicas: 2
-  environment: dev
-YAML
-touch "$COURSE_DIR/11/result.txt"
-cat > "$COURSE_DIR/16/environment.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v1beta1
-kind: EnvironmentConfig
-metadata:
-  name: platform-defaults
-data:
-  region: eu-west
-  owner: platform
-YAML
-cat > "$COURSE_DIR/16/function.yaml" <<'YAML'
-apiVersion: pkg.crossplane.io/v1
-kind: Function
-metadata:
-  name: function-environment-configs
-spec:
-  package: xpkg.crossplane.io/crossplane-contrib/function-environment-configs:v0.7.1
-YAML
-cat > "$COURSE_DIR/18/function.yaml" <<'YAML'
-apiVersion: pkg.crossplane.io/v1
-kind: Function
-metadata:
-  name: function-auto-ready
-spec:
-  package: xpkg.crossplane.io/crossplane-contrib/function-auto-ready:v0.6.5
-YAML
-cp "$COURSE_DIR/base-composition.yaml" "$COURSE_DIR/18/composition.yaml"
+}
 
-cat > "$COURSE_DIR/19/xrd.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v2
-kind: CompositeResourceDefinition
+command -v kubectl >/dev/null || die "kubectl is required"
+command -v helm >/dev/null || die "helm is required"
+ensure_cluster
+
+if [ -e "$COURSE_DIR/.initialized" ]; then
+  if [ "$LAB_FORCE" != "true" ]; then
+    die "$COURSE_DIR already initialized; use LAB_FORCE=true"
+  fi
+  case "$COURSE_DIR" in
+    ""|"/"|"$HOME")
+      die "Refusing to replace unsafe COURSE_DIR: $COURSE_DIR"
+      ;;
+  esac
+  info "Replacing existing lab material in $COURSE_DIR"
+  rm -rf -- "$COURSE_DIR"
+fi
+
+helm repo add crossplane-stable https://charts.crossplane.io/stable >/dev/null 2>&1 || true
+helm repo update >/dev/null
+helm upgrade --install crossplane crossplane-stable/crossplane \
+  -n crossplane-system --create-namespace --version "$CROSSPLANE_VERSION" --wait
+
+kubectl apply -f - <<'YAML'
+apiVersion: pkg.crossplane.io/v1
+kind: Function
 metadata:
-  name: brokenapps.platform.example.io
+  name: function-patch-and-transform
 spec:
-  scope: Namespaced
-  group: platform.example.io
-  names:
-    kind: BrokenApp
-    plural: brokenapps
-  versions:
-    - name: v1alpha1
-      served: true
-      referenceable: true
-      schema:
-        openAPIV3Schema:
-          properties:
-            spec:
-              properties:
-                image:
-                  type: array
+  package: xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.8.2
 YAML
-cat > "$COURSE_DIR/19/composition.yaml" <<'YAML'
+
+info "Waiting for function-patch-and-transform (this can take 1-2 minutes)"
+kubectl wait --for=condition=Healthy \
+  function/function-patch-and-transform --timeout=300s
+
+mkdir -p "$COURSE_DIR"
+cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
+
+write_scenario 01 TeamSpace teamspaces teamspace-composition \
+  projectId project-id teamspace-config
+write_scenario 02 ProjectSpace projectspaces projectspace-composition \
+  owner owner project-config
+write_scenario 03 EnvironmentSpace environmentspaces environmentspace-composition \
+  environment environment environment-config
+write_scenario 04 CostSpace costspaces costspace-composition \
+  costCenter cost-center cost-config
+write_scenario 05 ProductSpace productspaces productspace-composition \
+  productId product-id product-config
+write_scenario 06 TenantSpace tenantspaces tenantspace-composition \
+  tenantId tenant-id tenant-config
+write_scenario 07 ClusterSpace clusterspaces clusterspace-composition \
+  clusterName cluster-name cluster-config
+write_scenario 08 RegionSpace regionspaces regionspace-composition \
+  region region region-config
+write_scenario 09 AccountSpace accountspaces accountspace-composition \
+  accountId account-id account-config
+write_scenario 10 ApplicationSpace applicationspaces applicationspace-composition \
+  applicationId application-id application-config
+write_scenario 11 DomainSpace domainspaces domainspace-composition \
+  domain domain domain-config
+write_scenario 12 ServiceSpace servicespaces servicespace-composition \
+  serviceOwner service-owner service-config
+write_scenario 13 DataSpace dataspaces dataspace-composition \
+  classification classification data-config
+write_scenario 14 SecuritySpace securityspaces securityspace-composition \
+  securityTier security-tier security-config
+write_scenario 15 ComplianceSpace compliancespaces compliancespace-composition \
+  policySet policy-set compliance-config
+write_scenario 16 RuntimeSpace runtimespaces runtime-composition \
+  runtime runtime runtime-config
+write_scenario 17 ReleaseSpace releasespaces release-composition \
+  releaseChannel release-channel release-config
+write_scenario 18 ObservabilitySpace observabilityspaces observability-composition \
+  monitoringProfile monitoring-profile observability-config
+write_scenario 19 BackupSpace backupspaces backup-composition \
+  backupPolicy backup-policy backup-config
+write_scenario 20 PlatformSpace platformspaces platformspace-composition \
+  platformOwner platform-owner platform-config
+
+# Q1 mirrors the exam-style TeamSpace task with a NetworkPolicy.
+cat > "$COURSE_DIR/01/composition.yaml" <<'YAML'
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: broken-app
+  name: teamspace-composition
 spec:
   compositeTypeRef:
-    apiVersion: platform.example.io/v1alpha1
-    kind: WrongKind
+    apiVersion: platform.example.com/v1alpha1
+    kind: TeamSpace
   mode: Pipeline
   pipeline:
-    - step: patch
+    - step: patch-and-transform
       functionRef:
-        name: wrong-function
+        name: function-patch-and-transform
       input:
         apiVersion: pt.fn.crossplane.io/v1beta1
         kind: Resources
         resources:
-          - name: config
+          - name: namespace
             base:
               apiVersion: v1
-              kind: ConfigMap
-              metadata:
-                name: broken
+              kind: Namespace
             patches:
-              - type: FromCompositeFieldPath
-                fromFieldPath: spec.wrong
-                toFieldPath: data.image
+              - fromFieldPath: metadata.name
+                toFieldPath: metadata.name
+              - fromFieldPath: spec.projectId
+                toFieldPath: metadata.annotations[platform.example.com/project-id]
+            readinessChecks:
+              - type: None
+          - name: networkpolicy
+            base:
+              apiVersion: networking.k8s.io/v1
+              kind: NetworkPolicy
+              metadata:
+                name: default-deny-ingress
+              spec:
+                podSelector: {}
+                policyTypes:
+                  - Ingress
+            patches:
+              - fromFieldPath: metadata.name
+                toFieldPath: metadata.namespace
+            readinessChecks:
+              - type: None
 YAML
-cat > "$COURSE_DIR/19/xr.yaml" <<'YAML'
-apiVersion: platform.example.io/v1alpha1
-kind: BrokenApp
-metadata:
-  name: broken
-  namespace: platform-team
-spec:
-  image: nginx:1-alpine
-YAML
-touch "$COURSE_DIR/19/report.md"
 
-cat > "$COURSE_DIR/20/xrd.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v2
-kind: CompositeResourceDefinition
-metadata:
-  name: webservices.platform.example.io
-spec: {} # TODO
-YAML
-cat > "$COURSE_DIR/20/composition.yaml" <<'YAML'
-apiVersion: apiextensions.crossplane.io/v1
-kind: Composition
-metadata:
-  name: webservice
-spec: {} # TODO
-YAML
-cat > "$COURSE_DIR/20/xr.yaml" <<'YAML'
-apiVersion: platform.example.io/v1alpha1
-kind: WebService
-metadata:
-  name: checkout
-  namespace: platform-team
-spec:
-  image: nginx:1-alpine
-  replicas: 2
-  port: 8080
-  environment: prod
-YAML
-rm "$COURSE_DIR/base-xrd.yaml" "$COURSE_DIR/base-composition.yaml" "$COURSE_DIR/base-xr.yaml"
 source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"

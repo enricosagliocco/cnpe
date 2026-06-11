@@ -1,5 +1,8 @@
 # CNPE HPA and KEDA Troubleshooting Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio con 20 ticket indipendenti: Q1-Q10 coprono HPA e Metrics Server;
 Q11-Q20 coprono KEDA, ScaledObject, autenticazione, cron e Prometheus.
 

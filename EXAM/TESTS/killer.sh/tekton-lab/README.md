@@ -1,5 +1,8 @@
 # Tekton Pipelines and Triggers Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio autonomo con 20 esercizi deterministici dedicati a Tekton
 Pipelines, TriggerBinding, TriggerTemplate, EventListener, interceptor CEL e
 webhook end-to-end.

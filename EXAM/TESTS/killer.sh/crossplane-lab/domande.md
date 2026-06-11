@@ -1,354 +1,504 @@
-# Le 20 domande dell'esame — Crossplane Lab (simulatore lab)
+# Crossplane Composition - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Crossplane is installed together with `function-patch-and-transform`. The
+function can take 1-2 minutes to become healthy.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Each question is independent. The supplied `xrd.yaml` and `composition.yaml`
+are complete: apply them, inspect the API and Composition, create the requested
+composite resource, and verify every composed resource.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario deployato da `setup-crossplane-lab.sh`. Manifest e file starter in
-`~/course-crossplane/`. Le risorse composite namespaced devono essere create
-nel Namespace `platform-team`, salvo diversa indicazione.
-
-**Vincolo:** non disinstallare Crossplane o le Function installate. Puoi
-modificare XRD, Composition, XR, Function e risorse composte, ma non i
-Deployment core nel Namespace `crossplane-system`.
-
-Ogni domanda contiene una definizione incompleta o intenzionalmente guasta.
-Le domande Q1–Q3 costruiscono progressivamente l'API `App`; il setup installa
-anche una baseline valida della stessa API per consentire l'esecuzione
-indipendente delle Composition Q4–Q18. Le domande Q4–Q18 sono progressive:
-quando una domanda richiede risorse aggiunte in quella precedente, usa la
-Composition corretta precedente come base. Ogni soluzione deve essere
-applicata e verificata tramite condizioni dell'XR, resource references e
-risorse composte.
-
-Accesso GUI:
-- Crossplane non include una dashboard web dedicata in questo lab.
-- Usa Lens/OpenLens con il kubeconfig corrente e apri **Custom Resources** per
-  XRD, Composition, XR, eventi e risorse composte.
+Useful commands:
 
 ```bash
-kubectl config current-context
-kubectl config view --minify --raw
-```
-
-Credenziali:
-- Non servono credenziali aggiuntive rispetto al kubeconfig Kubernetes.
-
-Comandi utili:
-
-```bash
-kubectl config current-context
-kubectl api-resources
+kubectl get functions
+kubectl get compositions
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
 
-### Q1 – XRD namespaced
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q1 - Create a TeamSpace
 
-Percorso: `~/course-crossplane/01`.
+Work in `~/course-crossplane/01`.
 
+Apply `xrd.yaml` and `composition.yaml`. Create a `TeamSpace` named
+`team-alpha` with `projectId: alpha-123`, then verify all composed resources.
 
-`01/xrd.yaml` contiene placeholder nei campi di identità dell'API.
+**Tip 1**
 
-1. Completa l'XRD v2 namespaced `App`, plural `apps`, gruppo
-   `platform.example.io`, versione `v1alpha1` served/referenceable.
-2. Applica il file.
-3. Verifica CRD `apps.platform.example.io` Established e scope Namespaced.
+```bash
+kubectl apply -f ~/course-crossplane/01/xrd.yaml
+kubectl apply -f ~/course-crossplane/01/composition.yaml
+```
 
----
+**Tip 2**
 
-### Q2 – Schema XRD
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+The API is `platform.example.com/v1alpha1`. Examine the Composition to
+understand which resources are created and where.
 
-Percorso: `~/course-crossplane/02`.
+**Solution**
 
+```yaml
+apiVersion: platform.example.com/v1alpha1
+kind: TeamSpace
+metadata:
+  name: team-alpha
+spec:
+  projectId: alpha-123
+```
 
-`02/xrd.yaml` definisce l'API, ma lo schema di `spec` è vuoto.
-
-1. Aggiungi spec required: `image` string, `replicas` integer 1..10, `environment` enum dev/staging/prod.
-2. Applica l'XRD.
-3. Verifica `valid.yaml` accettato e `invalid.yaml` rifiutato dal server API.
-
----
-
-### Q3 – Default e status
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/03`.
-
-
-`03/xrd.yaml` ha lo schema spec, ma manca default e schema status.
-
-1. Imposta default replicas 1 e aggiungi status `url` string e `readyReplicas` integer.
-2. Applica l'XRD e crea una risorsa senza `replicas`.
-3. Verifica il default nello spec ammesso e la presenza dei campi nella CRD.
+```bash
+kubectl get teamspaces
+kubectl get namespace team-alpha
+kubectl -n team-alpha get networkpolicy default-deny-ingress
+```
 
 ---
 
-### Q4 – Prima Composition
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q2 - Create a ProjectSpace
 
-Percorso: `~/course-crossplane/04`.
+Work in `~/course-crossplane/02`. Apply the supplied definitions and create
+`ProjectSpace` `payments` with `owner: finance`. Verify Namespace `payments`,
+its annotation, and ConfigMap `project-config`.
 
+**Tip**
 
-La Composition starter crea un ConfigMap senza Namespace e senza dati.
+Inspect `spec.names`, the schema, and `spec.pipeline` before writing the XR.
 
-1. Completa `04/composition.yaml` usando
-   `function-patch-and-transform`.
-2. Crea ConfigMap `app-config` nel Namespace dell'XR.
-3. Applica Composition e `04/xr.yaml`.
-4. Verifica resource reference e ConfigMap in `platform-team`.
+**Solution**
 
----
-
-### Q5 – FromComposite patches
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/05`.
-
-
-Il ConfigMap composto non riflette la spec dell'XR.
-
-1. Patcha `spec.image`, `spec.replicas`, `spec.environment` nei data del ConfigMap e `metadata.namespace` nei metadata.
-2. Applica Composition e XR.
-3. Verifica i quattro campi nella risorsa composta.
+```bash
+kubectl apply -f ~/course-crossplane/02/xrd.yaml -f ~/course-crossplane/02/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ProjectSpace
+metadata:
+  name: payments
+spec:
+  owner: finance
+YAML
+kubectl get ns payments -o yaml
+kubectl -n payments get cm project-config -o yaml
+```
 
 ---
 
-### Q6 – Composed Deployment
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q3 - Create an EnvironmentSpace
 
-Percorso: `~/course-crossplane/06`.
+Work in `~/course-crossplane/03`. Create `EnvironmentSpace` `staging-blue`
+with `environment: staging`. Verify Namespace and `environment-config`.
 
+**Solution**
 
-La Composition crea soltanto il ConfigMap.
-
-1. Aggiungi Deployment `app` con label/selector `app=<XR name>`, immagine e repliche dalla spec, Namespace dell'XR.
-2. Applica Composition e XR.
-3. Verifica due resource references, rollout riuscito, immagine e repliche.
-
----
-
-### Q7 – Composed Service
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/07`.
-
-
-L'app composta non è esposta da alcun Service.
-
-1. Aggiungi Service `app` ClusterIP porta 80 target 8080, selector derivato dal nome XR.
-2. Applica Composition e XR.
-3. Verifica tre resource references e gli endpoint del Service.
+```bash
+kubectl apply -f ~/course-crossplane/03/xrd.yaml -f ~/course-crossplane/03/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: EnvironmentSpace
+metadata:
+  name: staging-blue
+spec:
+  environment: staging
+YAML
+kubectl get ns staging-blue
+kubectl -n staging-blue get cm environment-config -o yaml
+```
 
 ---
 
-### Q8 – String combine
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q4 - Create a CostSpace
 
-Percorso: `~/course-crossplane/08`.
+Work in `~/course-crossplane/04`. Create `CostSpace` `billing` with
+`costCenter: cc-4100`. Verify Namespace annotation and `cost-config` data.
 
+**Solution**
 
-Il Deployment composto non ha un'identità univoca leggibile.
-
-1. Usa `CombineFromComposite` per creare annotation `platform.example.io/identity=<namespace>-<name>` sul Deployment.
-2. Applica la Composition.
-3. Verifica l'annotation sul Deployment composto.
-
----
-
-### Q9 – Map transform
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/09`.
-
-
-Il ConfigMap non contiene un log level derivato dall'ambiente.
-
-1. Trasforma environment in log level: dev=debug, staging=info, prod=warn, scrivendo `data.logLevel` nel ConfigMap.
-2. Esegui la prova con almeno due XR aventi environment diversi.
-3. Verifica i valori nei ConfigMap composti.
+```bash
+kubectl apply -f ~/course-crossplane/04/xrd.yaml -f ~/course-crossplane/04/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: CostSpace
+metadata:
+  name: billing
+spec:
+  costCenter: cc-4100
+YAML
+kubectl get ns billing -o yaml
+kubectl -n billing get cm cost-config -o yaml
+```
 
 ---
 
-### Q10 – Math transform
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q5 - Create a ProductSpace
 
-Percorso: `~/course-crossplane/10`.
+Work in `~/course-crossplane/05`. Create `ProductSpace` `catalog` with
+`productId: product-88`. Verify Namespace and `product-config`.
 
+**Solution**
 
-Il limite connessioni non viene calcolato dalla capacità richiesta.
-
-1. Moltiplica `spec.replicas` per 2 e scrivi il risultato in `data.maxConnections` come stringa.
-2. Applica XR con `replicas: 2`.
-3. Verifica `data.maxConnections: "4"`.
-
----
-
-### Q11 – Patch policy Required
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/11`.
-
-
-`11/missing-image.yaml` omette `spec.image`, ma la patch attuale non è
-obbligatoria.
-
-1. Rendi required la patch `spec.image`.
-2. Applica Composition e `missing-image.yaml`.
-3. Verifica XR non Ready e messaggio di reconcile relativo al field path.
-4. Salva condizioni ed eventi in `11/result.txt`.
+```bash
+kubectl apply -f ~/course-crossplane/05/xrd.yaml -f ~/course-crossplane/05/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ProductSpace
+metadata:
+  name: catalog
+spec:
+  productId: product-88
+YAML
+kubectl get ns catalog
+kubectl -n catalog get cm product-config -o yaml
+```
 
 ---
 
-### Q12 – ToComposite status
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q6 - Create a TenantSpace
 
-Percorso: `~/course-crossplane/12`.
+Work in `~/course-crossplane/06`. Create `TenantSpace` `tenant-acme` with
+`tenantId: acme-001`. Verify Namespace and `tenant-config`.
 
+**Solution**
 
-Lo status dell'XR non espone disponibilità o URL del workload composto.
-
-1. Patcha `status.readyReplicas` dallo status del Deployment e componi `status.url` come `http://<name>.<namespace>.svc`.
-2. Applica Composition e XR e attendi il rollout.
-3. Verifica entrambi i campi nello status dell'XR.
-
----
-
-### Q13 – Readiness checks
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/13`.
-
-
-L'XR non attende correttamente tutte le risorse composte.
-
-1. Configura Deployment ready quando condizione Available=True, Service con readiness `None`, ConfigMap con `MatchString data.ready=true`.
-2. Applica Composition e XR.
-3. Verifica XR non Ready prima del campo `data.ready`.
-4. Imposta il campo e verifica `Ready=True`.
+```bash
+kubectl apply -f ~/course-crossplane/06/xrd.yaml -f ~/course-crossplane/06/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: TenantSpace
+metadata:
+  name: tenant-acme
+spec:
+  tenantId: acme-001
+YAML
+kubectl get ns tenant-acme
+kubectl -n tenant-acme get cm tenant-config -o yaml
+```
 
 ---
 
-### Q14 – Composition selection
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q7 - Create a ClusterSpace
 
-Percorso: `~/course-crossplane/14`.
+Work in `~/course-crossplane/07`. Create `ClusterSpace` `edge-west` with
+`clusterName: edge-west-01`. Verify Namespace and `cluster-config`.
 
+**Solution**
 
-Due varianti di Composition devono essere selezionate tramite label.
-
-1. Crea Composition `app-development` e `app-production` con label `tier=development|production`.
-2. In `14/xr.yaml` seleziona production tramite `compositionSelector.matchLabels`.
-3. Applica le risorse.
-4. Verifica nello status dell'XR la Composition selezionata.
-
----
-
-### Q15 – Composition revisions
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/15`.
-
-
-L'XRD starter usa ancora la policy automatica di aggiornamento.
-
-1. Imposta `defaultCompositionUpdatePolicy: Manual` nell'XRD.
-2. Aggiorna la Composition aggiungendo label `revision=v2`, poi porta l'XR alla nuova CompositionRevision esplicitamente.
-3. Verifica che prima del pin l'XR resti sulla revisione precedente e dopo il
-   pin usi la nuova.
+```bash
+kubectl apply -f ~/course-crossplane/07/xrd.yaml -f ~/course-crossplane/07/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ClusterSpace
+metadata:
+  name: edge-west
+spec:
+  clusterName: edge-west-01
+YAML
+kubectl get ns edge-west
+kubectl -n edge-west get cm cluster-config -o yaml
+```
 
 ---
 
-### Q16 – EnvironmentConfig
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q8 - Create a RegionSpace
 
-Percorso: `~/course-crossplane/16`.
+Work in `~/course-crossplane/08`. Create `RegionSpace` `apps-eu` with
+`region: eu-west-1`. Verify Namespace and `region-config`.
 
+**Solution**
 
-`16/environment.yaml` contiene i default, ma la Composition non li usa.
-
-1. Applica `16/function.yaml` e attendi che `function-environment-configs`
-   sia Healthy.
-2. Crea `EnvironmentConfig` `platform-defaults` con `region=eu-west` e
-   `owner=platform`.
-3. Aggiungi come primo step della pipeline `function-environment-configs`,
-   selezionando `platform-defaults` per riferimento.
-4. Nel successivo step `function-patch-and-transform`, usa patch
-   `FromEnvironmentFieldPath` per scrivere `region` e `owner` come annotation
-   del Deployment.
-5. Applica EnvironmentConfig, Composition e XR e verifica le annotation
-   sulla risorsa composta.
-
----
-
-### Q17 – Patch sets
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/17`.
-
-
-Namespace e label team sono duplicati o mancanti nelle risorse composte.
-
-1. Definisci patchSet `common-metadata` con Namespace e label team, poi riusalo su ConfigMap, Deployment e Service senza duplicare le patch.
-2. Applica Composition e XR.
-3. Verifica Namespace e label su tutte e tre le risorse.
+```bash
+kubectl apply -f ~/course-crossplane/08/xrd.yaml -f ~/course-crossplane/08/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: RegionSpace
+metadata:
+  name: apps-eu
+spec:
+  region: eu-west-1
+YAML
+kubectl get ns apps-eu
+kubectl -n apps-eu get cm region-config -o yaml
+```
 
 ---
 
-### Q18 – Function pipeline
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q9 - Create an AccountSpace
 
-Percorso: `~/course-crossplane/18`.
+Work in `~/course-crossplane/09`. Create `AccountSpace` `shared-services`
+with `accountId: "123456789012"`. Verify Namespace and `account-config`.
 
+**Solution**
 
-La Function `function-auto-ready` è dichiarata nel file, ma non è installata
-né inserita nella pipeline.
-
-1. Aggiungi un secondo step `function-auto-ready` dopo patch-and-transform.
-2. Installa la Function indicata in `18/function.yaml` e verifica le Function Healthy.
-3. Applica Composition e XR.
-4. Verifica ordine degli step e XR `Ready=True`.
-
----
-
-### Q19 – Troubleshooting
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
-
-Percorso: `~/course-crossplane/19`.
-
-
-I tre file in `19/` contengono quattro errori indipendenti e devono fallire
-prima della correzione.
-
-1. `19` contiene XRD, Composition e XR con quattro errori: kind mismatch, field path errato, functionRef errata e schema non strutturale.
-2. Correggili e compila `19/report.md` con eventi e condizioni prima/dopo.
-3. Verifica XRD Established, Function risolta, XR Ready e ConfigMap composto.
+```bash
+kubectl apply -f ~/course-crossplane/09/xrd.yaml -f ~/course-crossplane/09/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: AccountSpace
+metadata:
+  name: shared-services
+spec:
+  accountId: "123456789012"
+YAML
+kubectl get ns shared-services
+kubectl -n shared-services get cm account-config -o yaml
+```
 
 ---
 
-### Q20 – Simulazione a tempo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
+### Q10 - Create an ApplicationSpace
 
-Percorso: `~/course-crossplane/20`.
+Work in `~/course-crossplane/10`. Create `ApplicationSpace` `checkout` with
+`applicationId: app-checkout`. Verify Namespace and `application-config`.
 
+**Solution**
 
-I file `20/xrd.yaml`, `20/composition.yaml` e `20/xr.yaml` costituiscono uno
-scenario vuoto da implementare end-to-end.
+```bash
+kubectl apply -f ~/course-crossplane/10/xrd.yaml -f ~/course-crossplane/10/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ApplicationSpace
+metadata:
+  name: checkout
+spec:
+  applicationId: app-checkout
+YAML
+kubectl get ns checkout
+kubectl -n checkout get cm application-config -o yaml
+```
 
-1. In 30 minuti crea API `WebService` con image, replicas, port e environment; Composition con ConfigMap, Deployment e Service; map transform log level, status URL, readiness e patchSet metadata.
-2. Applica tutti i file.
-3. Verifica `20/xr.yaml` Ready, tre resource references, rollout disponibile,
-   Service con endpoint e status URL valorizzato.
+---
+
+### Q11 - Create a DomainSpace
+
+Work in `~/course-crossplane/11`. Create `DomainSpace` `orders` with
+`domain: commerce`. Verify Namespace and `domain-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/11/xrd.yaml -f ~/course-crossplane/11/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: DomainSpace
+metadata:
+  name: orders
+spec:
+  domain: commerce
+YAML
+kubectl get ns orders
+kubectl -n orders get cm domain-config -o yaml
+```
+
+---
+
+### Q12 - Create a ServiceSpace
+
+Work in `~/course-crossplane/12`. Create `ServiceSpace` `identity` with
+`serviceOwner: iam-team`. Verify Namespace and `service-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/12/xrd.yaml -f ~/course-crossplane/12/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ServiceSpace
+metadata:
+  name: identity
+spec:
+  serviceOwner: iam-team
+YAML
+kubectl get ns identity
+kubectl -n identity get cm service-config -o yaml
+```
+
+---
+
+### Q13 - Create a DataSpace
+
+Work in `~/course-crossplane/13`. Create `DataSpace` `analytics` with
+`classification: confidential`. Verify Namespace and `data-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/13/xrd.yaml -f ~/course-crossplane/13/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: DataSpace
+metadata:
+  name: analytics
+spec:
+  classification: confidential
+YAML
+kubectl get ns analytics
+kubectl -n analytics get cm data-config -o yaml
+```
+
+---
+
+### Q14 - Create a SecuritySpace
+
+Work in `~/course-crossplane/14`. Create `SecuritySpace` `restricted` with
+`securityTier: high`. Verify Namespace and `security-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/14/xrd.yaml -f ~/course-crossplane/14/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: SecuritySpace
+metadata:
+  name: restricted
+spec:
+  securityTier: high
+YAML
+kubectl get ns restricted
+kubectl -n restricted get cm security-config -o yaml
+```
+
+---
+
+### Q15 - Create a ComplianceSpace
+
+Work in `~/course-crossplane/15`. Create `ComplianceSpace` `pci-workloads`
+with `policySet: pci-dss`. Verify Namespace and `compliance-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/15/xrd.yaml -f ~/course-crossplane/15/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ComplianceSpace
+metadata:
+  name: pci-workloads
+spec:
+  policySet: pci-dss
+YAML
+kubectl get ns pci-workloads
+kubectl -n pci-workloads get cm compliance-config -o yaml
+```
+
+---
+
+### Q16 - Create a RuntimeSpace
+
+Work in `~/course-crossplane/16`. Create `RuntimeSpace` `java-services` with
+`runtime: java-21`. Verify Namespace and `runtime-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/16/xrd.yaml -f ~/course-crossplane/16/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: RuntimeSpace
+metadata:
+  name: java-services
+spec:
+  runtime: java-21
+YAML
+kubectl get ns java-services
+kubectl -n java-services get cm runtime-config -o yaml
+```
+
+---
+
+### Q17 - Create a ReleaseSpace
+
+Work in `~/course-crossplane/17`. Create `ReleaseSpace` `canary` with
+`releaseChannel: canary`. Verify Namespace and `release-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/17/xrd.yaml -f ~/course-crossplane/17/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ReleaseSpace
+metadata:
+  name: canary
+spec:
+  releaseChannel: canary
+YAML
+kubectl get ns canary
+kubectl -n canary get cm release-config -o yaml
+```
+
+---
+
+### Q18 - Create an ObservabilitySpace
+
+Work in `~/course-crossplane/18`. Create `ObservabilitySpace` `sre-tools`
+with `monitoringProfile: full`. Verify Namespace and `observability-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/18/xrd.yaml -f ~/course-crossplane/18/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ObservabilitySpace
+metadata:
+  name: sre-tools
+spec:
+  monitoringProfile: full
+YAML
+kubectl get ns sre-tools
+kubectl -n sre-tools get cm observability-config -o yaml
+```
+
+---
+
+### Q19 - Create a BackupSpace
+
+Work in `~/course-crossplane/19`. Create `BackupSpace` `critical-backups`
+with `backupPolicy: daily-30d`. Verify Namespace and `backup-config`.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/19/xrd.yaml -f ~/course-crossplane/19/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: BackupSpace
+metadata:
+  name: critical-backups
+spec:
+  backupPolicy: daily-30d
+YAML
+kubectl get ns critical-backups
+kubectl -n critical-backups get cm backup-config -o yaml
+```
+
+---
+
+### Q20 - Create a PlatformSpace
+
+Work in `~/course-crossplane/20`. Create `PlatformSpace` `developer-portal`
+with `platformOwner: platform-team`. Verify the XR, both resource references,
+Namespace annotation, and `platform-config` data.
+
+**Tip**
+
+Use `kubectl describe platformspace developer-portal` to inspect conditions
+and resource references.
+
+**Solution**
+
+```bash
+kubectl apply -f ~/course-crossplane/20/xrd.yaml -f ~/course-crossplane/20/composition.yaml
+kubectl apply -f - <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: PlatformSpace
+metadata:
+  name: developer-portal
+spec:
+  platformOwner: platform-team
+YAML
+kubectl get platformspaces
+kubectl describe platformspace developer-portal
+kubectl get ns developer-portal -o yaml
+kubectl -n developer-portal get cm platform-config -o yaml
+```

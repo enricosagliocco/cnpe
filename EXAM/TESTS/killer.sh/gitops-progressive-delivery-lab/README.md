@@ -1,5 +1,8 @@
 # CNPE GitOps and Progressive Delivery Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio pratico dedicato a:
 
 1. Argo CD Application, sync automatica, prune e self-heal;

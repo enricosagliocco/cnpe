@@ -1,51 +1,24 @@
-# Le 20 domande dell'esame - Flagger Lab (simulatore lab)
+# Flagger Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-flagger-lab.sh`. Manifest e file starter si trovano
-in `~/course-flagger/`. Le risorse applicative devono risiedere nel Namespace
-`flagger-lab`.
-
-Vincoli:
-
-- Non modificare il Deployment del controller Flagger o le CRD.
-- Gestire gli aggiornamenti applicativi tramite la risorsa `Canary`.
-- Non modificare direttamente i workload `*-primary` generati da Flagger.
-- Conservare i nomi delle risorse indicati nei file starter.
-- Verificare ogni rollout tramite stato del Canary, eventi e risorse generate.
-
-Le domande sono indipendenti. Prima di iniziare una domanda, elimina le risorse
-Flagger create per quella precedente quando possono interferire con i test.
-Gli esercizi con provider NGINX, Istio o Gateway API richiedono la validazione
-dei manifest, ma il setup non installa automaticamente tutti i provider di
-routing.
 
 Comandi utili:
 
 ```bash
-kubectl -n flagger-lab get canaries,deployments,services
-kubectl -n flagger-lab describe canary <nome>
-kubectl -n flagger-lab get events --sort-by=.lastTimestamp
-kubectl -n flagger-system logs deploy/flagger -f
-kubectl -n flagger-system logs deploy/flagger-loadtester
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Canary base
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/01`.
 
@@ -59,10 +32,31 @@ Completa `canary.yaml`:
 6. Verifica la creazione del Deployment `podinfo-primary` e dei Service
    gestiti da Flagger.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f canary.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/01
+kubectl apply -f canary.yaml
+kubectl apply -f deployment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q2 - Target reference
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/02`.
 
@@ -73,10 +67,30 @@ Percorso: `~/course-flagger/02`.
 3. Verifica che la condizione `Initialized` sia `True`.
 4. Controlla gli owner reference delle risorse generate da Flagger.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f canary.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/02
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q3 - Configurazione del Service
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/03`.
 
@@ -89,10 +103,30 @@ Correggi la sezione `service` di `canary.yaml`:
 5. Verifica configurazione ed endpoint dei Service `podinfo`,
    `podinfo-primary` e `podinfo-canary`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f canary.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/03
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q4 - Intervallo e progressione
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/04`.
 
@@ -105,10 +139,30 @@ Percorso: `~/course-flagger/04`.
    invece di `maxWeight` e `stepWeight` e non effettua traffic shifting
    percentuale.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 - Iterazioni di analisi
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/05`.
 
@@ -118,10 +172,30 @@ Percorso: `~/course-flagger/05`.
 4. Verifica il numero di iterazioni, la durata del rollout e lo stato finale.
 5. Controlla che la revisione promossa sia stata copiata nel primary.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q6 - Promozione riuscita
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/06`.
 
@@ -132,10 +206,31 @@ Percorso: `~/course-flagger/06`.
 5. Verifica lo scale-down del canary e l'aggiornamento del primary.
 6. Salva stato, revisioni ed eventi principali in `evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f deployment.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/06
+kubectl apply -f deployment.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q7 - Rollout fallito
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/07`.
 
@@ -145,10 +240,30 @@ Percorso: `~/course-flagger/07`.
 4. Dimostra che il primary precedente resta disponibile.
 5. Salva condizioni, eventi e immagini dei workload in `evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q8 - Metriche integrate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/08`.
 
@@ -263,10 +378,31 @@ kubectl -n flagger-system logs deployment/flagger --tail=100
 kubectl -n flagger-lab delete pod metrics-test
 ```
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f deployment.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/08
+kubectl apply -f deployment.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 - MetricTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/09`.
 
@@ -277,10 +413,31 @@ Percorso: `~/course-flagger/09`.
 5. Verifica il riferimento al template e gli argomenti renderizzati da
    Flagger.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f metric-template.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/09
+kubectl apply -f metric-template.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q10 - Soglie di una metrica custom
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/10`.
 
@@ -290,10 +447,30 @@ Percorso: `~/course-flagger/10`.
 4. Esegui un caso che soddisfa la soglia e uno che la viola.
 5. Documenta risultato, failed checks e stato finale.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/10
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q11 - Webhook pre-rollout
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/11`.
 
@@ -306,10 +483,30 @@ Completa il webhook `pre-rollout-check`:
 4. Riproduci un errore HTTP del webhook.
 5. Verifica che l'errore blocchi l'avanzamento del rollout.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q12 - Webhook rollout
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/12`.
 
@@ -319,10 +516,30 @@ Percorso: `~/course-flagger/12`.
 4. Verifica che il webhook venga invocato durante ogni iterazione.
 5. Controlla i log del load tester e gli eventi del Canary.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/12
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 - Conferma della promozione
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/13`.
 
@@ -332,10 +549,30 @@ Percorso: `~/course-flagger/13`.
 4. Avvia una revisione e verifica che la promozione attenda il gate.
 5. Verifica che una risposta positiva consenta la promozione.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/13
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q14 - Webhook post-rollout
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/14`.
 
@@ -347,10 +584,30 @@ Percorso: `~/course-flagger/14`.
    `flagger-system` e salvali con stato, revisioni ed eventi in
    `evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q15 - AlertProvider
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/15`.
 
@@ -362,10 +619,30 @@ Percorso: `~/course-flagger/15`.
 5. Esegui una promozione e un rollout fallito.
 6. Verifica gli alert ricevuti per entrambi i casi.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f alert-provider.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/15
+kubectl apply -f alert-provider.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q16 - Strategia blue/green
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/16`.
 
@@ -377,10 +654,30 @@ Percorso: `~/course-flagger/16`.
 6. Spiega perché con il provider Kubernetes la strategia blue/green usa
    `iterations` e non `stepWeight`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/16
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 - A/B testing
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/17`.
 
@@ -391,10 +688,31 @@ Percorso: `~/course-flagger/17`.
 5. Documenta perché il test end-to-end richiede il provider NGINX e un
    ingress controller non installato dal setup.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f ingress.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/17
+kubectl apply -f ingress.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q18 - Gateway API e HTTPRoute generato
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/18`.
 
@@ -407,10 +725,31 @@ Percorso: `~/course-flagger/18`.
 5. In assenza dei prerequisiti, valida la struttura dei manifest e documenta
    in `evidence.txt` le differenze rispetto ai provider NGINX e Istio.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f gateway.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/18
+kubectl apply -f gateway.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q19 - Troubleshooting
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/19`.
 
@@ -423,10 +762,30 @@ Percorso: `~/course-flagger/19`.
 5. Applica il manifest corretto e verifica l'inizializzazione.
 6. Salva condizioni, eventi, causa e correzione in `report.md`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/19` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f canary.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/19
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q20 - Simulazione a tempo finale
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-flagger/20`.
 
@@ -451,3 +810,25 @@ kubectl -n flagger-lab get events --sort-by=.lastTimestamp
 
 Salva timeline, revisioni, metriche, alert e disponibilità in
 `final-report.md`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-flagger/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f metric-template.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/20
+kubectl apply -f metric-template.yaml
+kubectl apply -f alert-provider.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```

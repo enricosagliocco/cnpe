@@ -1,5 +1,8 @@
 # Gatekeeper Dedicated Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio autonomo con 20 esercizi dedicati a OPA Gatekeeper.
 
 Ogni esercizio indica file starter, nomi delle risorse, parametri obbligatori

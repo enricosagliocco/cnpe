@@ -1,58 +1,24 @@
-# Le 20 domande dell'esame - Platform API and Operator Lab (simulatore lab)
+# Platform API and Operator Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-platform-api-operator-lab.sh`. Manifest e file
-starter si trovano in `~/course-platform-api-operator/`.
-
-Le 20 domande sono organizzate in cinque scenari progressivi:
-
-- Q1-Q4: directory `01`, progettazione della Platform API;
-- Q5-Q8: directory `02`, RBAC self-service per developer;
-- Q9-Q12: directory `03`, RBAC e reconciliation dell'operator;
-- Q13-Q16: directory `04`, provisioning tramite Tekton;
-- Q17-Q20: directory `05`, finalizer e lifecycle.
-
-Vincoli:
-
-- Non concedere `cluster-admin` e non usare regole RBAC wildcard.
-- I developer devono creare risorse tramite `PlatformService`, non
-  direttamente tramite Deployment o Service.
-- Non modificare i componenti core di Kubernetes o Tekton.
-- Conservare nomi, Namespace e API group indicati nei file starter.
-- Applicare il principio del minimo privilegio all'operator e ai workflow.
-- Eseguire realmente i test positivi e negativi richiesti.
-
-Le domande di ogni scenario sono progressive e condividono gli stessi file.
-Completa Q1-Q4 nell'ordine, poi Q5-Q8 e così via.
 
 Comandi utili:
 
 ```bash
-kubectl get crd platformservices.platform.cnpe.io
-kubectl explain platformservice.spec
-kubectl get platformservices --all-namespaces
-kubectl auth can-i --as=system:serviceaccount:tenant-a:developer --list
-kubectl -n platform-system logs deploy/platform-service-operator
-kubectl -n self-service get pipeline,pipelinerun,taskrun
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Schema strutturale della CRD
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -66,10 +32,30 @@ Correggi `platformservice-crd.yaml`:
 6. Applica la CRD corretta e verifica che la condizione `Established` sia
    `True`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f platformservice-crd.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl apply -f platformservice-crd.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q2 - Validazione PlatformService
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -82,10 +68,30 @@ Completa le validazioni OpenAPI:
 5. Imposta il default di `replicas` a `1`.
 6. Riapplica la CRD.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q3 - Status e printer columns
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -97,10 +103,30 @@ Nella versione `v1alpha1`:
 4. aggiungi la colonna `Phase` da `.status.phase`;
 5. verifica le colonne con `kubectl get platformservices`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q4 - Test della Platform API
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/01`.
 
@@ -112,10 +138,32 @@ Percorso: `~/course-platform-api-operator/01`.
 4. Applica `service-invalid-replicas.yaml`: deve essere rifiutato.
 5. Salva comandi, errori di validazione e risorsa valida in `crd-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f service-valid.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl apply -f service-valid.yaml
+kubectl apply -f service-invalid-plan.yaml
+kubectl apply -f service-invalid-replicas.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 - Diagnosi RBAC developer
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -128,10 +176,30 @@ Il ServiceAccount `developer` possiede inizialmente accesso read-only ai
    negati.
 4. Salva lo stato iniziale in `rbac-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q6 - RBAC self-service write
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -143,10 +211,30 @@ Completa `developer-rbac.yaml`:
 4. Non aggiungere altri API group o risorse.
 5. Applica il Role aggiornato e verifica i nuovi permessi.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f developer-rbac.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl apply -f developer-rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q7 - Confini del Namespace
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -158,10 +246,30 @@ Usando impersonation:
 4. verifica che non possa elencare PlatformService in tutti i Namespace;
 5. salva risultati ed exit code in `rbac-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q8 - Test dei privilegi negativi
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/02`.
 
@@ -176,10 +284,30 @@ Dimostra che il developer non possa:
 Tutti i test devono essere eseguiti con `kubectl auth can-i` e registrati in
 `rbac-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 - Diagnosi dell'operator
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -192,10 +320,30 @@ incompleto.
 4. Conferma che l'operator non abbia accesso a Secret o Node.
 5. Salva la diagnosi iniziale in `operator-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q10 - RBAC su custom resource e status
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -207,10 +355,30 @@ Completa `operator-rbac.yaml`:
 4. Applica il ClusterRole aggiornato.
 5. Verifica i permessi tramite impersonation del ServiceAccount operator.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f operator-rbac.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl apply -f operator-rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q11 - RBAC sulle risorse gestite
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -220,10 +388,30 @@ Percorso: `~/course-platform-api-operator/03`.
 4. Non aggiungere accesso a Secret, Namespace, Node o risorse RBAC.
 5. Applica il file e riavvia il Deployment operator.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q12 - Reconciliation e drift
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/03`.
 
@@ -234,10 +422,30 @@ Percorso: `~/course-platform-api-operator/03`.
 5. Attendi che l'operator ripristini il valore dichiarato.
 6. Salva timeline, status e correzione del drift in `operator-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 - Dipendenza della Pipeline
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -248,10 +456,30 @@ Completa `provisioning-pipeline.yaml`:
 3. Verifica che il task di creazione non parta se la validazione fallisce.
 4. Applica la Pipeline completata nel Namespace `self-service`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f provisioning-pipeline.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f provisioning-pipeline.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q14 - ServiceAccount provisioner
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -262,10 +490,31 @@ Percorso: `~/course-platform-api-operator/04`.
 4. Imposta `serviceAccountName: provisioner` in `provisioning-run.yaml`.
 5. Verifica i permessi del ServiceAccount tramite impersonation.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pipeline-rbac.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f pipeline-rbac.yaml
+kubectl apply -f provisioning-run.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q15 - Provisioning positivo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -276,10 +525,30 @@ Percorso: `~/course-platform-api-operator/04`.
 5. Verifica `status.phase=Ready`.
 6. Salva PipelineRun, TaskRun e risorse in `workflow-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f provisioning-run.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f provisioning-run.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q16 - Provisioning negativo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/04`.
 
@@ -289,10 +558,30 @@ Percorso: `~/course-platform-api-operator/04`.
 4. Verifica che `rejected-service` non esista.
 5. Salva condizioni, TaskRun e log in `workflow-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f provisioning-run-invalid.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f provisioning-run-invalid.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 - Finalizer
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -304,10 +593,31 @@ Percorso: `~/course-platform-api-operator/05`.
 4. Applica RBAC, operator aggiornato e risorsa lifecycle.
 5. Verifica che `reports` venga riconciliato e mostri il finalizer.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f lifecycle-service.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl apply -f lifecycle-service.yaml
+kubectl apply -f 03/operator-rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q18 - Cleanup delle dipendenze
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -322,10 +632,30 @@ Completa il ramo di deletion in `03/operator.yaml`:
 
 Riapplica il ConfigMap e riavvia l'operator.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 03/operator.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl apply -f 03/operator.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q19 - Idempotenza e recovery
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -337,10 +667,30 @@ Percorso: `~/course-platform-api-operator/05`.
 5. Ripristina l'operator e verifica il completamento automatico.
 6. Salva timeline e diagnosi in `lifecycle-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f lifecycle-service.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl apply -f lifecycle-service.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q20 - Verifica finale Platform API
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-api-operator/05`.
 
@@ -361,3 +711,24 @@ Completa `lifecycle-check.txt` con:
 3. stato dei provisioning positivo e negativo;
 4. timeline di deletion e cleanup;
 5. prova dell'assenza finale di `reports` e delle sue risorse gestite.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```

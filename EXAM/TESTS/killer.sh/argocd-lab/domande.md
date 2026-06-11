@@ -1,26 +1,13 @@
-# Le 20 domande dell'esame - Argo CD Lab (simulatore lab)
+# Argo CD Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-argocd-lab.sh`. Manifest e file starter sono in
-`~/course-argocd/`. Le Application risiedono in `argocd` e distribuiscono i
-workload nei Namespace indicati.
-
-**Vincolo:** non modificare o disinstallare i componenti core di Argo CD. Le
-correzioni devono essere dichiarative; non creare manualmente i workload che
-Argo CD deve riconciliare.
 
 Comandi utili:
 
@@ -31,9 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Application source
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/01`.
 
@@ -43,8 +28,30 @@ Percorso: `~/course-argocd/01`.
 
 2. Applica e verifica che Argo CD riesca a generare i manifest.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 01/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/01
+kubectl apply -f 01/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q2 - Destination
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/02`.
 
@@ -53,8 +60,30 @@ Percorso: `~/course-argocd/02`.
 
 2. Verifica server e Namespace nello status.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 02/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/02
+kubectl apply -f 02/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q3 - Sync automatica
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/03`.
 
@@ -63,8 +92,30 @@ Percorso: `~/course-argocd/03`.
 
 2. Sincronizza e verifica `Synced/Healthy`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 03/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/03
+kubectl apply -f 03/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q4 - CreateNamespace
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/04`.
 
@@ -73,8 +124,30 @@ Percorso: `~/course-argocd/04`.
 2. Aggiungi la sync option necessaria a crearlo e verifica che il deploy
    riesca.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q5 - Prune
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/05`.
 
@@ -82,8 +155,30 @@ Percorso: `~/course-argocd/05`.
    `05/evidence.txt` come Argo CD identifica ed elimina risorse non più
    desiderate.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 05/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/05
+kubectl apply -f 05/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q6 - Self-heal
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/06`.
 
@@ -92,8 +187,30 @@ Percorso: `~/course-argocd/06`.
 
 2. Salva history, eventi e diff in `06/evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 06/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/06
+kubectl apply -f 06/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q7 - Ignore differences
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/07`.
 
@@ -102,8 +219,30 @@ Percorso: `~/course-argocd/07`.
 
 2. Verifica che una variazione delle repliche non renda l'app OutOfSync.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 07/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/07
+kubectl apply -f 07/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q8 - Sync options
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/08`.
 
@@ -112,8 +251,30 @@ Percorso: `~/course-argocd/08`.
 
 2. Verifica le opzioni effettive.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 08/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/08
+kubectl apply -f 08/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q9 - AppProject destinations
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/09`.
 
@@ -122,8 +283,30 @@ Percorso: `~/course-argocd/09`.
 
 2. Collega e sincronizza l'Application.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 09/project.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/09
+kubectl apply -f 09/project.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q10 - AppProject resource policy
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/10`.
 
@@ -133,8 +316,30 @@ Percorso: `~/course-argocd/10`.
 2. Verifica con una Application valida e una che prova a creare una risorsa
    non consentita.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/10
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q11 - Orphaned resources
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/11`.
 
@@ -143,8 +348,30 @@ Percorso: `~/course-argocd/11`.
 2. Crea un ConfigMap manuale in `team-a` e verifica il warning senza
    eliminarlo.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 11/project.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/11
+kubectl apply -f 11/project.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q12 - ApplicationSet list generator
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/12`.
 
@@ -153,8 +380,30 @@ Percorso: `~/course-argocd/12`.
 
 2. Verifica due Application healthy.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 12/applicationset.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/12
+kubectl apply -f 12/applicationset.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q13 - ApplicationSet git generator
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/13`.
 
@@ -163,8 +412,30 @@ Percorso: `~/course-argocd/13`.
 
 2. Limita il generator ai path applicativi validi.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 13/applicationset.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/13
+kubectl apply -f 13/applicationset.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q14 - Helm values
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/14`.
 
@@ -173,16 +444,60 @@ Percorso: `~/course-argocd/14`.
 
 2. Verifica i parametri renderizzati.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 14/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/14
+kubectl apply -f 14/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q15 - Kustomize overrides
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/15`.
 
 1. Usa `15/application.yaml` per applicare il path `kustomize-guestbook`, un
    namePrefix `lab-` e la label comune `managed-by=argocd`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 15/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/15
+kubectl apply -f 15/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q16 - Multi-source
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/16`.
 
@@ -191,8 +506,30 @@ Percorso: `~/course-argocd/16`.
 2. Verifica che lo status esponga le revisioni di entrambe senza repeated
    resource warning.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 16/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/16
+kubectl apply -f 16/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q17 - Sync windows
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/17`.
 
@@ -201,8 +538,30 @@ Percorso: `~/course-argocd/17`.
 
 2. Dimostra l'effetto con `argocd app sync` o status.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 17/project.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/17
+kubectl apply -f 17/project.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q18 - RBAC
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/18`.
 
@@ -211,8 +570,30 @@ Percorso: `~/course-argocd/18`.
 
 2. Associa il gruppo `team-dev`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 18/argocd-rbac-cm.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/18
+kubectl apply -f 18/argocd-rbac-cm.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q19 - Troubleshooting
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/19`.
 
@@ -221,8 +602,30 @@ Percorso: `~/course-argocd/19`.
 2. Riproduci il problema, correggilo e salva condizioni, causa e verifica in
    `19/report.md`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/19` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 19/application.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/19
+kubectl apply -f 19/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q20 - Simulazione a tempo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argocd/20`.
 
@@ -240,3 +643,24 @@ kubectl -n argocd get applications -o custom-columns=NAME:.metadata.name,SYNC:.s
 
 4. Salva configurazione, history e prove di isolamento in
    `20/final-report.md`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argocd/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/20
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```

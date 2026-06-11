@@ -1,5 +1,8 @@
 # CNPE Observability and Incident Response Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio pratico dedicato a:
 
 1. monitoring e alerting con Prometheus Operator;

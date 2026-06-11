@@ -1,52 +1,24 @@
-# Le 20 domande dell'esame — Kyverno Lab (simulatore lab)
+# Kyverno Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario deployato da `setup-kyverno-lab.sh`. Manifest e file starter in
-`~/course-kyverno/`.
-
-**Vincolo:** non disinstallare Kyverno e non modificare i Deployment core nel
-Namespace `kyverno`. Usa le API CEL `policies.kyverno.io/v1`.
-
-Ogni domanda contiene una policy incompleta o errata e manifest di test. Devi:
-
-1. riprodurre il comportamento iniziale;
-2. completare o correggere `policy.yaml`;
-3. testare localmente con `kyverno apply`;
-4. applicare la policy al cluster;
-5. verificare realmente il caso negato e quello consentito.
-
-Le domande sono indipendenti. Dopo aver completato le verifiche di una
-domanda, elimina la relativa policy prima di passare alla successiva, salvo
-quando la traccia richiede esplicitamente di riutilizzarla. In questo modo una
-policy `Deny` precedente non altera i test dei manifest successivi.
 
 Comandi utili:
 
 ```bash
-kyverno apply ./policy.yaml --resource ./bad.yaml
-kubectl apply -f policy.yaml
-kubectl get validatingpolicies,mutatingpolicies
-kubectl get policyreport,clusterpolicyreport -A
-kubectl -n kyverno logs deploy/kyverno-admission-controller
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 – Namespace annotation obbligatoria
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/01`.
 
@@ -61,10 +33,32 @@ CEL mancanti.
 5. Applica la policy e verifica che il Namespace senza annotation venga
    rifiutato e quello conforme creato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 01/policy.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/01
+kubectl apply -f 01/policy.yaml
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q2 – Mutation di label e annotation sui Pod
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/02`.
 
@@ -77,10 +71,30 @@ La `NamespacedMutatingPolicy` `mutate-pods` in `apps` non contiene la patch.
 4. Applica policy e `pod.yaml`.
 5. Verifica entrambi i metadata sul Pod ammesso.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/02
+kubectl apply -f pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q3 – Label obbligatorie sui Deployment
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/03`.
 
@@ -92,10 +106,31 @@ Percorso: `~/course-kyverno/03`.
 3. Verifica `bad.yaml` negato e `good.yaml` accettato.
 4. Controlla la policy con la CLI e tramite admission.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/03
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q4 – Numero minimo di repliche
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/04`.
 
@@ -106,10 +141,31 @@ La policy `minimum-replicas` permette Deployment production con una replica.
 2. Richiedi `spec.replicas >= 2`, trattando il campo assente come una replica.
 3. Verifica il diniego di `bad.yaml` e l'accettazione di `good.yaml`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/04
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 – Resource requests e limits
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/05`.
 
@@ -121,10 +177,31 @@ Percorso: `~/course-kyverno/05`.
 3. Produci un messaggio con il nome del container non conforme.
 4. Verifica `bad.yaml` negato e `good.yaml` accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/05
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q6 – Registry immagini consentiti
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/06`.
 
@@ -136,10 +213,31 @@ Percorso: `~/course-kyverno/06`.
 3. Verifica che il messaggio includa nome e immagine rifiutata.
 4. Testa `bad.yaml` e `good.yaml` localmente e sul cluster.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/06
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q7 – Vietare tag latest e immagini senza tag
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/07`.
 
@@ -151,10 +249,30 @@ La policy `disallow-latest` è incompleta.
 3. Consenti immagini con tag esplicito o digest.
 4. Verifica i tre manifest forniti e salva l'output CLI in `result.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q8 – Pod runAsNonRoot
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/08`.
 
@@ -165,10 +283,31 @@ Percorso: `~/course-kyverno/08`.
 2. Richiedi `seccompProfile.type` uguale a `RuntimeDefault` o `Localhost`.
 3. Verifica `bad.yaml` negato e `good.yaml` accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/08
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 – Container privilegiati e privilege escalation
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/09`.
 
@@ -180,10 +319,30 @@ La policy `secure-containers` non ispeziona tutti i container.
 3. Controlla container, initContainer ed ephemeralContainer.
 4. Verifica i manifest positivo e negativo.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/09
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q10 – Volumi hostPath vietati
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/10`.
 
@@ -194,10 +353,31 @@ Percorso: `~/course-kyverno/10`.
 2. Applica la policy ai Pod CREATE e UPDATE.
 3. Verifica che `bad.yaml` sia negato e `good.yaml` accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/10
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q11 – Service NodePort e LoadBalancer vietati
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/11`.
 
@@ -209,10 +389,30 @@ La policy `restrict-service-types` deve proteggere il Namespace `production`.
 3. Tratta `spec.type` assente come `ClusterIP`.
 4. Verifica Service default e ClusterIP accettati, NodePort negato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q12 – Ingress TLS obbligatorio
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/12`.
 
@@ -223,10 +423,31 @@ Percorso: `~/course-kyverno/12`.
 2. Richiedi che ogni host delle rules compaia anche in una entry TLS.
 3. Verifica `bad.yaml` negato e `good.yaml` accettato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/12
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 – Label team immutabile durante UPDATE
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/13`.
 
@@ -241,10 +462,32 @@ La policy `immutable-team` deve consentire CREATE ma proteggere gli UPDATE.
 5. Verifica che `change-team.yaml` venga negata e `change-version.yaml`
    accettata.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f deployment.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/13
+kubectl apply -f deployment.yaml
+kubectl apply -f change-team.yaml
+kubectl apply -f change-version.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q14 – Namespace selector ed esclusione
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/14`.
 
@@ -256,10 +499,30 @@ Percorso: `~/course-kyverno/14`.
 3. Richiedi label Pod `security-reviewed=true`.
 4. Verifica i casi in `team-a`, `team-b` ed `exempt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q15 – Policy namespaced per autonomia team
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/15`.
 
@@ -271,10 +534,30 @@ La `NamespacedValidatingPolicy` in `team-a` non deve influire su `team-b`.
 3. Verifica lo stesso manifest accettato in `team-b`.
 4. Verifica ConfigMap conforme accettato in `team-a`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/15
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q16 – Audit prima di Deny
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/16`.
 
@@ -289,10 +572,30 @@ Deployment non conforme.
 4. Cambia action a `Deny` e verifica che un nuovo Deployment non conforme
    venga rifiutato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/16
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 – Messaggio dinamico con messageExpression
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/17`.
 
@@ -304,10 +607,30 @@ La policy `required-owner-message` usa soltanto un messaggio generico.
 3. Mantieni un `message` statico di fallback.
 4. Verifica che il diniego di `bad.yaml` contenga il nome `api-no-owner`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f bad.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/17
+kubectl apply -f bad.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q18 – Mutation condizionale senza sovrascrittura
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/18`.
 
@@ -319,10 +642,31 @@ Percorso: `~/course-kyverno/18`.
 3. Verifica che `pod-missing.yaml` venga mutato.
 4. Verifica che `pod-existing.yaml` mantenga `environment: production`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pod-missing.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/18
+kubectl apply -f pod-missing.yaml
+kubectl apply -f pod-existing.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q19 – Default security context su tutti i container
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/19`.
 
@@ -335,10 +679,30 @@ La MutatingPolicy `default-container-security` ha una patch incompleta.
 4. Mantieni nome e immagine originali.
 5. Verifica entrambi i container del Pod risultante.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/19` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/19
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q20 – Incident finale end-to-end
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-kyverno/20`.
 
@@ -352,3 +716,25 @@ sovrascrive label esistenti.
 3. Verifica Pod non conforme negato.
 4. Verifica Pod conforme ammesso e mutato senza sovrascrivere `owner`.
 5. Salva test CLI, eventi admission e risorsa finale in `20/report.md`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-kyverno/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f validating-policy.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/20
+kubectl apply -f validating-policy.yaml
+kubectl apply -f mutating-policy.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```

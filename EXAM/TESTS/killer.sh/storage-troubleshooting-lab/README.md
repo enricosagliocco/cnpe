@@ -1,5 +1,8 @@
 # CNPE Storage Troubleshooting Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio pratico composto da 20 incidenti storage indipendenti in stile
 esame CNPE. Lo script crea o riusa un cluster, genera manifest e comandi
 locali, ma non applica le risorse delle domande.

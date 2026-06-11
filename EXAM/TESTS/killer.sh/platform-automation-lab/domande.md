@@ -1,42 +1,24 @@
-# Le 20 domande dell'esame - Platform Automation Lab (simulatore lab)
+# Platform Automation Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-platform-automation-lab.sh`. Gli starter sono in
-`~/course-platform-automation/`.
-
-Vincoli:
-
-- non disinstallare o modificare i componenti core di Gatekeeper, Crossplane,
-  Tekton, OpenTelemetry, Metrics Server o KEDA;
-- non concedere `cluster-admin` e non usare wildcard RBAC;
-- non usare `nodeName`;
-- applicare realmente i manifest e conservare le verifiche nei file indicati.
 
 Comandi utili:
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl config current-context
 kubectl api-resources
-kubectl auth can-i --list
+kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Gatekeeper ConstraintTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/01`.
 
@@ -48,8 +30,30 @@ Completa `template.yaml` affinche i Deployment:
 
 Applica il ConstraintTemplate e attendi che sia `Created=True`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f template.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/01
+kubectl apply -f template.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q2 - Gatekeeper enforcement e test
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/01`.
 
@@ -59,10 +63,31 @@ Percorso: `~/course-platform-automation/01`.
 3. Correggi il Deployment aggiungendo `owner: platform` e due repliche.
 4. Salva test negativo, test positivo e violazioni in `gatekeeper-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f constraint.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/01
+kubectl apply -f constraint.yaml
+kubectl apply -f invalid-deployment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q3 - Crossplane XRD
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/02`.
 
@@ -75,8 +100,30 @@ Completa `xrd.yaml` per una API namespaced `WebApp`:
 
 Applica la XRD e verifica la CRD generata.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f xrd.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/02
+kubectl apply -f xrd.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q4 - Crossplane Composition
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/02`.
 
@@ -89,10 +136,31 @@ Completa e applica `composition.yaml` affinche ogni `WebApp` generi:
 Applica `webapp.yaml`, attendi le risorse composte e salva stato e resource
 references in `crossplane-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f composition.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/02
+kubectl apply -f composition.yaml
+kubectl apply -f webapp.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 - Tekton TriggerBinding e TriggerTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/03`.
 
@@ -103,8 +171,30 @@ Completa `triggers.yaml`:
 3. genera un PipelineRun della Pipeline `webhook-build`;
 4. usa il ServiceAccount `tekton-trigger`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f triggers.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/03
+kubectl apply -f triggers.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q6 - EventListener e webhook
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/03`.
 
@@ -115,10 +205,31 @@ Percorso: `~/course-platform-automation/03`.
 4. Invia `payload-feature.json`: non deve creare PipelineRun.
 5. Salva risposta HTTP, PipelineRun e log in `tekton-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload-main.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/03
+kubectl apply -f payload-main.json
+kubectl apply -f payload-feature.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q7 - OpenTelemetry Collector pipeline
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/04`.
 
@@ -131,8 +242,30 @@ Correggi `collector-config.yaml`:
 
 Applica ConfigMap e Deployment e verifica il rollout.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f collector-config.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/04
+kubectl apply -f collector-config.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q8 - Invio e verifica trace
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/04`.
 
@@ -141,10 +274,30 @@ Percorso: `~/course-platform-automation/04`.
    `checkout`.
 3. Salva configurazione effettiva, log ed esito Job in `otel-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f telemetrygen-job.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/04
+kubectl apply -f telemetrygen-job.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 - RBAC least privilege
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/05`.
 
@@ -155,8 +308,30 @@ Completa `rbac.yaml` affinche `release-bot` nel Namespace `team-a` possa:
 3. leggere Pod e relativi log;
 4. non creare o eliminare Deployment.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f rbac.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/05
+kubectl apply -f rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q10 - Test RBAC positivi e negativi
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/05`.
 
@@ -169,10 +344,30 @@ Usando impersonation verifica:
 
 Salva comandi, output ed exit code in `rbac-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q11 - NetworkPolicy ingress
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/06`.
 
@@ -180,8 +375,30 @@ Completa `networkpolicy.yaml` per applicare default deny e consentire al
 backend TCP 8080 soltanto dai Pod `app=frontend` nel Namespace
 `network-client`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f networkpolicy.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/06
+kubectl apply -f networkpolicy.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q12 - NetworkPolicy egress e verifica
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/06`.
 
@@ -190,10 +407,30 @@ Percorso: `~/course-platform-automation/06`.
 3. Dimostra frontend consentito, intruder negato ed egress Internet negato.
 4. Salva i test in `network-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 - Taint e toleration
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/07`.
 
@@ -204,8 +441,30 @@ Il worker con label `workload.cnpe.io/tier=dedicated` ha il taint
 2. Aggiungi required node affinity verso la label del worker dedicato.
 3. Applica e verifica che le due repliche siano sul nodo corretto.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q14 - Pod anti-affinity
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/07`.
 
@@ -214,10 +473,30 @@ Percorso: `~/course-platform-automation/07`.
 3. Salva Pod, nodi, taint e decisioni dello scheduler in
    `scheduling-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q15 - Helm templating
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/08/app-chart`.
 
@@ -227,8 +506,30 @@ Correggi il chart affinche:
 2. label e selector usino un helper comune;
 3. `helm lint` e `helm template` non producano errori.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/08/app-chart` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f values.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/08/app-chart
+kubectl apply -f values.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q16 - Helm install e upgrade
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/08`.
 
@@ -237,10 +538,30 @@ Percorso: `~/course-platform-automation/08`.
 3. Esegui upgrade con `replicaCount=3` e `service.port=8080`.
 4. Salva history, values e manifest in `helm-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/08
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 - StorageClass e binding ritardato
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/09`.
 
@@ -251,8 +572,30 @@ Correggi `storage.yaml`:
 3. PV locale sul worker indicato in `node.txt`;
 4. PVC da `1Gi`, `ReadWriteOnce`, StorageClass corretta.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f storage.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/09
+kubectl apply -f storage.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q18 - PVC, scheduling e persistenza
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/09`.
 
@@ -261,10 +604,30 @@ Percorso: `~/course-platform-automation/09`.
 3. Scrivi un valore in `/data/check.txt`, ricrea il Pod e verifica che resti.
 4. Salva binding, affinity e prova di persistenza in `storage-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f storage.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/09
+kubectl apply -f storage.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q19 - HPA CPU
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/10`.
 
@@ -278,8 +641,31 @@ Correggi `hpa.yaml`:
 Genera carico con `load-generator.yaml` e salva il comportamento in
 `autoscaling-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f hpa.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/10
+kubectl apply -f hpa.yaml
+kubectl apply -f load-generator.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q20 - KEDA ScaledObject
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-platform-automation/10`.
 
@@ -293,3 +679,23 @@ Completa `scaledobject.yaml`:
 Applica la risorsa, verifica l'HPA creato da KEDA e salva condizioni,
 repliche e nome HPA in `autoscaling-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-platform-automation/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f scaledobject.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-automation/10
+kubectl apply -f scaledobject.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```

@@ -1,28 +1,13 @@
-# Le 20 domande dell'esame — Capacity and Autoscaling Lab (simulatore lab)
+# Capacity and Autoscaling Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-capacity-autoscaling-lab.sh`. Gli starter sono in
-`~/course-capacity-autoscaling/`.
-
-**Vincolo:** non modificare i Deployment installati dal setup e non
-disinstallare Metrics Server, VPA o KEDA. Puoi modificare ResourceQuota,
-LimitRange, VPA, HPA, ScaledObject e i Pod di test forniti.
-
-Le domande sono progressive a gruppi di quattro. Applica ogni modifica e
-salva le evidenze nei file presenti nella directory indicata.
 
 Comandi utili:
 
@@ -33,9 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 – Diagnosi ResourceQuota
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -45,8 +28,30 @@ Percorso: `~/course-capacity-autoscaling/01`.
 2. Analizza Deployment, ReplicaSet, eventi e quota e salva la causa in
    `01/diagnosi.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q2 – Correzione ResourceQuota
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -55,8 +60,30 @@ Percorso: `~/course-capacity-autoscaling/01`.
 
 2. Applica il file senza riavviare il Deployment.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 01/resourcequota.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/01
+kubectl apply -f 01/resourcequota.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q3 – Accounting della quota
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -64,8 +91,30 @@ Percorso: `~/course-capacity-autoscaling/01`.
 
 2. Registra hard, used, request e limit effettivi in `01/diagnosi.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q4 – Test di saturazione quota
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -73,26 +122,91 @@ Percorso: `~/course-capacity-autoscaling/01`.
 
 2. Documenta il rifiuto admission e rimuovi soltanto i Pod di test.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q5 – Riproduzione errore LimitRange
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
 1. Applica `02/pod.yaml`, acquisisci il messaggio di rifiuto e confronta
    LimitRange e ResourceQuota in `limits-lab`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 02/pod.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/02
+kubectl apply -f 02/pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q6 – Default request e limit
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
 1. Correggi `02/limitrange.yaml` con request `100m/128Mi` e limit
    `500m/512Mi`, senza modificare `02/pod.yaml`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 02/limitrange.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/02
+kubectl apply -f 02/limitrange.yaml
+kubectl apply -f 02/pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q7 – Limiti massimi container
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -101,8 +215,30 @@ Percorso: `~/course-capacity-autoscaling/02`.
 2. Applica il file e verifica che il Pod riceva automaticamente request e
    limit.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q8 – Test positivo e negativo LimitRange
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -111,10 +247,30 @@ Percorso: `~/course-capacity-autoscaling/02`.
 
 2. Salva entrambe le prove in `02/diagnosi.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q9 – Diagnosi VPA
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -122,24 +278,90 @@ Percorso: `~/course-capacity-autoscaling/03`.
 
 2. Registra perché non produce raccomandazioni.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q10 – Correzione TargetRef VPA
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
 1. Correggi `03/vpa.yaml` affinché punti al Deployment `recommendation-api`,
    mantenendo `updateMode: "Off"` e i limiti min/max esistenti.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 03/vpa.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/03
+kubectl apply -f 03/vpa.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q11 – Lettura raccomandazioni VPA
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
 1. Attendi una recommendation e salva target, lower bound, recommendation,
    upper bound e uncapped target in `03/recommendation.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q12 – Verifica modalità recommendation-only
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -148,10 +370,30 @@ Percorso: `~/course-capacity-autoscaling/03`.
 2. Spiega perché VPA e HPA CPU non devono controllare contemporaneamente lo
    stesso workload.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q13 – Diagnosi HPA
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -159,8 +401,30 @@ Percorso: `~/course-capacity-autoscaling/04`.
 
 2. Individua target e configurazioni errate.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q14 – Configurazione HPA CPU
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -169,26 +433,90 @@ Percorso: `~/course-capacity-autoscaling/04`.
 
 2. Verifica che la metrica non sia `<unknown>`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 04/hpa.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/04
+kubectl apply -f 04/hpa.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q15 – Scale-up sotto carico
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
 1. Applica `04/load-generator.yaml`, osserva HPA e Deployment finché le
    repliche superano uno e salva il massimo osservato in `04/result.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 04/load-generator.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/04
+kubectl apply -f 04/load-generator.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q16 – Stabilizzazione e scale-down
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
 1. Elimina il generatore, osserva il ritorno al minimo e registra condizioni,
    tempi e comportamento di stabilizzazione.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
 ---
 
 ### Q17 – Diagnosi ScaledObject
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -196,8 +524,30 @@ Percorso: `~/course-capacity-autoscaling/05`.
 
 2. Spiega perché `queue-worker` resta a zero.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q18 – Correzione KEDA
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -205,8 +555,30 @@ Percorso: `~/course-capacity-autoscaling/05`.
    `0`, massimo `4`, timezone `Europe/Rome`, finestra `00:00–23:59` e desired
    replicas `3`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 05/scaledobject.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/05
+kubectl apply -f 05/scaledobject.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q19 – HPA gestito da KEDA
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -215,8 +587,30 @@ Percorso: `~/course-capacity-autoscaling/05`.
 
 2. Non creare un secondo HPA.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q20 – Verifica finale autoscaling
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -233,3 +627,24 @@ kubectl -n keda-lab get scaledobject,hpa,deploy,pods
 
 2. Completa tutti i file di evidenza e conferma che nessun Deployment sia
    stato modificato direttamente.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-capacity-autoscaling/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-capacity-autoscaling/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```

@@ -1,5 +1,8 @@
 # Kyverno Dedicated Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio autonomo con 20 scenari pratici Kyverno basati sulle API CEL
 `policies.kyverno.io/v1`.
 

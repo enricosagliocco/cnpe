@@ -1,5 +1,8 @@
 # CNPE Security and Policy Enforcement Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio pratico dedicato al dominio CNPE Security and Policy Enforcement:
 
 1. comunicazione service-to-service con mTLS e NetworkPolicy;

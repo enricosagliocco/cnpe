@@ -1,5 +1,8 @@
 # CNPE Platform Automation Lab
 
+Le 20 domande sono presentate in formato exam-style: obiettivo
+diretto, tip, soluzione operativa e verifica runtime.
+
 Laboratorio autonomo con 20 esercizi pratici su:
 
 1. OPA Gatekeeper;

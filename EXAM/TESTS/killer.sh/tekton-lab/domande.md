@@ -1,44 +1,24 @@
-# Le 20 domande dell'esame - Tekton Pipelines and Triggers Lab
+# Tekton Pipelines and Triggers Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda è un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale;
-2. raccogliere condizioni, eventi, log o risposta HTTP;
-3. identificare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla nel cluster.
-
-La sola modifica del file o una risposta teorica non completano il ticket.
-Salva comando, errore iniziale, correzione e verifica finale nel file
-`evidence.txt` della domanda.
-
-Scenario creato da `setup-tekton-lab.sh`. Gli starter si trovano in
-`~/course-tekton/`; tutte le risorse devono essere create nel Namespace
-`tekton-lab`.
-
-Vincoli:
-
-- non modificare o disinstallare Tekton Pipelines, Triggers o Dashboard;
-- non concedere `cluster-admin` e non usare wildcard RBAC;
-- non creare manualmente i PipelineRun che devono provenire da un webhook;
-- non esporre Secret nei log;
-- conservare nomi e Namespace indicati negli starter.
 
 Comandi utili:
 
 ```bash
-kubectl -n tekton-lab get task,pipeline,taskrun,pipelinerun
-kubectl -n tekton-lab get triggerbinding,triggertemplate,eventlistener
-kubectl -n tekton-lab get events --sort-by=.lastTimestamp
-kubectl -n tekton-lab logs deploy/el-<nome-eventlistener>
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Task e parametri
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/01`.
 
@@ -47,8 +27,31 @@ Percorso: `~/course-tekton/01`.
 3. Passa `name=cnpe` dal TaskRun.
 4. Verifica `Succeeded=True` e log esatto `hello cnpe`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f task.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/01
+kubectl apply -f task.yaml
+kubectl apply -f taskrun.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q2 - Workspace condiviso
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/02`.
 
@@ -58,8 +61,30 @@ Percorso: `~/course-tekton/02`.
 3. Implementa gli step `prepare`, `build` e `verify` usando lo stesso path.
 4. Verifica ordine degli step e presenza di `artifact.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q3 - Result di un Task
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/03`.
 
@@ -69,8 +94,30 @@ Percorso: `~/course-tekton/03`.
 3. Crea un nuovo TaskRun.
 4. Verifica il valore nello status senza ricavarlo dai log.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f task.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/03
+kubectl apply -f task.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q4 - Workspace del TaskRun
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/04`.
 
@@ -79,8 +126,30 @@ Percorso: `~/course-tekton/04`.
 3. Scrivi `app.txt` in `$(workspaces.source.path)`.
 4. Verifica `Succeeded=True`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q5 - Workspace persistente
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/05`.
 
@@ -89,8 +158,30 @@ Percorso: `~/course-tekton/05`.
 3. Crea un nuovo PipelineRun.
 4. Verifica PipelineRun, PVC e TaskRun associato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q6 - Ordine della Pipeline
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/06`.
 
@@ -99,8 +190,30 @@ Percorso: `~/course-tekton/06`.
 3. Associa il workspace `source` anche a `test`.
 4. Verifica tre TaskRun riusciti nell'ordine richiesto.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q7 - Task paralleli
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/07`.
 
@@ -109,8 +222,30 @@ Percorso: `~/course-tekton/07`.
 3. Esegui `report` soltanto dopo entrambi.
 4. Registra start e completion time in `result.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q8 - Propagazione di un result
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/08`.
 
@@ -119,8 +254,30 @@ Percorso: `~/course-tekton/08`.
 3. Crea un nuovo PipelineRun.
 4. Verifica il log esatto `publishing 2.3.1`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/08
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q9 - Result della Pipeline
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/09`.
 
@@ -130,8 +287,30 @@ Percorso: `~/course-tekton/09`.
 3. Collegalo al result del Task `build`.
 4. Verifica `registry.example/app:1.0.0` nello status del PipelineRun.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/09
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q10 - Deploy condizionale
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/10`.
 
@@ -140,8 +319,30 @@ Percorso: `~/course-tekton/10`.
 3. Accetta soltanto `staging` e `prod` nella `when`.
 4. Verifica `Skipped` per dev e `Succeeded` per staging.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f run-dev.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/10
+kubectl apply -f run-dev.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q11 - ServiceAccount dell'EventListener
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/11`.
 
@@ -152,8 +353,30 @@ Percorso: `~/course-tekton/11`.
 4. Verifica i permessi con `kubectl auth can-i` e conferma che non possa
    leggere Secret.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f rbac.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/11
+kubectl apply -f rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q12 - TriggerTemplate
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/12`.
 
@@ -163,8 +386,31 @@ Percorso: `~/course-tekton/12`.
    valori.
 4. Verifica server-side il template completato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f pipeline.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/12
+kubectl apply -f pipeline.yaml
+kubectl apply -f triggertemplate.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q13 - TriggerBinding
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/13`.
 
@@ -173,8 +419,30 @@ Percorso: `~/course-tekton/13`.
 3. Estrai `body.after` nel parametro `revision`.
 4. Applica il TriggerBinding e verifica i campi salvati nel cluster.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/13
+kubectl apply -f payload.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q14 - EventListener
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/14`.
 
@@ -185,8 +453,30 @@ Percorso: `~/course-tekton/14`.
 4. Invia `payload.json` al Service `el-git-push` e verifica un PipelineRun
    riuscito.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/14
+kubectl apply -f payload.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q15 - Filtro CEL sul branch
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/15`.
 
@@ -196,8 +486,31 @@ Percorso: `~/course-tekton/15`.
    `body.ref == 'refs/heads/main'`.
 4. Verifica che main crei un PipelineRun e feature non ne crei alcuno.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload-main.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/15
+kubectl apply -f payload-main.json
+kubectl apply -f payload-feature.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q16 - Mapping del payload
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/16`.
 
@@ -207,8 +520,30 @@ Percorso: `~/course-tekton/16`.
 3. Non inserire valori statici nel PipelineRun generato.
 4. Verifica i tre parametri nello spec e nei log.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/16
+kubectl apply -f payload.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q17 - Trigger multipli
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/17`.
 
@@ -219,8 +554,30 @@ Percorso: `~/course-tekton/17`.
 4. Invia i tre payload forniti e verifica due PipelineRun creati e il payload
    feature rifiutato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/17
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q18 - Sicurezza del webhook
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/18`.
 
@@ -231,8 +588,30 @@ Percorso: `~/course-tekton/18`.
 4. Verifica che il webhook continui a funzionare e salva test RBAC positivi e
    negativi in `rbac-check.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/18
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q19 - Troubleshooting EventListener
-**Ticket:** riproduci il sintomo, identifica la causa radice, correggi e verifica nel cluster.
 
 Percorso: `~/course-tekton/19`.
 
@@ -246,8 +625,30 @@ parametro non dichiarato.
 4. Verifica un solo PipelineRun `Succeeded=True` e documenta causa e fix in
    `report.md`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/19` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/19
+kubectl apply -f payload.json
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q20 - Webhook end-to-end
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea gli elementi mancanti e verifica nel cluster.
 
 Percorso: `~/course-tekton/20`.
 
@@ -257,3 +658,25 @@ Percorso: `~/course-tekton/20`.
 4. Invia prima `payload-feature.json`, poi `payload-main.json`.
 5. Verifica che soltanto main crei un PipelineRun riuscito.
 6. Salva risposta HTTP, risorse Trigger, PipelineRun e log in `run.log`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-tekton/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f payload-feature.json
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/20
+kubectl apply -f payload-feature.json
+kubectl apply -f payload-main.json
+kubectl get events -A --sort-by=.lastTimestamp
+```

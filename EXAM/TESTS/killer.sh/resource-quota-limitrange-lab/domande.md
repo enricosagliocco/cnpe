@@ -1,28 +1,26 @@
-# Le 20 domande dell'esame - Resource Governance Troubleshooting Lab
+# Resource Governance Troubleshooting Lab - 20 exam-style tasks
 
-Lo script `setup-resource-quota-limitrange-lab.sh` crea o riusa il cluster
-Kubernetes e genera i file del corso, ma non applica le risorse delle
-domande. Ogni domanda usa una cartella indipendente
-`~/course-resource-governance/qNN/`; tutte le risorse devono essere create
-nel Namespace `resource-governance`.
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Il laboratorio simula una coda di incidenti. Per ogni domanda devi tentare
-l'operazione richiesta, osservare il sintomo, identificare la causa, applicare
-la correzione minima e verificarne l'esito.
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-Vincoli:
+Per ogni domanda esegui `./create-resources.sh` quando presente e termina
+con `./remove-resources.sh`. Non lasciare risorse di uno scenario attive
+durante la prova successiva.
 
-- all'inizio eseguire `./create-resources.sh`;
-- alla fine eseguire `./remove-resources.sh`, anche dopo una prova fallita;
-- non modificare o eliminare il Deployment e il Service `platform-api`;
-- non modificare o eliminare `ResourceQuota` e `LimitRange`;
-- non aumentare la quota per aggirare un errore;
-- non eliminare risorse estranee all'incidente corrente;
-- usare il dry-run server-side quando richiesto;
-- salvare comandi, errori e verifiche in `evidence.txt`.
+Comandi utili:
+
+```bash
+kubectl config current-context
+kubectl api-resources
+kubectl get events -A --sort-by=.lastTimestamp
+```
 
 ---
-
 ### Q1 - Pod senza resources
 
 Percorso: `~/course-resource-governance/01`.
@@ -32,6 +30,31 @@ Percorso: `~/course-resource-governance/01`.
    valori dichiarati nel file.
 3. Individua quale risorsa di admission li ha aggiunti.
 4. Registra valori effettivi e stato del Pod in `evidence.txt`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f defaulted-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q2 - Manifest esplicito
 
@@ -45,6 +68,31 @@ Percorso: `~/course-resource-governance/01`.
    vengano modificati.
 4. Elimina `explicit-pod` dopo la verifica.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f explicit-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q3 - Request oltre il massimo
 
 Percorso: `~/course-resource-governance/01`.
@@ -55,6 +103,31 @@ Percorso: `~/course-resource-governance/01`.
 3. Correggi solo CPU request e limit portandoli al massimo consentito.
 4. Ripeti il dry-run fino a ottenere esito positivo, senza creare il Pod.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f oversized-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q4 - Rapporto limit/request
 
 Percorso: `~/course-resource-governance/01`.
@@ -64,6 +137,31 @@ Percorso: `~/course-resource-governance/01`.
 3. Correggi soltanto il limit CPU usando il valore massimo valido.
 4. Verifica con dry-run server-side senza creare il Pod.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f burst-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q5 - Request sotto il minimo
 
 Percorso: `~/course-resource-governance/01`.
@@ -72,6 +170,31 @@ Percorso: `~/course-resource-governance/01`.
 2. Identifica il minimo CPU richiesto dal `LimitRange`.
 3. Correggi soltanto la request CPU con il minimo consentito.
 4. Crea il Pod, verifica le risorse effettive e poi eliminalo.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f below-minimum-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q6 - Errore nascosto nel sidecar
 
@@ -83,6 +206,31 @@ Percorso: `~/course-resource-governance/01`.
 3. Correggi il rapporto CPU del solo sidecar.
 4. Crea il Pod, verifica entrambi i container e poi eliminalo.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f multi-container-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q7 - Limite aggiunto automaticamente
 
 Percorso: `~/course-resource-governance/01`.
@@ -92,6 +240,31 @@ Percorso: `~/course-resource-governance/01`.
 3. Individua il limit aggiunto dal `LimitRange` e verifica che il rapporto
    risultante sia valido.
 4. Crea il Pod e registra request e limit osservati.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f missing-limit-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q8 - Quota CPU esaurita
 
@@ -103,6 +276,31 @@ Percorso: `~/course-resource-governance/01`.
 4. Elimina soltanto `missing-limit-pod`, riprova la creazione e verifica che
    `oversized-pod` sia Running.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f oversized-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q9 - ReplicaSet senza Pod
 
 Percorso: `~/course-resource-governance/01`.
@@ -113,6 +311,31 @@ Percorso: `~/course-resource-governance/01`.
    della quota.
 4. Elimina `batch-worker` e verifica che non restino Pod associati.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f batch-worker.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q10 - Ridimensionamento del Deployment
 
 Percorso: `~/course-resource-governance/01`.
@@ -122,6 +345,31 @@ Percorso: `~/course-resource-governance/01`.
    container, request `100m/64Mi` e limit `200m/128Mi`.
 3. Esegui dry-run server-side, applica il Deployment e attendi due Pod Ready.
 4. Verifica il consumo aggregato reale.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f batch-worker.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q11 - Pod count esaurito
 
@@ -134,6 +382,31 @@ Percorso: `~/course-resource-governance/01`.
    memoria.
 4. Non eliminare workload per far passare il test.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f pod-slot-test.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q12 - Recupero di uno slot Pod
 
 Percorso: `~/course-resource-governance/01`.
@@ -142,6 +415,31 @@ Percorso: `~/course-resource-governance/01`.
 2. Applica nuovamente `pod-slot-test.yaml`.
 3. Verifica che il Pod sia Running e che la quota Pod sia nuovamente satura.
 4. Elimina `pod-slot-test` al termine.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f pod-slot-test.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q13 - ConfigMap count
 
@@ -153,6 +451,32 @@ Percorso: `~/course-resource-governance/01`.
 4. Elimina soltanto `temporary-settings`, crea `worker-settings` e verifica il
    nuovo valore `used`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f temporary-settings.yaml
+kubectl apply -f worker-settings.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q14 - Service negato
 
 Percorso: `~/course-resource-governance/01`.
@@ -161,6 +485,31 @@ Percorso: `~/course-resource-governance/01`.
 2. Diagnostica il rifiuto e identifica i Service che occupano gli slot.
 3. Verifica che selector e porta del manifest siano altrimenti validi.
 4. Non eliminare `platform-api` e non applicare il Service.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f extra-service.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q15 - Service senza endpoint
 
@@ -171,6 +520,31 @@ Percorso: `~/course-resource-governance/01`.
    sia disponibile.
 3. Esporta il Service in `worker-headless.yaml`.
 4. Correggi soltanto il selector, applica il file e verifica gli endpoint.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f worker-headless.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q16 - Rollout bloccato da resources mancanti
 
@@ -183,6 +557,31 @@ Percorso: `~/course-resource-governance/01`.
    seconda replica non viene creata.
 4. Non eliminare il Deployment: conserva le evidenze per la correzione
    successiva.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f broken-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q17 - Creazione entro il budget
 
@@ -197,6 +596,31 @@ Percorso: `~/course-resource-governance/01`.
 4. Scala `batch-worker` a una replica senza modificarne il template e verifica
    che `diagnostic-worker` raggiunga due repliche.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f broken-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q18 - Drift delle risorse
 
 Percorso: `~/course-resource-governance/01`.
@@ -208,6 +632,31 @@ Percorso: `~/course-resource-governance/01`.
 3. Ripristina il Deployment applicando `broken-rollout.yaml`.
 4. Verifica che non restino ReplicaSet in errore attivo.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f broken-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
 ### Q19 - Ripristino stato operativo
 
 Percorso: `~/course-resource-governance/01`.
@@ -217,6 +666,31 @@ Percorso: `~/course-resource-governance/01`.
 3. Attendi la riconciliazione e diagnostica qualsiasi Pod non Ready o evento
    di quota residuo.
 4. Verifica che `platform-api` non abbia subito modifiche.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
 
 ### Q20 - Verifica finale
 
@@ -230,3 +704,26 @@ Percorso: `~/course-resource-governance/01`.
    della quota.
 4. Completa `evidence.txt` con almeno un rifiuto `LimitRange`, un rifiuto
    `ResourceQuota`, una creazione corretta e una correzione di selector.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+./create-resources.sh
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```

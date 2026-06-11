@@ -1,24 +1,13 @@
-# Le 20 domande dell'esame - Argo Rollouts Lab (simulatore lab)
+# Argo Rollouts Lab - 20 exam-style tasks
 
-## Metodo operativo obbligatorio
+Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
+le risorse richieste e verifica il risultato nel cluster. Le sezioni
+`Tip` aiutano a individuare API, file e comandi utili; la sezione
+`Solution` riporta il flusso operativo di applicazione e verifica.
 
-Ogni domanda e un ticket di troubleshooting. Devi:
+Non modificare o disinstallare i componenti core installati dal setup.
+Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
-1. riprodurre o osservare lo stato iniziale nel cluster;
-2. raccogliere il sintomo tramite stato, condizioni, eventi, log o output del controller;
-3. identificare e registrare la causa radice;
-4. creare gli elementi mancanti o correggere le sole risorse coinvolte;
-5. applicare la soluzione e verificarla con un test runtime positivo e, quando previsto, negativo.
-
-La sola modifica del file, il solo dry-run client-side o una risposta teorica
-non completano il ticket. Conserva comando, errore iniziale, correzione e
-verifica finale nell'evidence file indicato dalla domanda.
-
-Scenario creato da `setup-argo-rollouts-lab.sh`. Gli starter sono in
-`~/course-argo-rollouts/` e le risorse nel Namespace `argo-rollouts-lab`.
-
-**Vincolo:** non modificare il controller o le CRD. Conserva i selector dei
-Service e usa Rollout, AnalysisTemplate, AnalysisRun ed Experiment.
 
 Comandi utili:
 
@@ -29,9 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Rollout base
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/01`.
 
@@ -39,16 +26,60 @@ Percorso: `~/course-argo-rollouts/01`.
 
 2. Applica e verifica `Healthy` con tre repliche.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/01` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 01/rollout.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/01
+kubectl apply -f 01/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q2 - Canary steps
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/02`.
 
 1. Configura in `02/rollout.yaml` peso 20%, pausa 10 secondi, peso 50%, pausa
    manuale e peso 100%.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/02` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 02/rollout.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/02
+kubectl apply -f 02/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q3 - Stable e canary Service
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/03`.
 
@@ -56,16 +87,60 @@ Percorso: `~/course-argo-rollouts/03`.
 
 2. Durante un update verifica gli hash aggiunti ai selector.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/03` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q4 - Promozione manuale
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/04`.
 
 1. Avvia v2, attendi la pausa manuale, esegui promote e salva ReplicaSet, step
    e revisioni in `04/evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/04` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q5 - Abort
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/05`.
 
@@ -73,8 +148,30 @@ Percorso: `~/course-argo-rollouts/05`.
    abort e verifica che il Service stabile continui a servire la revisione
    precedente.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/05` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q6 - Undo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/06`.
 
@@ -82,16 +179,60 @@ Percorso: `~/course-argo-rollouts/06`.
 
 2. Documenta immagini, revisioni e stato finale.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/06` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q7 - Blue/green
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/07`.
 
 1. Completa `07/rollout.yaml` con Service active e preview, promozione manuale
    e `scaleDownDelaySeconds: 30`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/07` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 07/rollout.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/07
+kubectl apply -f 07/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q8 - Preview verification
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/08`.
 
@@ -99,16 +240,60 @@ Percorso: `~/course-argo-rollouts/08`.
 
 2. Salva selector e endpoint in `08/evidence.txt`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/08` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/08
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q9 - Blue/green promotion
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/09`.
 
 1. Promuovi v2 e verifica lo switch atomico dell'active Service e il ritardo
    prima dello scale-down del vecchio ReplicaSet.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/09` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/09
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q10 - Pre-promotion analysis
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/10`.
 
@@ -116,32 +301,120 @@ Percorso: `~/course-argo-rollouts/10`.
 
 2. Una verifica riuscita deve consentire la promozione.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/10` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 10/analysis-template.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/10
+kubectl apply -f 10/analysis-template.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q11 - Post-promotion analysis
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/11`.
 
 1. Configura una postPromotionAnalysis che fallisce per v3 e verifica rollback
    o stato degradato senza perdita del Service active.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/11` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q12 - Background analysis
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/12`.
 
 1. Nel canary, avvia l'analisi dalla soglia del 20% e termina l'AnalysisRun
    alla fine dell'update.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/12` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/12
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q13 - Metric success condition
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/13`.
 
 1. Completa il job provider nell'AnalysisTemplate: `successCondition` deve
    accettare risultato `0`, con tre misurazioni e failure limit 1.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/13` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/13
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q14 - Analysis arguments
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/14`.
 
@@ -149,8 +422,30 @@ Percorso: `~/course-argo-rollouts/14`.
 
 2. Verifica gli argomenti nell'AnalysisRun generato.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/14` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q15 - Inconclusive e retry
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/15`.
 
@@ -158,8 +453,30 @@ Percorso: `~/course-argo-rollouts/15`.
 
 2. Riproduci uno stato inconclusive e documenta il comportamento.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/15` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/15
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q16 - Experiment
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/16`.
 
@@ -168,16 +485,60 @@ Percorso: `~/course-argo-rollouts/16`.
 
 2. Verifica ReplicaSet e AnalysisRun associati.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/16` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 16/experiment.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/16
+kubectl apply -f 16/experiment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q17 - Anti-affinity
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/17`.
 
 1. Configura anti-affinity tra pod canary e stable e verifica la distribuzione
    sui nodi disponibili senza rendere impossibile lo scheduling su kind.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/17` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/17
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q18 - Scale-down controls
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/18`.
 
@@ -186,8 +547,30 @@ Percorso: `~/course-argo-rollouts/18`.
 
 2. Verifica il numero di pod durante promote e abort.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/18` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/18
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q19 - Troubleshooting
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/19`.
 
@@ -196,8 +579,30 @@ Percorso: `~/course-argo-rollouts/19`.
 2. Riproduci il problema, correggilo e salva condizioni, eventi e causa in
    `19/report.md`.
 
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/19` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl apply --server-side --dry-run=server -f 19/rollout.yaml
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/19
+kubectl apply -f 19/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
 ### Q20 - Simulazione a tempo
-**Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-argo-rollouts/20`.
 
@@ -210,3 +615,24 @@ kubectl -n argo-rollouts-lab describe rollout final-api
 ```
 
 2. Salva timeline, selector, metriche e revisioni in `20/final-report.md`.
+
+**Tip 1**
+
+Esamina tutti i manifest presenti in `~/course-argo-rollouts/20` prima di applicarli.
+
+**Tip 2**
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+**Solution**
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/20
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
