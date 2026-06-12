@@ -1,25 +1,66 @@
 # Crossplane Dedicated Lab
 
-Laboratorio autonomo con 20 esercizi deterministici in stile esame dedicati a
-Crossplane v2. Ogni domanda fornisce una XRD e una Composition complete: il
-candidato deve applicarle, creare l'XR richiesto e verificare tutte le risorse
-composte. Gli scenari sono indipendenti e usano esclusivamente risorse
-Kubernetes locali.
+Laboratorio autonomo con 20 prove pratiche dedicate alla creazione e gestione
+di `CompositeResourceDefinition`, `Composition` Pipeline e composite resource
+con Crossplane v2.
+
+La matrice copre:
+
+- XRD cluster-scoped e namespaced;
+- schema OpenAPI, required, enum, default, limiti e versioni;
+- Composition con Function Patch and Transform;
+- uso esplicito di `FromCompositeFieldPath` e `ToCompositeFieldPath`;
+- patch semplici, PatchSet, combine, transform e patch verso lo status;
+- readiness check e propagazione dei metadata;
+- selezione della Composition e CompositionRevision automatiche/manuali;
+- update, pausa, riconciliazione e troubleshooting;
+- simulazione completa da manifest vuoti.
+
+Gli scenari usano soltanto risorse Kubernetes locali e non richiedono account
+cloud.
 
 ## Avvio
 
-Prerequisiti: Linux, `kubectl`, `helm` e un cluster Kubernetes.
+Prerequisiti: Linux o WSL, `kubectl`, `helm` e un cluster Kubernetes.
 
 ```bash
-chmod +x setup-crossplane-lab.sh
+chmod +x setup-crossplane-lab.sh validate-crossplane-lab.sh
 ./setup-crossplane-lab.sh
 ```
 
-Il materiale viene creato in `~/course-crossplane`. Il setup installa
-Crossplane e Function Patch and Transform v0.8.2; l'installazione della
-Function può richiedere 1-2 minuti. Ogni directory contiene `xrd.yaml`,
-`composition.yaml`, `QUESTION.md` ed `evidence.txt`.
+Per creare automaticamente un cluster Kind:
 
-Per la GUI usa Lens/OpenLens importando il kubeconfig corrente; XRD,
-Composition, XR, eventi e risorse composte sono visibili in **Custom
-Resources**. Crossplane non installa una dashboard web dedicata.
+```bash
+./setup-crossplane-lab-kind.sh
+```
+
+Il materiale viene generato in `~/course-crossplane`. Ogni directory contiene
+`xrd.yaml`, `composition.yaml`, `xr.yaml`, `QUESTION.md` ed `evidence.txt`.
+Alcune prove includono file aggiuntivi intenzionalmente corretti o errati.
+
+Il setup installa Crossplane e `function-patch-and-transform`. Per rigenerare
+una directory esistente:
+
+```bash
+LAB_FORCE=true ./setup-crossplane-lab.sh
+```
+
+## Validazione senza cluster
+
+Il validatore esegue il generatore in una directory temporanea senza installare
+Crossplane:
+
+```bash
+./validate-crossplane-lab.sh
+```
+
+La stessa modalita' e' disponibile direttamente:
+
+```bash
+COURSE_DIR=/tmp/course-crossplane LAB_SKIP_INSTALL=true \
+  ./setup-crossplane-lab.sh
+```
+
+Per la GUI puoi usare Lens/OpenLens con il kubeconfig corrente. XRD,
+Composition, CompositionRevision, XR, eventi e risorse composte sono visibili
+tra le Custom Resources.

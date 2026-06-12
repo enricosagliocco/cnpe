@@ -4,15 +4,26 @@ prepare_question_layout() {
   local course_dir="$1"
   local questions_file="$2"
   local directory_style="${3:-padded}"
+  local question_count
   local directory
   local number
+  local heading
 
   [ -f "$questions_file" ] || {
     echo "[ERR] questions file not found: $questions_file" >&2
     return 1
   }
 
-  for number in $(seq 1 20); do
+  question_count="$(
+    awk '/^### Q[0-9]+ - / { count++ } END { print count + 0 }' \
+      "$questions_file"
+  )"
+  [ "$question_count" -gt 0 ] || {
+    echo "[ERR] no questions found in $questions_file" >&2
+    return 1
+  }
+
+  for number in $(seq 1 "$question_count"); do
     if [ "$directory_style" = "plain" ]; then
       directory="$number"
     else
@@ -24,7 +35,7 @@ prepare_question_layout() {
   done
 
   awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
-    /^### Q[0-9]+ (–|-)/ {
+    /^### Q[0-9]+ - / {
       heading = $0
       sub(/^### Q/, "", heading)
       split(heading, fields, " ")
@@ -52,7 +63,7 @@ prepare_question_layout() {
   {
     echo "# Question index"
     echo
-    for number in $(seq 1 20); do
+    for number in $(seq 1 "$question_count"); do
       if [ "$directory_style" = "plain" ]; then
         directory="$number"
       else
