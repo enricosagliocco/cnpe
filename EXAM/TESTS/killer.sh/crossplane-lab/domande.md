@@ -1,187 +1,219 @@
-# Crossplane v2 - 20 prove XRD, Composition e XR
+# Crossplane - 20 prove in stile esame CNPE
 
-Crossplane e `function-patch-and-transform` sono installati. Ogni domanda e'
-indipendente: lavora solo nella directory indicata e salva i manifest finali
-come `xrd.yaml`, `composition.yaml` e `xr.yaml`.
+Le prove sono modellate sul formato Killer.sh della domanda Crossplane fornita:
+ambiente gia' installato, manifest parziali, una modifica mirata e verifica
+finale sul cluster.
 
-Focus delle prove:
+Il CNPE e' un esame pratico di 120 minuti con 15-20 task. Crossplane rientra
+nel dominio **Platform APIs and Self-Service Capabilities (25%)**. L'obiettivo
+non e' memorizzare ogni funzione Crossplane, ma saper:
 
-- `type: FromCompositeFieldPath` copia dati dall'XR verso una risorsa composta;
-- `type: ToCompositeFieldPath` copia dati osservati da una risorsa composta
-  verso lo `status` dell'XR;
-- nelle risposte usa sempre `type` esplicito, anche quando
-  `FromCompositeFieldPath` sarebbe il default.
+- ispezionare XRD, Composition, Function e XR esistenti;
+- creare una richiesta self-service tramite un XR;
+- completare una Composition che genera risorse Kubernetes;
+- propagare namespace e parametri con patch;
+- verificare riconciliazione, condizioni, eventi e risorse composte;
+- correggere rapidamente manifest incompleti o errati.
 
-Prima di iniziare:
+Crossplane e `function-patch-and-transform` sono gia' installati. Ogni domanda
+e' indipendente. Lavora solo nella directory indicata.
+
+Comandi iniziali utili:
 
 ```bash
 kubectl get functions
-kubectl api-resources | grep -i crossplane
+kubectl get xrd
+kubectl get compositions
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-Per ogni prova verifica almeno:
+Riferimenti verificati il 12 giugno 2026:
 
-```bash
-kubectl get xrd
-kubectl get compositions
-kubectl describe <kind-xr> <nome>
-```
-
----
-
-### Q1 - Creare una XRD cluster-scoped
-
-Lavora in `~/course-crossplane/01`. Ricrea `xrd.yaml` per esporre
-`TeamSpace` (`teamspaces.platform.example.com`) in `v1alpha1`, scope
-`Cluster`, con `spec.projectId` stringa obbligatoria. Applica XRD e
-Composition, poi crea `team-alpha` con `projectId: alpha-123`.
-
-Verifica XR, Namespace `team-alpha` e NetworkPolicy
-`default-deny-ingress`.
+- CNPE: https://www.cncf.io/training/certification/cnpe/
+- istruzioni CNPE: https://docs.linuxfoundation.org/tc-docs/certification/important-instructions-cnpe
+- XRD Crossplane: https://docs.crossplane.io/latest/composition/composite-resource-definitions/
+- Compositions: https://docs.crossplane.io/latest/composition/compositions/
+- Patch and Transform: https://docs.crossplane.io/latest/guides/function-patch-and-transform/
 
 ---
 
-### Q2 - Creare una XRD namespaced
+### Q1 - Esporre una API self-service
 
-Lavora in `~/course-crossplane/02`. La XRD deve essere `Namespaced`.
-Crea Namespace `exam`, applica i manifest e crea `ProjectSpace/payments`
-nel Namespace `exam`, con `owner: finance`.
+Lavora in `~/course-crossplane/01`.
 
-Verifica che ConfigMap e Secret composti siano nello stesso Namespace
-dell'XR e che nessun Namespace sia stato creato dalla Composition.
+La Composition `teamspace-composition` e' gia' presente. Completa
+`xrd.yaml` per definire la API cluster-scoped `TeamSpace`:
 
----
+- gruppo `platform.example.com`;
+- versione `v1alpha1`;
+- plural `teamspaces`;
+- campo obbligatorio `spec.projectId` di tipo stringa.
 
-### Q3 - Schema OpenAPI, default e validazione
+Crea `TeamSpace/team-alpha` con `projectId: alpha-123`.
 
-Lavora in `~/course-crossplane/03`. Estendi lo schema di
-`EnvironmentSpace` con:
-
-- `spec.environment`: obbligatorio, enum `dev`, `staging`, `prod`;
-- `spec.replicas`: integer, default `2`, minimo `1`, massimo `10`;
-- `spec.region`: stringa, default `eu-west-1`;
-- rifiuto dei campi sconosciuti dentro `spec`.
-
-Crea `staging-blue` omettendo i campi con default. Dimostra anche che un
-XR con `environment: test` viene rifiutato.
+Verifica che l'XR sia `SYNCED=True`, `READY=True` e che esistano Namespace
+`team-alpha` e NetworkPolicy `default-deny-ingress`.
 
 ---
 
-### Q4 - Versioni served e referenceable
+### Q2 - Creare un XR namespaced
 
-Lavora in `~/course-crossplane/04`. Modifica la XRD `CostSpace` affinche':
+Lavora in `~/course-crossplane/02`.
 
-- `v1alpha1` sia `served: true`, `referenceable: false`;
-- `v1beta1` sia `served: true`, `referenceable: true`;
-- entrambe espongano `spec.costCenter`.
+Crossplane espone gia' la API namespaced `ProjectSpace`. Crea il Namespace
+`exam` e completa `xr.yaml` per creare:
 
-Aggiorna `compositeTypeRef` e `xr.yaml` a `v1beta1`, quindi crea `billing`.
-Verifica le versioni pubblicate con `kubectl get xrd ... -o yaml`.
+- nome `payments`;
+- namespace `exam`;
+- `spec.owner: finance`.
+
+Applica i manifest forniti. Verifica che ConfigMap e Secret composti siano
+nel Namespace `exam`. Non modificare la Composition per creare un nuovo
+Namespace.
 
 ---
 
-### Q5 - Composition pipeline minima
+### Q3 - Correggere lo schema di una XRD
 
-Lavora in `~/course-crossplane/05`. Ricrea `composition.yaml` usando
-`mode: Pipeline` e `function-patch-and-transform`. Deve comporre:
+Lavora in `~/course-crossplane/03`.
 
-- Namespace con nome uguale all'XR;
-- ConfigMap `product-config` nel Namespace appena creato;
-- `data.productId` derivato da `spec.productId`.
+Completa lo schema di `EnvironmentSpace`:
 
-Tutte le patch dall'XR devono dichiarare esplicitamente
-`type: FromCompositeFieldPath`.
+- `spec.environment` obbligatorio, valori `dev`, `staging`, `prod`;
+- `spec.replicas` integer, default `2`, minimo `1`, massimo `10`;
+- `spec.region` stringa, default `eu-west-1`;
+- campi sconosciuti vietati dentro `spec`.
+
+Crea `EnvironmentSpace/staging-blue` impostando solo
+`environment: staging`. Verifica i default salvati dall'API server.
+
+Dimostra infine che un XR con `environment: test` viene rifiutato.
+
+---
+
+### Q4 - Allineare versione XRD, Composition e XR
+
+Lavora in `~/course-crossplane/04`.
+
+La XRD `CostSpace` pubblica `v1alpha1` e `v1beta1`, ma la configurazione e'
+incoerente. Correggila affinche':
+
+- entrambe le versioni siano `served: true`;
+- solo `v1beta1` sia `referenceable: true`;
+- `spec.costCenter` sia disponibile in entrambe.
+
+Aggiorna Composition e `xr.yaml` per usare `v1beta1`, quindi crea
+`CostSpace/billing`. Verifica XR e risorse composte.
+
+---
+
+### Q5 - Completare una Composition Pipeline
+
+Lavora in `~/course-crossplane/05`.
+
+XRD e XR sono forniti. Ricrea `composition.yaml` usando:
+
+- `mode: Pipeline`;
+- Function `function-patch-and-transform`;
+- un Namespace con nome uguale all'XR;
+- una ConfigMap `product-config` nel Namespace composto;
+- `data.productId` letto da `spec.productId`.
 
 Crea `ProductSpace/catalog` con `productId: product-88`.
+Usa patch esplicite `FromCompositeFieldPath` e verifica XR, Namespace e
+ConfigMap.
 
 ---
 
-### Q6 - FromCompositeFieldPath e propagazione metadata
+### Q6 - Propagare parametri e metadata
 
-Lavora in `~/course-crossplane/06`. Aggiungi alla XRD i campi obbligatori
-`spec.tenantId` e `spec.owner`. Nella Composition propaga:
+Lavora in `~/course-crossplane/06`.
 
-- nome XR al nome Namespace;
-- `tenantId` all'annotazione `platform.example.com/tenant-id`;
-- `owner` alla label `platform.example.com/owner`;
-- entrambe le proprieta' nella ConfigMap `tenant-config`.
+Completa XRD e Composition di `TenantSpace` affinche' l'XR accetti
+`spec.tenantId` e `spec.owner`, entrambi obbligatori.
 
-Per ciascuna patch usa esplicitamente:
+Propaga i valori alle risorse composte:
 
-```yaml
-type: FromCompositeFieldPath
-```
+- `tenantId` nell'annotation `platform.example.com/tenant-id`;
+- `owner` nella label `platform.example.com/owner`;
+- entrambi nella ConfigMap `tenant-config`.
 
-Imposta `policy.fromFieldPath: Required` almeno per `spec.tenantId`, quindi
-prova a spiegare la differenza rispetto alla policy opzionale predefinita.
-
-Crea `tenant-acme` e verifica label, annotation e data.
+Crea `TenantSpace/tenant-acme`. Imposta la patch di `tenantId` come
+`Required` e verifica annotation, label e dati della ConfigMap.
 
 ---
 
-### Q7 - CombineFromComposite
+### Q7 - Costruire un valore da due campi
 
-Lavora in `~/course-crossplane/07`. Aggiungi `spec.region` allo schema.
-Nella risorsa ConfigMap usa una patch `CombineFromComposite` con strategia
-`string` e formato `%s@%s` per produrre:
+Lavora in `~/course-crossplane/07`.
+
+La ConfigMap composta deve contenere:
 
 ```yaml
 data:
   endpoint: edge-west-01@eu-central-1
 ```
 
-I valori devono provenire da `spec.clusterName` e `spec.region`.
-Confronta questa patch con due patch separate di tipo
-`FromCompositeFieldPath`.
+Ottieni il valore combinando `spec.clusterName` e `spec.region` con una
+patch `CombineFromComposite`, strategia stringa e formato `%s@%s`.
+
+Crea l'XR con i valori richiesti e verifica il valore esatto nella ConfigMap.
 
 ---
 
-### Q8 - String transform su XR namespaced
+### Q8 - Trasformare un campo in un XR namespaced
 
-Lavora in `~/course-crossplane/08`. Mantieni l'XR namespaced. Applica una
-transform stringa `Format` per scrivere nella ConfigMap:
+Lavora in `~/course-crossplane/08`.
+
+Completa la patch della Composition per trasformare
+`spec.region: eu-west-1` nel valore:
 
 ```yaml
 data:
   location: region-eu-west-1
 ```
 
-partendo da `spec.region: eu-west-1`. Crea l'XR `apps-eu` in `exam` e
-verifica che tutte le risorse composte restino in `exam`.
-La patch con transform deve mantenere `type: FromCompositeFieldPath`.
+Usa una transform stringa `Format`. Crea l'XR `apps-eu` nel Namespace
+`exam` e verifica che tutte le risorse composte siano nello stesso Namespace.
 
 ---
 
-### Q9 - Map transform
+### Q9 - Mappare un profilo applicativo
 
-Lavora in `~/course-crossplane/09`. Estendi lo schema con
-`spec.accountTier`, enum `dev`, `prod`. Usa una transform `map` per
-convertire:
+Lavora in `~/course-crossplane/09`.
 
-- `dev` in `small`;
-- `prod` in `large`.
+Estendi la XRD con `spec.accountTier`, enum `dev` o `prod`. Completa la
+Composition affinche' la ConfigMap `account-config` contenga:
 
-Scrivi il risultato in `data.size` di `account-config`. Crea
-`shared-services` con `accountId: "123456789012"` e `accountTier: prod`.
-La transform deve essere applicata a una patch esplicita
-`FromCompositeFieldPath`.
+- `data.size: small` per `dev`;
+- `data.size: large` per `prod`.
 
----
-
-### Q10 - PatchSet riutilizzabile
-
-Lavora in `~/course-crossplane/10`. Definisci un PatchSet `common-metadata`
-che propaghi dall'XR le label `team` e `cost-center`. Applica il PatchSet
-sia al Namespace sia alla ConfigMap, senza duplicare le due patch.
-
-Aggiungi i campi allo schema e crea `ApplicationSpace/checkout`.
+Usa una transform `map`. Crea `AccountSpace/shared-services` con
+`accountId: "123456789012"` e `accountTier: prod`, poi verifica il risultato.
 
 ---
 
-### Q11 - Scrivere nello status dell'XR
+### Q10 - Riutilizzare patch comuni
 
-Lavora in `~/course-crossplane/11`. Aggiungi allo schema:
+Lavora in `~/course-crossplane/10`.
+
+La Composition crea Namespace e ConfigMap. Evita di duplicare le patch per
+le label `team` e `cost-center`:
+
+1. definisci il PatchSet `common-metadata`;
+2. applicalo a entrambe le risorse;
+3. aggiungi i campi necessari allo schema XRD;
+4. crea `ApplicationSpace/checkout`.
+
+Verifica che entrambe le risorse abbiano le due label.
+
+---
+
+### Q11 - Pubblicare un risultato nello status
+
+Lavora in `~/course-crossplane/11`.
+
+Aggiungi allo schema di `DomainSpace`:
 
 ```yaml
 status:
@@ -189,167 +221,194 @@ status:
   properties:
     namespace:
       type: string
+    observedDomain:
+      type: string
 ```
 
-Usa una patch `ToCompositeFieldPath` dalla risorsa Namespace per valorizzare
-`status.namespace` con il nome osservato. Crea `DomainSpace/orders` e
-attendi che lo status sia valorizzato.
+Nella risorsa Namespace aggiungi due patch `ToCompositeFieldPath`:
 
-Aggiungi anche `status.observedDomain` allo schema e valorizzalo leggendo
-l'annotazione `platform.example.com/domain` dalla risorsa Namespace. In
-questa domanda entrambe le patch verso lo status devono dichiarare:
+- `metadata.name` verso `status.namespace`;
+- annotation `platform.example.com/domain` verso `status.observedDomain`.
+
+Entrambe devono dichiarare esplicitamente:
 
 ```yaml
 type: ToCompositeFieldPath
 ```
 
-Verifica che la direzione sia risorsa composta -> XR e non XR -> risorsa.
+Crea `DomainSpace/orders` e attendi che entrambi i campi compaiano nello
+status dell'XR.
 
 ---
 
-### Q12 - Readiness checks
+### Q12 - Rendere significativa la readiness
 
-Lavora in `~/course-crossplane/12`. Sostituisci `readinessChecks: None` per
-la ConfigMap con un check `MatchString` che richieda
-`data.ready: "true"`. Imposta il valore nella base o tramite patch.
+Lavora in `~/course-crossplane/12`.
 
-Crea `ServiceSpace/identity` in `exam` e verifica le condizioni `Ready` e
-`Synced` dell'XR.
-
----
-
-### Q13 - Selezione della Composition
-
-Lavora in `~/course-crossplane/13`. Applica anche
-`composition-restricted.yaml`. Etichetta la Composition standard con
-`platform.example.com/profile: standard`.
-
-Crea `DataSpace/analytics` con:
+La ConfigMap composta usa un readiness check troppo permissivo. Sostituiscilo
+con un check `MatchString` su:
 
 ```yaml
-spec:
-  crossplane:
-    compositionSelector:
-      matchLabels:
-        platform.example.com/profile: restricted
+data:
+  ready: "true"
 ```
 
-e `classification: confidential`. Verifica quale Composition e revisione
-sono state selezionate e la label Pod Security del Namespace.
+Crea `ServiceSpace/identity` nel Namespace `exam`. Verifica prima la risorsa
+composta, poi le condizioni `Synced` e `Ready` dell'XR.
 
 ---
 
-### Q14 - Troubleshooting della pipeline
+### Q13 - Selezionare la Composition corretta
 
-Lavora in `~/course-crossplane/14`. Applica XRD e
-`composition-broken.yaml`, forza l'XR a selezionare
-`securityspace-broken` tramite `spec.crossplane.compositionRef.name` e
-diagnostica il mancato reconcile.
+Lavora in `~/course-crossplane/13`.
 
-Correggi la Composition affinche' usi la Function installata e produca
-almeno un Namespace. Conserva in `evidence.txt` eventi e condizioni prima
-e dopo la correzione.
+Sono disponibili una Composition standard e
+`composition-restricted.yaml`.
 
----
+1. Applica entrambe.
+2. Etichetta la standard con `platform.example.com/profile: standard`.
+3. Crea `DataSpace/analytics` selezionando il profilo `restricted` tramite
+   `spec.crossplane.compositionSelector.matchLabels`.
+4. Imposta `classification: confidential`.
 
-### Q15 - CompositionRevision automatica
-
-Lavora in `~/course-crossplane/15`. Crea `ComplianceSpace/pci-workloads`.
-Annota la revisione selezionata. Modifica la Composition aggiungendo la
-label `compliance: pci-dss` al Namespace e riapplicala.
-
-Con policy `Automatic`, verifica che l'XR passi alla nuova
-CompositionRevision e che la label venga propagata.
+Verifica il nome della Composition selezionata, la CompositionRevision e le
+label di sicurezza del Namespace composto.
 
 ---
 
-### Q16 - CompositionRevision manuale
+### Q14 - Riparare una Composition non riconciliata
 
-Lavora in `~/course-crossplane/16`. Crea `RuntimeSpace/java-services` con:
+Lavora in `~/course-crossplane/14`.
+
+Applica XRD, XR e `composition-broken.yaml`. L'XR deve usare
+`securityspace-broken`, ma la riconciliazione fallisce.
+
+Usando `kubectl describe`, condizioni ed eventi:
+
+1. identifica il riferimento non valido alla Function;
+2. correggi la Composition usando la Function installata;
+3. aggiungi una risorsa Namespace valida;
+4. riapplica e verifica `SYNCED=True` e `READY=True`.
+
+Salva in `evidence.txt` i comandi diagnostici e le condizioni finali.
+
+---
+
+### Q15 - Aggiornare risorse gia' esistenti
+
+Lavora in `~/course-crossplane/15`.
+
+Crea `ComplianceSpace/pci-workloads` con i manifest forniti e annota la
+CompositionRevision selezionata.
+
+Estendi la Composition affinche' il Namespace composto abbia:
 
 ```yaml
-spec:
-  crossplane:
-    compositionUpdatePolicy: Manual
+metadata:
+  labels:
+    compliance: pci-dss
 ```
 
-Modifica la Composition aggiungendo `data.generation: "v2"` alla ConfigMap.
-Dimostra che l'XR resta sulla vecchia revisione, poi imposta esplicitamente
-`spec.crossplane.compositionRevisionRef.name` alla nuova revisione.
+Riapplica la Composition. Senza ricreare l'XR, verifica che Crossplane generi
+una nuova revisione, la selezioni automaticamente e aggiorni il Namespace.
 
 ---
 
-### Q17 - Update e riconciliazione
+### Q16 - Controllare un aggiornamento manuale
 
-Lavora in `~/course-crossplane/17`. Crea `ReleaseSpace/canary` con
-`releaseChannel: canary`, poi aggiorna il valore a `stable`.
+Lavora in `~/course-crossplane/16`.
 
-Verifica che Crossplane aggiorni annotation del Namespace e data della
-ConfigMap senza ricreare l'XR. Registra in `evidence.txt` UID dell'XR e
-valori prima/dopo.
+Crea `RuntimeSpace/java-services` con
+`spec.crossplane.compositionUpdatePolicy: Manual`.
 
----
-
-### Q18 - Pausa e ripresa di un XR
-
-Lavora in `~/course-crossplane/18`. Crea `ObservabilitySpace/sre-tools` in
-`exam`, poi aggiungi l'annotation:
+Aggiungi alla ConfigMap composta:
 
 ```yaml
-crossplane.io/paused: "true"
+data:
+  generation: "v2"
 ```
 
-Modifica `spec.monitoringProfile` e dimostra che la ConfigMap non cambia
-durante la pausa. Rimuovi l'annotation e verifica la riconciliazione.
+Riapplica la Composition e verifica che l'XR continui a usare la vecchia
+revisione. Seleziona poi esplicitamente la nuova
+`compositionRevisionRef.name` e verifica l'aggiornamento della ConfigMap.
 
 ---
 
-### Q19 - Debug completo XRD, Composition e XR
+### Q17 - Verificare la riconciliazione dopo un update
 
-Lavora in `~/course-crossplane/19`. Introduci e poi risolvi, uno alla volta,
-questi errori controllando eventi e condizioni:
+Lavora in `~/course-crossplane/17`.
 
-1. `compositeTypeRef.kind` non corrispondente alla XRD;
-2. `fromFieldPath` che punta a un campo inesistente con policy `Required`;
-3. XR privo del campo obbligatorio `backupPolicy`.
+Crea `ReleaseSpace/canary` con `releaseChannel: canary`. Registra in
+`evidence.txt` UID dell'XR e valori osservati nelle risorse composte.
+
+Aggiorna l'XR impostando `releaseChannel: stable`. Verifica che:
+
+- annotation del Namespace e data della ConfigMap diventino `stable`;
+- l'UID dell'XR non cambi;
+- le condizioni finali siano `Synced=True` e `Ready=True`.
+
+---
+
+### Q18 - Mettere in pausa la riconciliazione
+
+Lavora in `~/course-crossplane/18`.
+
+Crea `ObservabilitySpace/sre-tools` nel Namespace `exam`.
+
+1. Aggiungi `crossplane.io/paused: "true"` all'XR.
+2. Modifica `spec.monitoringProfile`.
+3. Verifica che la ConfigMap non venga aggiornata durante la pausa.
+4. Rimuovi l'annotation.
+5. Verifica che Crossplane applichi il nuovo valore.
+
+---
+
+### Q19 - Risolvere una catena di errori
+
+Lavora in `~/course-crossplane/19`.
+
+La configurazione di `BackupSpace` contiene tre problemi. Correggili:
+
+- `compositeTypeRef.kind` non corrisponde alla XRD;
+- una patch `Required` legge un campo inesistente;
+- l'XR non imposta il campo obbligatorio `spec.backupPolicy`.
 
 La soluzione finale deve creare `BackupSpace/critical-backups` e tutte le
-risorse composte. Salva i comandi diagnostici in `evidence.txt`.
+risorse composte. Usa `kubectl describe` ed eventi per procedere un errore
+alla volta. Salva i comandi usati in `evidence.txt`.
 
 ---
 
-### Q20 - Simulazione end-to-end da zero
+### Q20 - Task finale end-to-end
 
-Lavora in `~/course-crossplane/20`. I tre manifest contengono solo TODO.
-Crea da zero:
+Lavora in `~/course-crossplane/20`.
+
+I tre manifest contengono solo TODO. Crea:
 
 - XRD cluster-scoped `PlatformSpace`, gruppo `platform.example.com`,
   versione `v1alpha1`;
 - schema con `platformOwner` obbligatorio, `environment` enum
-  `dev|staging|prod` e default `dev`, piu' `status.namespace`;
+  `dev|staging|prod` con default `dev` e `status.namespace`;
 - Composition Pipeline con Namespace e ConfigMap `platform-config`;
-- patch di nome, owner, environment e una patch verso lo status;
-- almeno tre patch esplicite `FromCompositeFieldPath` e una
-  `ToCompositeFieldPath`;
+- patch per nome, owner ed environment;
+- patch `ToCompositeFieldPath` dal nome del Namespace a `status.namespace`;
 - readiness check espliciti;
-- XR `developer-portal` con owner `platform-team` e environment `prod`.
+- XR `developer-portal`, owner `platform-team`, environment `prod`.
 
-Verifica XRD Established, Function Healthy, Composition valida, XR
-Ready/Synced, resource references, Namespace, ConfigMap e status.
+Verifica XRD `Established`, Function `Healthy`, XR `Synced/Ready`, resource
+references, Namespace, ConfigMap e status.
 
 ---
 
-## Soluzioni
+## Tracce di soluzione
 
-Le soluzioni seguenti indicano il costrutto decisivo. Usa
-`kubectl explain`, gli eventi e i manifest gia' presenti per completare il
-contesto senza sostituire alla cieca file interi.
+Queste tracce indicano il costrutto decisivo. In una simulazione d'esame usa
+prima `kubectl explain`, i manifest forniti e gli eventi.
 
-### Soluzione Q1 - XRD cluster-scoped
+### Soluzione Q1
 
-La XRD usa `apiextensions.crossplane.io/v2`, `spec.scope: Cluster`,
-`spec.names.kind: TeamSpace`, `plural: teamspaces` e include
-`required: [projectId]`. Applica nell'ordine:
+Usa XRD `apiextensions.crossplane.io/v2`, `scope: Cluster`, schema OpenAPI
+con `required: [projectId]`, quindi:
 
 ```bash
 kubectl apply -f xrd.yaml
@@ -360,9 +419,10 @@ kubectl get ns team-alpha
 kubectl -n team-alpha get netpol default-deny-ingress
 ```
 
-### Soluzione Q2 - XRD namespaced
+### Soluzione Q2
 
-Usa `spec.scope: Namespaced` e `metadata.namespace: exam` nell'XR:
+Imposta `metadata.namespace: exam` nell'XR. Con una XRD namespaced, copia
+`metadata.namespace` dall'XR alle risorse composte.
 
 ```bash
 kubectl create ns exam --dry-run=client -o yaml | kubectl apply -f -
@@ -370,28 +430,24 @@ kubectl apply -f xrd.yaml -f composition.yaml -f xr.yaml
 kubectl -n exam get projectspace,cm,secret
 ```
 
-### Soluzione Q3 - Validazione
+### Soluzione Q3
 
-Nel campo `replicas` usa `default: 2`, `minimum: 1`, `maximum: 10`; per
-`environment` usa `enum: [dev, staging, prod]`. In `spec` imposta
-`additionalProperties: false`. Verifica:
+Usa `enum`, `default`, `minimum`, `maximum`, `required` e
+`additionalProperties: false` nello schema OpenAPI.
 
 ```bash
-kubectl get environmentspace staging-blue -o jsonpath='{.spec}'
+kubectl get environmentspace staging-blue -o jsonpath='{.spec}{"\n"}'
 kubectl apply -f invalid-xr.yaml
 ```
 
-Il secondo comando deve fallire lato API server.
+### Soluzione Q4
 
-### Soluzione Q4 - Versioni
+Solo una versione XRD puo' essere `referenceable: true`. Il valore
+`apiVersion` deve essere coerente in XRD, `compositeTypeRef` e XR.
 
-Duplica la voce sotto `spec.versions`, cambia `name`, `served` e
-`referenceable`, quindi usa `platform.example.com/v1beta1` sia nella
-Composition sia nell'XR.
+### Soluzione Q5
 
-### Soluzione Q5 - Pipeline
-
-La struttura richiesta e':
+La struttura minima e':
 
 ```yaml
 spec:
@@ -406,16 +462,12 @@ spec:
         resources: []
 ```
 
-Inserisci nelle `resources` le basi Namespace e ConfigMap e patch
-`metadata.name`, `metadata.namespace`, `data.productId`, tutte con:
+Le patch da XR a Namespace e ConfigMap usano
+`type: FromCompositeFieldPath`.
 
-```yaml
-type: FromCompositeFieldPath
-```
+### Soluzione Q6
 
-### Soluzione Q6 - Metadata
-
-Usa path con chiave quotata:
+Per label e annotation con `/` usa i path tra parentesi:
 
 ```yaml
 - type: FromCompositeFieldPath
@@ -428,10 +480,7 @@ Usa path con chiave quotata:
     fromFieldPath: Required
 ```
 
-`FromCompositeFieldPath` legge dal composite corrente e scrive nella
-risorsa composta indicata dalla voce `resources`.
-
-### Soluzione Q7 - Combine
+### Soluzione Q7
 
 ```yaml
 - type: CombineFromComposite
@@ -445,7 +494,7 @@ risorsa composta indicata dalla voce `resources`.
   toFieldPath: data.endpoint
 ```
 
-### Soluzione Q8 - String transform
+### Soluzione Q8
 
 ```yaml
 - type: FromCompositeFieldPath
@@ -458,29 +507,29 @@ risorsa composta indicata dalla voce `resources`.
         fmt: "region-%s"
 ```
 
-### Soluzione Q9 - Map transform
+### Soluzione Q9
 
 ```yaml
-type: FromCompositeFieldPath
-fromFieldPath: spec.accountTier
-toFieldPath: data.size
-transforms:
-  - type: map
-    map:
-      dev: small
-      prod: large
+- type: FromCompositeFieldPath
+  fromFieldPath: spec.accountTier
+  toFieldPath: data.size
+  transforms:
+    - type: map
+      map:
+        dev: small
+        prod: large
 ```
 
-### Soluzione Q10 - PatchSet
+### Soluzione Q10
 
-Definisci `patchSets` nell'input `Resources`, poi nelle due risorse usa:
+Definisci `patchSets` nell'input `Resources`, poi richiamalo con:
 
 ```yaml
 - type: PatchSet
   patchSetName: common-metadata
 ```
 
-### Soluzione Q11 - Status
+### Soluzione Q11
 
 ```yaml
 - type: ToCompositeFieldPath
@@ -491,10 +540,9 @@ Definisci `patchSets` nell'input `Resources`, poi nelle due risorse usa:
   toFieldPath: status.observedDomain
 ```
 
-Qui `fromFieldPath` parte dalla risorsa composta. Entrambi i campi
-destinazione devono esistere nello schema XRD sotto `status`.
+I campi destinazione devono esistere nello schema XRD.
 
-### Soluzione Q12 - Readiness
+### Soluzione Q12
 
 ```yaml
 readinessChecks:
@@ -503,59 +551,71 @@ readinessChecks:
     matchString: "true"
 ```
 
-### Soluzione Q13 - Selection
+### Soluzione Q13
 
-La label della Composition deve corrispondere al selector. Verifica con:
-
-```bash
-kubectl get dataspace analytics -o jsonpath='{.spec.crossplane.compositionRef.name}{"\n"}'
-kubectl get dataspace analytics -o jsonpath='{.spec.crossplane.compositionRevisionRef.name}{"\n"}'
-```
-
-### Soluzione Q14 - Pipeline rotta
-
-Gli eventi mostrano che `function-does-not-exist` non e' disponibile.
-Sostituiscila con `function-patch-and-transform`, aggiungi una risorsa
-Namespace valida e riapplica la Composition.
-
-### Soluzione Q15 - Revisione automatica
+Il selector dell'XR deve corrispondere alle label della Composition:
 
 ```bash
-kubectl get compositionrevisions -l crossplane.io/composition-name=compliance-composition
-kubectl get compliancespace pci-workloads \
+kubectl get dataspace analytics \
+  -o jsonpath='{.spec.crossplane.compositionRef.name}{"\n"}'
+kubectl get dataspace analytics \
   -o jsonpath='{.spec.crossplane.compositionRevisionRef.name}{"\n"}'
 ```
 
-Con `Automatic`, il riferimento cambia dopo l'aggiornamento.
+### Soluzione Q14
 
-### Soluzione Q16 - Revisione manuale
+Sostituisci `function-does-not-exist` con
+`function-patch-and-transform`, aggiungi una base Namespace valida e
+riapplica. Controlla:
 
-Recupera il nome della revisione nuova e applicalo:
+```bash
+kubectl get functions
+kubectl describe securityspace
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+### Soluzione Q15
+
+La policy predefinita e' `Automatic`: una modifica alla Composition genera
+una nuova CompositionRevision che viene adottata dall'XR.
+
+```bash
+kubectl get compositionrevisions \
+  -l crossplane.io/composition-name=compliance-composition
+```
+
+### Soluzione Q16
+
+Con policy `Manual`, recupera la nuova revisione e impostala nell'XR:
 
 ```bash
 kubectl patch runtimespace java-services --type=merge -p \
   '{"spec":{"crossplane":{"compositionRevisionRef":{"name":"REVISIONE"}}}}'
 ```
 
-### Soluzione Q17 - Update
+### Soluzione Q17
 
 ```bash
 kubectl patch releasespace canary --type=merge -p \
   '{"spec":{"releaseChannel":"stable"}}'
 kubectl get releasespace canary -o jsonpath='{.metadata.uid}{"\n"}'
-kubectl -n canary get cm release-config -o jsonpath='{.data.releaseChannel}{"\n"}'
 ```
 
-### Soluzione Q18 - Pausa
+Confronta UID e valori delle risorse prima e dopo la patch.
+
+### Soluzione Q18
 
 ```bash
-kubectl -n exam annotate observabilityspace sre-tools crossplane.io/paused=true
-kubectl -n exam annotate observabilityspace sre-tools crossplane.io/paused-
+kubectl -n exam annotate observabilityspace sre-tools \
+  crossplane.io/paused=true
+kubectl -n exam annotate observabilityspace sre-tools \
+  crossplane.io/paused-
 ```
 
-### Soluzione Q19 - Debug
+### Soluzione Q19
 
-Comandi minimi:
+Allinea XRD e `compositeTypeRef`, correggi il `fromFieldPath` e aggiungi
+`spec.backupPolicy` all'XR. Diagnostica in quest'ordine:
 
 ```bash
 kubectl get xrd,composition
@@ -564,31 +624,17 @@ kubectl describe backupspace critical-backups
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-Allinea il `kind`, correggi il path o il campo nello schema/XR, quindi
-aggiungi `spec.backupPolicy`.
+### Soluzione Q20
 
-Per rendere obbligatoria la sorgente:
-
-```yaml
-- type: FromCompositeFieldPath
-  fromFieldPath: spec.backupPolicy
-  toFieldPath: data.backupPolicy
-  policy:
-    fromFieldPath: Required
-```
-
-### Soluzione Q20 - End-to-end
-
-La soluzione combina i costrutti di Q1, Q3, Q5, Q11 e Q12. Le patch da
-`spec` o `metadata` dell'XR usano `FromCompositeFieldPath`; la patch da
-`metadata.name` del Namespace verso `status.namespace` usa
-`ToCompositeFieldPath`. Controllo finale:
+Combina i costrutti delle prove Q1, Q3, Q5, Q11 e Q12. Controllo finale:
 
 ```bash
-kubectl wait --for=condition=Established xrd/platformspaces.platform.example.com
-kubectl wait --for=condition=Healthy function/function-patch-and-transform
+kubectl wait --for=condition=Established \
+  xrd/platformspaces.platform.example.com
+kubectl wait --for=condition=Healthy \
+  function/function-patch-and-transform
 kubectl get platformspace developer-portal -o yaml
-kubectl get ns developer-portal -o yaml
+kubectl get ns developer-portal
 kubectl -n developer-portal get cm platform-config -o yaml
 kubectl describe platformspace developer-portal
 ```

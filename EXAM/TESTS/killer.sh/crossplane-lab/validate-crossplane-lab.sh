@@ -33,8 +33,16 @@ done
 
 grep -q 'composition-restricted.yaml' "$COURSE_DIR/13/QUESTION.md" ||
   fail "Q13 selection exercise missing"
+grep -q 'environment: test' "$COURSE_DIR/03/invalid-xr.yaml" ||
+  fail "Q3 invalid XR fixture missing"
+grep -q 'name: v1beta1' "$COURSE_DIR/04/xrd.yaml" ||
+  fail "Q4 must provide both API versions"
+grep -q 'region:' "$COURSE_DIR/07/xrd.yaml" ||
+  fail "Q7 schema must expose spec.region"
 grep -q 'function-does-not-exist' "$COURSE_DIR/14/composition-broken.yaml" ||
   fail "Q14 broken composition missing"
+grep -q 'name: securityspace-broken' "$COURSE_DIR/14/xr.yaml" ||
+  fail "Q14 XR must select the broken composition"
 grep -q 'TODO: define the cluster-scoped TeamSpace' "$COURSE_DIR/01/xrd.yaml" ||
   fail "Q1 must start from an empty XRD"
 grep -q 'TODO: define the ProductSpace' "$COURSE_DIR/05/composition.yaml" ||
@@ -45,5 +53,14 @@ grep -q 'type: FromCompositeFieldPath' "$COURSE_DIR/01/composition.yaml" ||
   fail "generated compositions must use explicit FromCompositeFieldPath"
 grep -q 'type: ToCompositeFieldPath' "$COURSE_DIR/11/QUESTION.md" ||
   fail "Q11 must focus on ToCompositeFieldPath"
+grep -q 'kind: BackupPlan' "$COURSE_DIR/19/composition.yaml" ||
+  fail "Q19 mismatched composite kind missing"
+grep -q 'fromFieldPath: spec.retention' "$COURSE_DIR/19/composition.yaml" ||
+  fail "Q19 required invalid patch missing"
+grep -q '^spec: {}' "$COURSE_DIR/19/xr.yaml" ||
+  fail "Q19 XR must omit backupPolicy"
+if grep -q '^## Tracce di soluzione' "$COURSE_DIR/20/QUESTION.md"; then
+  fail "Q20 question leaked the solution section"
+fi
 
 echo "[OK] Crossplane lab generated and validated in isolation"

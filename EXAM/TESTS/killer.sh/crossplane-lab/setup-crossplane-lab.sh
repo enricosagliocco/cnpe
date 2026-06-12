@@ -286,6 +286,101 @@ make_namespaced 12 ServiceSpace servicespaces service-composition \
 make_namespaced 18 ObservabilitySpace observabilityspaces observability-composition \
   monitoringProfile observability-config
 
+# Q3 includes a manifest that must be rejected by the XRD validation.
+cat > "$COURSE_DIR/03/invalid-xr.yaml" <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: EnvironmentSpace
+metadata:
+  name: invalid-environment
+spec:
+  environment: test
+YAML
+
+# Q4 starts with two served versions, but intentionally has the wrong
+# referenceable version. The candidate must align the XRD, Composition and XR.
+cat > "$COURSE_DIR/04/xrd.yaml" <<'YAML'
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: costspaces.platform.example.com
+spec:
+  scope: Cluster
+  group: platform.example.com
+  names:
+    kind: CostSpace
+    plural: costspaces
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                costCenter:
+                  type: string
+              required:
+                - costCenter
+    - name: v1beta1
+      served: true
+      referenceable: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                costCenter:
+                  type: string
+              required:
+                - costCenter
+YAML
+
+# Q7 needs both fields in the API before the candidate adds the combine patch.
+cat > "$COURSE_DIR/07/xrd.yaml" <<'YAML'
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: clusterspaces.platform.example.com
+spec:
+  scope: Cluster
+  group: platform.example.com
+  names:
+    kind: ClusterSpace
+    plural: clusterspaces
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                clusterName:
+                  type: string
+                region:
+                  type: string
+              required:
+                - clusterName
+                - region
+YAML
+cat > "$COURSE_DIR/07/xr.yaml" <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: ClusterSpace
+metadata:
+  name: edge
+spec:
+  clusterName: edge-west-01
+  region: eu-central-1
+YAML
+
 # Additional compositions used by selection and revision exercises.
 cat > "$COURSE_DIR/13/composition-restricted.yaml" <<'YAML'
 apiVersion: apiextensions.crossplane.io/v1
@@ -340,6 +435,78 @@ spec:
         apiVersion: pt.fn.crossplane.io/v1beta1
         kind: Resources
         resources: []
+YAML
+
+# Force the Q14 XR to select the broken Composition even if the standard
+# Composition is also applied while investigating.
+cat > "$COURSE_DIR/14/xr.yaml" <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: SecuritySpace
+metadata:
+  name: restricted-workloads
+spec:
+  securityTier: restricted
+  crossplane:
+    compositionRef:
+      name: securityspace-broken
+YAML
+
+# Q19 intentionally contains the three faults described in the question:
+# mismatched composite kind, a required patch from a nonexistent field, and
+# an XR missing the schema-required backupPolicy field.
+cat > "$COURSE_DIR/19/composition.yaml" <<'YAML'
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: backup-composition
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.com/v1alpha1
+    kind: BackupPlan
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: namespace
+            base:
+              apiVersion: v1
+              kind: Namespace
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.name
+                toFieldPath: metadata.name
+            readinessChecks:
+              - type: None
+          - name: configuration
+            base:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: backup-config
+              data: {}
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.name
+                toFieldPath: metadata.namespace
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.retention
+                toFieldPath: data.backupPolicy
+                policy:
+                  fromFieldPath: Required
+            readinessChecks:
+              - type: None
+YAML
+cat > "$COURSE_DIR/19/xr.yaml" <<'YAML'
+apiVersion: platform.example.com/v1alpha1
+kind: BackupSpace
+metadata:
+  name: critical-backups
+spec: {}
 YAML
 
 # Q20 starts with deliberately empty manifests for a true end-to-end build.
