@@ -52,6 +52,5 @@ e verifica esplicita del risultato runtime.
 Controllo metodologico offline:
 
 ```bash
-./
-validate-hpa-keda-lab.sh
+./validate-hpa-keda-lab.sh
 ```

@@ -811,6 +811,15 @@ spec:
           resources:
             requests: {cpu: 100m, memory: 32Mi}
             limits: {cpu: 500m, memory: 64Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker
+  namespace: autoscaling-lab
+spec:
+  selector: {app: worker}
+  ports: [{port: 80, targetPort: 80}]
 YAML
 cat > "$COURSE_DIR/10/hpa.yaml" <<'YAML'
 apiVersion: autoscaling/v2
@@ -862,6 +871,22 @@ spec:
         - sh
         - -c
         - while true; do wget -q -O- http://api; done
+YAML
+cat > "$COURSE_DIR/10/worker-load-generator.yaml" <<'YAML'
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker-load-generator
+  namespace: autoscaling-lab
+spec:
+  restartPolicy: Never
+  containers:
+    - name: load
+      image: curlimages/curl:8.10.1
+      command:
+        - /bin/sh
+        - -c
+        - while true; do curl -fsS http://worker >/dev/null; done
 YAML
 touch "$COURSE_DIR/10/autoscaling-check.txt"
 

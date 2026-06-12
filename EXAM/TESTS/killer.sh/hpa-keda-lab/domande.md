@@ -20,6 +20,24 @@ kubectl api-resources
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
+Test HTTP comuni, sostituendo `NN` con il numero della domanda:
+
+```bash
+# Richiesta singola dal cluster: verifica Service e DNS.
+kubectl -n autoscale-qNN run curl-test --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 -- curl -fsS http://web
+
+# Carico continuo. Osserva HPA e Pod da un secondo terminale.
+kubectl -n autoscale-qNN run traffic \
+  --image=curlimages/curl:8.10.1 --restart=Never -- \
+  /bin/sh -c 'while true; do curl -fsS http://web >/dev/null; done'
+kubectl -n autoscale-qNN get hpa,pods -w
+
+# Arresta il traffico e osserva lo scale-in.
+kubectl -n autoscale-qNN delete pod traffic --ignore-not-found
+kubectl -n autoscale-qNN get hpa,pods -w
+```
+
 ---
 ### Q1 - HPA senza CPU request
 
@@ -37,7 +55,12 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q01` prima di applicarli
 
 ```bash
 ./create-resources.sh
+kubectl apply -f load-generator.yaml
+kubectl -n autoscale-q06 get hpa,pods -w
 ```
+
+Quando lo scale-out e' visibile, elimina il Pod `load-generator` e osserva
+il ritorno verso il minimo.
 
 ---
 
@@ -56,7 +79,12 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q02` prima di applicarli
 
 ```bash
 ./create-resources.sh
+kubectl apply -f load-generator.yaml
+kubectl -n autoscale-q08 get hpa,pods -w
 ```
+
+Il test e' completato quando il Deployment raggiunge almeno tre repliche.
+Elimina poi il Pod `load-generator`.
 
 ---
 
@@ -76,6 +104,17 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q03` prima di applicarli
 
 ```bash
 ./create-resources.sh
+kubectl -n autoscale-q10 run curl-test --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 -- curl -fsS http://web
+kubectl apply -f load-generator.yaml
+kubectl -n autoscale-q10 get hpa,pods -w
+```
+
+Dopo lo scale-out elimina `load-generator` e osserva lo scale-in:
+
+```bash
+kubectl -n autoscale-q10 delete pod load-generator
+kubectl -n autoscale-q10 get hpa,pods -w
 ```
 
 ---
@@ -497,8 +536,9 @@ condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
 ```bash
 cd ~/course-hpa-keda/q06
 ./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl apply -f load-generator.yaml
+kubectl -n autoscale-q06 get hpa,pods -w
+kubectl -n autoscale-q06 delete pod load-generator
 ./remove-resources.sh
 ```
 
@@ -527,8 +567,9 @@ condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
 ```bash
 cd ~/course-hpa-keda/q08
 ./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl apply -f load-generator.yaml
+kubectl -n autoscale-q08 get hpa,pods -w
+kubectl -n autoscale-q08 delete pod load-generator
 ./remove-resources.sh
 ```
 
@@ -557,8 +598,12 @@ condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
 ```bash
 cd ~/course-hpa-keda/q10
 ./create-resources.sh
+kubectl -n autoscale-q10 run curl-test --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 -- curl -fsS http://web
 kubectl apply -f load-generator.yaml
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl -n autoscale-q10 get hpa,pods -w
+kubectl -n autoscale-q10 delete pod load-generator
+kubectl -n autoscale-q10 get hpa,pods -w
 ./remove-resources.sh
 ```
 

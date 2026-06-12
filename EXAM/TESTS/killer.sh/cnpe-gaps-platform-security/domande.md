@@ -225,10 +225,31 @@ Percorso: `~/course-platform-security/12`.
 Frontend, backend e Service backend sono già running; senza policy la
 comunicazione non è limitata.
 
-1. Applica default deny ingress/egress in `tenant-a`, poi consenti al Pod `frontend` di raggiungere `backend` solo TCP 8080 e DNS kube-system UDP/TCP 53.
+1. Applica default deny ingress/egress in `tenant-a`, poi consenti al Pod
+   `frontend` di raggiungere il Pod backend su TCP 80, tramite il Service
+   `backend:8080`, e DNS kube-system UDP/TCP 53.
 2. Completa `12/policies.yaml`.
-3. Verifica dal frontend che DNS e `backend:8080` funzionino e che una porta
-   non consentita fallisca.
+3. Verifica dal frontend che DNS e `backend:8080` funzionino.
+4. Crea un Pod temporaneo non etichettato come frontend e dimostra che la
+   stessa richiesta venga bloccata.
+
+Test positivo dal client autorizzato:
+
+```bash
+kubectl -n tenant-a exec deploy/frontend -- nslookup backend
+kubectl -n tenant-a exec deploy/frontend -- \
+  wget -qO- -T 3 http://backend:8080
+```
+
+Test negativo da un Pod non autorizzato:
+
+```bash
+kubectl -n tenant-a run intruder --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 -- \
+  curl --connect-timeout 3 --max-time 5 http://backend:8080
+```
+
+Il secondo comando deve terminare con timeout o errore di connessione.
 
 ---
 

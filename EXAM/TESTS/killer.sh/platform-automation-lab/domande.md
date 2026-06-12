@@ -155,7 +155,23 @@ Esamina tutti i manifest presenti in `~/course-platform-automation/03` prima di 
 **Tip 2**
 
 ```bash
-kubectl apply --server-side --dry-run=server -f payload-main.json
+kubectl -n tekton-events port-forward svc/el-git-push 8080:8080
+```
+
+In un secondo terminale:
+
+```bash
+curl -sS -o /tmp/main-response.txt -w '%{http_code}\n' \
+  -H 'Content-Type: application/json' \
+  --data-binary @payload-main.json http://127.0.0.1:8080
+kubectl -n tekton-events get pipelineruns
+
+before="$(kubectl -n tekton-events get pipelineruns --no-headers | wc -l)"
+curl -sS -o /tmp/feature-response.txt -w '%{http_code}\n' \
+  -H 'Content-Type: application/json' \
+  --data-binary @payload-feature.json http://127.0.0.1:8080
+after="$(kubectl -n tekton-events get pipelineruns --no-headers | wc -l)"
+test "$before" -eq "$after"
 ```
 
 ---
@@ -448,7 +464,13 @@ Esamina tutti i manifest presenti in `~/course-platform-automation/10` prima di 
 
 ```bash
 kubectl apply --server-side --dry-run=server -f hpa.yaml
+kubectl -n autoscaling-lab run curl-test --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 -- curl -fsS http://api
+kubectl apply -f load-generator.yaml
+kubectl -n autoscaling-lab get hpa,pods -w
 ```
+
+Elimina `load-generator` e osserva il ritorno verso una replica.
 
 ---
 
@@ -474,7 +496,11 @@ Esamina tutti i manifest presenti in `~/course-platform-automation/10` prima di 
 
 ```bash
 kubectl apply --server-side --dry-run=server -f scaledobject.yaml
+kubectl apply -f worker-load-generator.yaml
+kubectl -n autoscaling-lab get scaledobject,hpa,pods -w
 ```
+
+Elimina `worker-load-generator` e verifica lo scale-in dopo il cooldown.
 
 ---
 
@@ -556,9 +582,13 @@ condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
 
 ```bash
 cd ~/course-platform-automation/03
-kubectl apply -f payload-main.json
-kubectl apply -f payload-feature.json
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl -n tekton-events port-forward svc/el-git-push 8080:8080
+# In un secondo terminale:
+curl -sS -H 'Content-Type: application/json' \
+  --data-binary @payload-main.json http://127.0.0.1:8080
+kubectl -n tekton-events get pipelineruns
+curl -sS -H 'Content-Type: application/json' \
+  --data-binary @payload-feature.json http://127.0.0.1:8080
 ```
 
 ---
@@ -727,8 +757,11 @@ condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
 ```bash
 cd ~/course-platform-automation/10
 kubectl apply -f hpa.yaml
+kubectl -n autoscaling-lab run curl-test --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 -- curl -fsS http://api
 kubectl apply -f load-generator.yaml
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl -n autoscaling-lab get hpa,pods -w
+kubectl -n autoscaling-lab delete pod load-generator
 ```
 
 ---
@@ -741,5 +774,7 @@ condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
 ```bash
 cd ~/course-platform-automation/10
 kubectl apply -f scaledobject.yaml
-kubectl get events -A --sort-by=.lastTimestamp
+kubectl apply -f worker-load-generator.yaml
+kubectl -n autoscaling-lab get scaledobject,hpa,pods -w
+kubectl -n autoscaling-lab delete pod worker-load-generator
 ```
