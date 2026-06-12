@@ -59,7 +59,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q1 – Argo CD source revision
+### Q1 - Argo CD source revision
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/01`.
@@ -75,7 +75,7 @@ può essere creata correttamente.
 
 ---
 
-### Q2 – Argo CD staging promotion
+### Q2 - Argo CD staging promotion
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/02`.
@@ -89,7 +89,7 @@ Percorso: `~/course-delivery-ops/02`.
 
 ---
 
-### Q3 – Flux GitRepository
+### Q3 - Flux GitRepository
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/03`.
@@ -103,7 +103,7 @@ Il GitRepository `platform-source` usa il branch inesistente `develop`.
 
 ---
 
-### Q4 – Flux Kustomization
+### Q4 - Flux Kustomization
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/04`.
@@ -118,7 +118,7 @@ Percorso: `~/course-delivery-ops/04`.
 
 ---
 
-### Q5 – GitOps drift
+### Q5 - GitOps drift
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/05`.
@@ -133,7 +133,7 @@ Il Deployment `drift-demo` è già running in `delivery-dev` con 2 repliche.
 
 ---
 
-### Q6 – Tekton task ordering
+### Q6 - Tekton task ordering
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/06`.
@@ -147,7 +147,7 @@ La Pipeline `ordered-build` ha dipendenze e workspace mancanti.
 
 ---
 
-### Q7 – Tekton parallelism
+### Q7 - Tekton parallelism
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/07`.
@@ -163,7 +163,7 @@ parallelo.
 
 ---
 
-### Q8 – Tekton results
+### Q8 - Tekton results
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/08`.
@@ -177,7 +177,7 @@ Il Task `calculate-version` produce ancora il valore `TODO`.
 
 ---
 
-### Q9 – Argo Rollouts canary
+### Q9 - Argo Rollouts canary
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/09`.
@@ -194,7 +194,7 @@ placeholder nella strategia.
 
 ---
 
-### Q10 – AnalysisTemplate
+### Q10 - AnalysisTemplate
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/10`.
@@ -209,7 +209,7 @@ placeholder.
 
 ---
 
-### Q11 – Rollback progressive delivery
+### Q11 - Rollback progressive delivery
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/11`.
@@ -225,7 +225,7 @@ non valida.
 
 ---
 
-### Q12 – Prometheus target discovery
+### Q12 - Prometheus target discovery
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/12`.
@@ -240,7 +240,7 @@ su `8080` ed è annotato, ma Prometheus non lo scopre.
 
 ---
 
-### Q13 – PromQL availability
+### Q13 - PromQL availability
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/13`.
@@ -257,7 +257,7 @@ solo placeholder.
 
 ---
 
-### Q14 – Prometheus alert
+### Q14 - Prometheus alert
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/14`.
@@ -271,7 +271,7 @@ Percorso: `~/course-delivery-ops/14`.
 
 ---
 
-### Q15 – Loki datasource health
+### Q15 - Loki datasource health
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/15`.
@@ -287,7 +287,7 @@ diretto.
 
 ---
 
-### Q16 – LogQL incident
+### Q16 - LogQL incident
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/16`.
@@ -304,7 +304,7 @@ frequenze diverse, raccolti da Promtail.
 
 ---
 
-### Q17 – OpenTelemetry endpoint
+### Q17 - OpenTelemetry endpoint
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/17`.
@@ -319,7 +319,7 @@ errati.
 
 ---
 
-### Q18 – Trace correlation
+### Q18 - Trace correlation
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/18`.
@@ -334,7 +334,7 @@ Percorso: `~/course-delivery-ops/18`.
 
 ---
 
-### Q19 – Incident remediation
+### Q19 - Incident remediation
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/19`.
@@ -349,7 +349,7 @@ riproducono i sintomi descritti in `incident.yaml`.
 
 ---
 
-### Q20 – Simulazione a tempo
+### Q20 - Simulazione a tempo
 **Ticket:** riproduci il sintomo, identifica la causa radice, crea o correggi gli elementi coinvolti, applica e verifica nel cluster.
 
 Percorso: `~/course-delivery-ops/20`.
@@ -361,3 +361,11 @@ realmente create nelle domande precedenti.
 1. In massimo 25 minuti completa `20/checklist.md`: Argo Application Healthy, Flux Ready, PipelineRun riuscito, Rollout Healthy, alert valido, Loki health 200 e OTLP 4317 raggiungibile.
 2. Inserisci un comando e il relativo output per ogni punto.
 3. Verifica che nessun punto della checklist resti privo di evidenza runtime.
+
+---
+
+## Tracce di soluzione
+
+Le soluzioni sono operative: usa gli starter, gli eventi e i comandi di verifica
+indicati in ogni ticket. Conserva in `evidence.txt` sintomo iniziale, correzione e
+risultato runtime finale; non sostituire i manifest completi senza diagnosi.

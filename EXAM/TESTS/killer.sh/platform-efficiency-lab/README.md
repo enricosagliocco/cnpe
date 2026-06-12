@@ -53,3 +53,16 @@ Versioni predefinite:
 
 Sono sovrascrivibili tramite `PROMETHEUS_CHART_VERSION` e
 `OPENCOST_CHART_VERSION`.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-platform-efficiency-lab.sh
+```

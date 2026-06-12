@@ -47,3 +47,16 @@ Versioni predefinite:
 - Promtail `6.17.1`;
 - Jaeger `1.76.0`;
 - OpenTelemetry Collector `0.134.0`.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-observability-incident-lab.sh
+```

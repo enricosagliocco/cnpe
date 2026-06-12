@@ -18,7 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-### Q1 – Diagnosi networking multi-tenant
+### Q1 - Diagnosi networking multi-tenant
 
 Percorso: `~/course-platform-efficiency/01`.
 
@@ -37,7 +37,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q2 – Ingress shared service
+### Q2 - Ingress shared service
 
 Percorso: `~/course-platform-efficiency/01`.
 
@@ -56,7 +56,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q3 – Egress tenant-a
+### Q3 - Egress tenant-a
 
 Percorso: `~/course-platform-efficiency/01`.
 
@@ -75,7 +75,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q4 – Verifica isolamento
+### Q4 - Verifica isolamento
 
 Percorso: `~/course-platform-efficiency/01`.
 
@@ -95,7 +95,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q5 – Diagnosi storage locale
+### Q5 - Diagnosi storage locale
 
 Percorso: `~/course-platform-efficiency/02`.
 
@@ -114,7 +114,7 @@ kubectl apply --server-side --dry-run=server -f 02/storage.yaml
 
 ---
 
-### Q6 – StorageClass
+### Q6 - StorageClass
 
 Percorso: `~/course-platform-efficiency/02`.
 
@@ -133,7 +133,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q7 – PV e node affinity
+### Q7 - PV e node affinity
 
 Percorso: `~/course-platform-efficiency/02`.
 
@@ -152,7 +152,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q8 – Binding e scheduling
+### Q8 - Binding e scheduling
 
 Percorso: `~/course-platform-efficiency/02`.
 
@@ -172,7 +172,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q9 – Diagnosi topology spread
+### Q9 - Diagnosi topology spread
 
 Percorso: `~/course-platform-efficiency/03`.
 
@@ -191,7 +191,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q10 – Spread e anti-affinity
+### Q10 - Spread e anti-affinity
 
 Percorso: `~/course-platform-efficiency/03`.
 
@@ -210,7 +210,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q11 – PodDisruptionBudget
+### Q11 - PodDisruptionBudget
 
 Percorso: `~/course-platform-efficiency/03`.
 
@@ -228,7 +228,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q12 – Test drain
+### Q12 - Test drain
 
 Percorso: `~/course-platform-efficiency/03`.
 
@@ -247,7 +247,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q13 – Baseline OpenCost
+### Q13 - Baseline OpenCost
 
 Percorso: `~/course-platform-efficiency/04`.
 
@@ -266,7 +266,7 @@ kubectl apply --server-side --dry-run=server -f 04/allocation-before.json
 
 ---
 
-### Q14 – Calcolo right-sizing
+### Q14 - Calcolo right-sizing
 
 Percorso: `~/course-platform-efficiency/04`.
 
@@ -287,7 +287,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q15 – Applicazione right-sizing
+### Q15 - Applicazione right-sizing
 
 Percorso: `~/course-platform-efficiency/04`.
 
@@ -306,7 +306,7 @@ kubectl apply --server-side --dry-run=server -f 04/right-sized-deployment.yaml
 
 ---
 
-### Q16 – Confronto costi
+### Q16 - Confronto costi
 
 Percorso: `~/course-platform-efficiency/04`.
 
@@ -325,7 +325,7 @@ kubectl apply --server-side --dry-run=server -f 04/allocation-after.json
 
 ---
 
-### Q17 – Diagnosi quote tenant
+### Q17 - Diagnosi quote tenant
 
 Percorso: `~/course-platform-efficiency/05`.
 
@@ -344,7 +344,7 @@ kubectl apply --server-side --dry-run=server -f 05/workload.yaml
 
 ---
 
-### Q18 – ResourceQuota e LimitRange
+### Q18 - ResourceQuota e LimitRange
 
 Percorso: `~/course-platform-efficiency/05`.
 
@@ -363,7 +363,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q19 – Scoped quota
+### Q19 - Scoped quota
 
 Percorso: `~/course-platform-efficiency/05`.
 
@@ -382,7 +382,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q20 – Verifica finale efficienza
+### Q20 - Verifica finale efficienza
 
 Percorso: `~/course-platform-efficiency/05`.
 

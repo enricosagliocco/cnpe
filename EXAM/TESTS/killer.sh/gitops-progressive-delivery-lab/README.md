@@ -51,3 +51,16 @@ Versioni predefinite:
 - Argo Rollouts `v1.9.0`.
 
 Sono sovrascrivibili tramite le rispettive variabili `*_VERSION`.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-gitops-progressive-delivery-lab.sh
+```

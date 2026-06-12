@@ -42,3 +42,16 @@ cd ~/course-hpa-keda/q01
 
 `LAB_FORCE=true` rigenera i file senza eliminare il cluster o i controller
 condivisi.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-hpa-keda-lab.sh
+```

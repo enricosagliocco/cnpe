@@ -25,3 +25,16 @@ Il setup installa Argo Rollouts v1.9.0 e crea gli starter in
 
 Per la CLI installa il plugin `kubectl argo rollouts`, oppure usa `kubectl`
 per tutti gli esercizi. Per rigenerare usa `LAB_FORCE=true`.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-argo-rollouts-lab.sh
+```

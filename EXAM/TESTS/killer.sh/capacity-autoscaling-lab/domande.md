@@ -18,7 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-### Q1 – Diagnosi ResourceQuota
+### Q1 - Diagnosi ResourceQuota
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -40,7 +40,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q2 – Correzione ResourceQuota
+### Q2 - Correzione ResourceQuota
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -61,7 +61,7 @@ kubectl apply --server-side --dry-run=server -f 01/resourcequota.yaml
 
 ---
 
-### Q3 – Accounting della quota
+### Q3 - Accounting della quota
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -81,7 +81,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q4 – Test di saturazione quota
+### Q4 - Test di saturazione quota
 
 Percorso: `~/course-capacity-autoscaling/01`.
 
@@ -101,7 +101,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q5 – Riproduzione errore LimitRange
+### Q5 - Riproduzione errore LimitRange
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -120,7 +120,7 @@ kubectl apply --server-side --dry-run=server -f 02/pod.yaml
 
 ---
 
-### Q6 – Default request e limit
+### Q6 - Default request e limit
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -139,7 +139,7 @@ kubectl apply --server-side --dry-run=server -f 02/limitrange.yaml
 
 ---
 
-### Q7 – Limiti massimi container
+### Q7 - Limiti massimi container
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -160,7 +160,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q8 – Test positivo e negativo LimitRange
+### Q8 - Test positivo e negativo LimitRange
 
 Percorso: `~/course-capacity-autoscaling/02`.
 
@@ -181,7 +181,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q9 – Diagnosi VPA
+### Q9 - Diagnosi VPA
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -201,7 +201,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q10 – Correzione TargetRef VPA
+### Q10 - Correzione TargetRef VPA
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -220,7 +220,7 @@ kubectl apply --server-side --dry-run=server -f 03/vpa.yaml
 
 ---
 
-### Q11 – Lettura raccomandazioni VPA
+### Q11 - Lettura raccomandazioni VPA
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -239,7 +239,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q12 – Verifica modalità recommendation-only
+### Q12 - Verifica modalità recommendation-only
 
 Percorso: `~/course-capacity-autoscaling/03`.
 
@@ -260,7 +260,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q13 – Diagnosi HPA
+### Q13 - Diagnosi HPA
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -280,7 +280,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q14 – Configurazione HPA CPU
+### Q14 - Configurazione HPA CPU
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -301,7 +301,7 @@ kubectl apply --server-side --dry-run=server -f 04/hpa.yaml
 
 ---
 
-### Q15 – Scale-up sotto carico
+### Q15 - Scale-up sotto carico
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -320,7 +320,7 @@ kubectl apply --server-side --dry-run=server -f 04/load-generator.yaml
 
 ---
 
-### Q16 – Stabilizzazione e scale-down
+### Q16 - Stabilizzazione e scale-down
 
 Percorso: `~/course-capacity-autoscaling/04`.
 
@@ -339,7 +339,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q17 – Diagnosi ScaledObject
+### Q17 - Diagnosi ScaledObject
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -359,7 +359,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q18 – Correzione KEDA
+### Q18 - Correzione KEDA
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -379,7 +379,7 @@ kubectl apply --server-side --dry-run=server -f 05/scaledobject.yaml
 
 ---
 
-### Q19 – HPA gestito da KEDA
+### Q19 - HPA gestito da KEDA
 
 Percorso: `~/course-capacity-autoscaling/05`.
 
@@ -400,7 +400,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q20 – Verifica finale autoscaling
+### Q20 - Verifica finale autoscaling
 
 Percorso: `~/course-capacity-autoscaling/05`.
 

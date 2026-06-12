@@ -18,7 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-### Q1 – RequiredAnnotations parametrica
+### Q1 - RequiredAnnotations parametrica
 
 Percorso: `~/course-gatekeeper/01`.
 
@@ -57,7 +57,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q2 – RequiredLabels con array
+### Q2 - RequiredLabels con array
 
 Percorso: `~/course-gatekeeper/02`.
 
@@ -86,7 +86,7 @@ kubectl apply --server-side --dry-run=server -f pod-bad.yaml
 
 ---
 
-### Q3 – Repository immagini consentiti
+### Q3 - Repository immagini consentiti
 
 Percorso: `~/course-gatekeeper/03`.
 
@@ -121,7 +121,7 @@ kubectl apply --server-side --dry-run=server -f pod-allowed.yaml
 
 ---
 
-### Q4 – Numero minimo di repliche
+### Q4 - Numero minimo di repliche
 
 Percorso: `~/course-gatekeeper/04`.
 
@@ -148,7 +148,7 @@ kubectl apply --server-side --dry-run=server -f constraint.yaml
 
 ---
 
-### Q5 – Match ed esclusioni
+### Q5 - Match ed esclusioni
 
 Percorso: `~/course-gatekeeper/05`.
 
@@ -174,7 +174,7 @@ kubectl apply --server-side --dry-run=server -f constraint.yaml
 
 ---
 
-### Q6 – Audit con enforcement dryrun
+### Q6 - Audit con enforcement dryrun
 
 Percorso: `~/course-gatekeeper/06`.
 
@@ -202,7 +202,7 @@ kubectl apply --server-side --dry-run=server -f new-deployment.yaml
 
 ---
 
-### Q7 – Enforcement warn
+### Q7 - Enforcement warn
 
 Percorso: `~/course-gatekeeper/07`.
 
@@ -227,7 +227,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q8 – Namespace selector
+### Q8 - Namespace selector
 
 Percorso: `~/course-gatekeeper/08`.
 
@@ -257,7 +257,7 @@ kubectl apply --server-side --dry-run=server -f staging-bad.yaml
 
 ---
 
-### Q9 – Vietare Service NodePort
+### Q9 - Vietare Service NodePort
 
 Percorso: `~/course-gatekeeper/09`.
 
@@ -282,7 +282,7 @@ kubectl apply --server-side --dry-run=server -f public-api.yaml
 
 ---
 
-### Q10 – Host Ingress univoci con inventory
+### Q10 - Host Ingress univoci con inventory
 
 Percorso: `~/course-gatekeeper/10`.
 
@@ -308,7 +308,7 @@ kubectl apply --server-side --dry-run=server -f duplicate.yaml
 
 ---
 
-### Q11 – Resource requests e limits
+### Q11 - Resource requests e limits
 
 Percorso: `~/course-gatekeeper/11`.
 
@@ -337,7 +337,7 @@ kubectl apply --server-side --dry-run=server -f worker.yaml
 
 ---
 
-### Q12 – Security context
+### Q12 - Security context
 
 Percorso: `~/course-gatekeeper/12`.
 
@@ -365,7 +365,7 @@ kubectl apply --server-side --dry-run=server -f pod.yaml
 
 ---
 
-### Q13 – Service type parametrico
+### Q13 - Service type parametrico
 
 Percorso: `~/course-gatekeeper/13`.
 
@@ -389,7 +389,7 @@ kubectl apply --server-side --dry-run=server -f service-default.yaml
 
 ---
 
-### Q14 – Label immutabile durante UPDATE
+### Q14 - Label immutabile durante UPDATE
 
 Percorso: `~/course-gatekeeper/14`.
 
@@ -417,7 +417,7 @@ kubectl apply --server-side --dry-run=server -f deployment.yaml
 
 ---
 
-### Q15 – Container, initContainer ed ephemeralContainer
+### Q15 - Container, initContainer ed ephemeralContainer
 
 Percorso: `~/course-gatekeeper/15`.
 
@@ -445,7 +445,7 @@ kubectl apply --server-side --dry-run=server -f pod-init-denied.yaml
 
 ---
 
-### Q16 – ExpansionTemplate
+### Q16 - ExpansionTemplate
 
 Percorso: `~/course-gatekeeper/16`.
 
@@ -479,7 +479,7 @@ kubectl apply --server-side --dry-run=server -f expansion.yaml
 
 ---
 
-### Q17 – Troubleshooting ConstraintTemplate
+### Q17 - Troubleshooting ConstraintTemplate
 
 Percorso: `~/course-gatekeeper/17`.
 
@@ -507,7 +507,7 @@ kubectl apply --server-side --dry-run=server -f broken-template.yaml
 
 ---
 
-### Q18 – Schema avanzato dei parametri
+### Q18 - Schema avanzato dei parametri
 
 Percorso: `~/course-gatekeeper/18`.
 
@@ -539,7 +539,7 @@ kubectl apply --server-side --dry-run=server -f invalid-parameters.yaml
 
 ---
 
-### Q19 – Policy bundle con Kustomize
+### Q19 - Policy bundle con Kustomize
 
 Percorso: `~/course-gatekeeper/19/policy-bundle`.
 
@@ -574,7 +574,7 @@ kubectl apply --server-side --dry-run=server -f install.sh
 
 ---
 
-### Q20 – Incident finale
+### Q20 - Incident finale
 
 Percorso: `~/course-gatekeeper/20`.
 

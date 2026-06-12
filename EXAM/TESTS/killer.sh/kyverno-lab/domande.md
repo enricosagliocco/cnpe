@@ -18,7 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-### Q1 – Namespace annotation obbligatoria
+### Q1 - Namespace annotation obbligatoria
 
 Percorso: `~/course-kyverno/01`.
 
@@ -45,7 +45,7 @@ kubectl apply --server-side --dry-run=server -f 01/policy.yaml
 
 ---
 
-### Q2 – Mutation di label e annotation sui Pod
+### Q2 - Mutation di label e annotation sui Pod
 
 Percorso: `~/course-kyverno/02`.
 
@@ -70,7 +70,7 @@ kubectl apply --server-side --dry-run=server -f pod.yaml
 
 ---
 
-### Q3 – Label obbligatorie sui Deployment
+### Q3 - Label obbligatorie sui Deployment
 
 Percorso: `~/course-kyverno/03`.
 
@@ -94,7 +94,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q4 – Numero minimo di repliche
+### Q4 - Numero minimo di repliche
 
 Percorso: `~/course-kyverno/04`.
 
@@ -117,7 +117,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q5 – Resource requests e limits
+### Q5 - Resource requests e limits
 
 Percorso: `~/course-kyverno/05`.
 
@@ -141,7 +141,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q6 – Registry immagini consentiti
+### Q6 - Registry immagini consentiti
 
 Percorso: `~/course-kyverno/06`.
 
@@ -165,7 +165,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q7 – Vietare tag latest e immagini senza tag
+### Q7 - Vietare tag latest e immagini senza tag
 
 Percorso: `~/course-kyverno/07`.
 
@@ -189,7 +189,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q8 – Pod runAsNonRoot
+### Q8 - Pod runAsNonRoot
 
 Percorso: `~/course-kyverno/08`.
 
@@ -212,7 +212,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q9 – Container privilegiati e privilege escalation
+### Q9 - Container privilegiati e privilege escalation
 
 Percorso: `~/course-kyverno/09`.
 
@@ -236,7 +236,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q10 – Volumi hostPath vietati
+### Q10 - Volumi hostPath vietati
 
 Percorso: `~/course-kyverno/10`.
 
@@ -259,7 +259,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q11 – Service NodePort e LoadBalancer vietati
+### Q11 - Service NodePort e LoadBalancer vietati
 
 Percorso: `~/course-kyverno/11`.
 
@@ -283,7 +283,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q12 – Ingress TLS obbligatorio
+### Q12 - Ingress TLS obbligatorio
 
 Percorso: `~/course-kyverno/12`.
 
@@ -306,7 +306,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q13 – Label team immutabile durante UPDATE
+### Q13 - Label team immutabile durante UPDATE
 
 Percorso: `~/course-kyverno/13`.
 
@@ -333,7 +333,7 @@ kubectl apply --server-side --dry-run=server -f deployment.yaml
 
 ---
 
-### Q14 – Namespace selector ed esclusione
+### Q14 - Namespace selector ed esclusione
 
 Percorso: `~/course-kyverno/14`.
 
@@ -357,7 +357,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q15 – Policy namespaced per autonomia team
+### Q15 - Policy namespaced per autonomia team
 
 Percorso: `~/course-kyverno/15`.
 
@@ -381,7 +381,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q16 – Audit prima di Deny
+### Q16 - Audit prima di Deny
 
 Percorso: `~/course-kyverno/16`.
 
@@ -408,7 +408,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q17 – Messaggio dinamico con messageExpression
+### Q17 - Messaggio dinamico con messageExpression
 
 Percorso: `~/course-kyverno/17`.
 
@@ -432,7 +432,7 @@ kubectl apply --server-side --dry-run=server -f bad.yaml
 
 ---
 
-### Q18 – Mutation condizionale senza sovrascrittura
+### Q18 - Mutation condizionale senza sovrascrittura
 
 Percorso: `~/course-kyverno/18`.
 
@@ -456,7 +456,7 @@ kubectl apply --server-side --dry-run=server -f pod-missing.yaml
 
 ---
 
-### Q19 – Default security context su tutti i container
+### Q19 - Default security context su tutti i container
 
 Percorso: `~/course-kyverno/19`.
 
@@ -481,7 +481,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q20 – Incident finale end-to-end
+### Q20 - Incident finale end-to-end
 
 Percorso: `~/course-kyverno/20`.
 

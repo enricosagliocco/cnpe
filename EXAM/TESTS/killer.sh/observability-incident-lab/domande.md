@@ -18,7 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-### Q1 – Diagnosi target Prometheus
+### Q1 - Diagnosi target Prometheus
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -36,7 +36,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q2 – Correzione ServiceMonitor
+### Q2 - Correzione ServiceMonitor
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -55,7 +55,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q3 – PromQL error rate
+### Q3 - PromQL error rate
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -74,7 +74,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q4 – Alerting
+### Q4 - Alerting
 
 Percorso: `~/course-observability-incident/01`.
 
@@ -93,7 +93,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q5 – Diagnosi datasource Loki
+### Q5 - Diagnosi datasource Loki
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -112,7 +112,7 @@ kubectl apply --server-side --dry-run=server -f 02/loki-datasource.yaml
 
 ---
 
-### Q6 – Correzione datasource
+### Q6 - Correzione datasource
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -131,7 +131,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q7 – Query LogQL
+### Q7 - Query LogQL
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -150,7 +150,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q8 – Evidenza logging
+### Q8 - Evidenza logging
 
 Percorso: `~/course-observability-incident/02`.
 
@@ -169,7 +169,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q9 – Diagnosi collector OTLP
+### Q9 - Diagnosi collector OTLP
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -188,7 +188,7 @@ kubectl apply --server-side --dry-run=server -f 03/otel-collector.yaml
 
 ---
 
-### Q10 – Receiver ed exporter
+### Q10 - Receiver ed exporter
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -207,7 +207,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q11 – Traces pipeline
+### Q11 - Traces pipeline
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -226,7 +226,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q12 – Generazione e ricerca trace
+### Q12 - Generazione e ricerca trace
 
 Percorso: `~/course-observability-incident/03`.
 
@@ -245,7 +245,7 @@ kubectl apply --server-side --dry-run=server -f 03/trace-generator.yaml
 
 ---
 
-### Q13 – Deployment frequency
+### Q13 - Deployment frequency
 
 Percorso: `~/course-observability-incident/04`.
 
@@ -264,7 +264,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q14 – Change failure rate
+### Q14 - Change failure rate
 
 Percorso: `~/course-observability-incident/04`.
 
@@ -282,7 +282,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q15 – Lead time e MTTR
+### Q15 - Lead time e MTTR
 
 Percorso: `~/course-observability-incident/04`.
 
@@ -300,7 +300,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q16 – Availability e piano miglioramento
+### Q16 - Availability e piano miglioramento
 
 Percorso: `~/course-observability-incident/04`.
 
@@ -321,7 +321,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q17 – Triage incidente
+### Q17 - Triage incidente
 
 Percorso: `~/course-observability-incident/05`.
 
@@ -340,7 +340,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q18 – Correlazione log-trace
+### Q18 - Correlazione log-trace
 
 Percorso: `~/course-observability-incident/05`.
 
@@ -359,7 +359,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q19 – Remediation
+### Q19 - Remediation
 
 Percorso: `~/course-observability-incident/05`.
 
@@ -378,7 +378,7 @@ kubectl apply --server-side --dry-run=server -f 05/incident-api-config.yaml
 
 ---
 
-### Q20 – Verifica finale incident response
+### Q20 - Verifica finale incident response
 
 Percorso: `~/course-observability-incident/05`.
 

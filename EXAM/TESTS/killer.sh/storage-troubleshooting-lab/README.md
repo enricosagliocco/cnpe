@@ -107,3 +107,16 @@ kubectl get storageclass -o name |
   grep '^storageclass.storage.k8s.io/storage-q' |
   xargs -r kubectl delete --ignore-not-found
 ```
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-storage-troubleshooting-lab.sh
+```

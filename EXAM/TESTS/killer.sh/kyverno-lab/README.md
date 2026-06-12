@@ -30,3 +30,15 @@ LAB_FORCE=true ./setup-kyverno-lab.sh
 Usa Lens/OpenLens con il kubeconfig corrente. Le policy sono visibili in
 **Custom Resources**; eventi e log sono nei workload del Namespace `kyverno`.
 
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-kyverno-lab.sh
+```

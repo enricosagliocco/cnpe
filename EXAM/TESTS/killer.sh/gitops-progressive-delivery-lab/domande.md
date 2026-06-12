@@ -18,7 +18,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-### Q1 – Diagnosi Argo CD Application
+### Q1 - Diagnosi Argo CD Application
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -37,7 +37,7 @@ kubectl apply --server-side --dry-run=server -f 01/application.yaml
 
 ---
 
-### Q2 – Source e destination Argo CD
+### Q2 - Source e destination Argo CD
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -55,7 +55,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q3 – Sync policy
+### Q3 - Sync policy
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -75,7 +75,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q4 – Drift e self-heal
+### Q4 - Drift e self-heal
 
 Percorso: `~/course-gitops-progressive-delivery/01`.
 
@@ -94,7 +94,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q5 – Diagnosi Flux Source
+### Q5 - Diagnosi Flux Source
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -113,7 +113,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q6 – Correzione GitRepository
+### Q6 - Correzione GitRepository
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -132,7 +132,7 @@ kubectl apply --server-side --dry-run=server -f 02/source.yaml
 
 ---
 
-### Q7 – Correzione Kustomization
+### Q7 - Correzione Kustomization
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -151,7 +151,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q8 – Flux drift remediation
+### Q8 - Flux drift remediation
 
 Percorso: `~/course-gitops-progressive-delivery/02`.
 
@@ -170,7 +170,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q9 – Dipendenze Pipeline
+### Q9 - Dipendenze Pipeline
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -189,7 +189,7 @@ kubectl apply --server-side --dry-run=server -f 03/pipeline.yaml
 
 ---
 
-### Q10 – Workspace condiviso
+### Q10 - Workspace condiviso
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -208,7 +208,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q11 – Artefatto di promozione
+### Q11 - Artefatto di promozione
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -227,7 +227,7 @@ kubectl apply --server-side --dry-run=server -f promotion/image-patch.yaml
 
 ---
 
-### Q12 – Esecuzione GitOps CI
+### Q12 - Esecuzione GitOps CI
 
 Percorso: `~/course-gitops-progressive-delivery/03`.
 
@@ -246,7 +246,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q13 – Service canary
+### Q13 - Service canary
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -265,7 +265,7 @@ kubectl apply --server-side --dry-run=server -f 04/canary-rollout.yaml
 
 ---
 
-### Q14 – Canary steps
+### Q14 - Canary steps
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -283,7 +283,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q15 – Promozione canary
+### Q15 - Promozione canary
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -302,7 +302,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q16 – Rollback canary
+### Q16 - Rollback canary
 
 Percorso: `~/course-gitops-progressive-delivery/04`.
 
@@ -321,7 +321,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q17 – Configurazione Blue/Green
+### Q17 - Configurazione Blue/Green
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 
@@ -340,7 +340,7 @@ kubectl apply --server-side --dry-run=server -f 05/bluegreen-rollout.yaml
 
 ---
 
-### Q18 – Preview verification
+### Q18 - Preview verification
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 
@@ -359,7 +359,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q19 – Promotion e abort
+### Q19 - Promotion e abort
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 
@@ -378,7 +378,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 ---
 
-### Q20 – Verifica finale delivery
+### Q20 - Verifica finale delivery
 
 Percorso: `~/course-gitops-progressive-delivery/05`.
 

@@ -25,3 +25,16 @@ credenziali diverse da quelle Kubernetes.
 
 Il setup crea workload non conformi e starter incompleti per verifiche reali
 di CRD, multi-tenancy, NetworkPolicy, RBAC, Pod Security e admission.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-cnpe-gaps-platform-security.sh
+```

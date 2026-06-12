@@ -43,3 +43,16 @@ Apri `https://127.0.0.1:8080` e accedi come `admin`. Per rigenerare:
 ```bash
 LAB_FORCE=true ./setup-argocd-lab-kind.sh
 ```
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-argocd-lab.sh
+```

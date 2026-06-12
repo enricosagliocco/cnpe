@@ -39,3 +39,16 @@ Tekton, Prometheus, Grafana e Jaeger sono riportati all'inizio di
 Il setup crea workload running per drift GitOps, discovery Prometheus,
 incidenti LogQL, OTLP e trace correlation. Ogni soluzione deve essere
 applicata e verificata nel cluster.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-cnpe-gaps-delivery-ops.sh
+```

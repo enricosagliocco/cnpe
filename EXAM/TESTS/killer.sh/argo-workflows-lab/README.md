@@ -28,3 +28,16 @@ kubectl -n argo port-forward svc/argo-server 2746:2746
 ```
 
 Apri `https://127.0.0.1:2746`. Per rigenerare usa `LAB_FORCE=true`.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-argo-workflows-lab.sh
+```

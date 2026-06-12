@@ -68,3 +68,16 @@ Apri il cluster in Lens/OpenLens usando il kubeconfig corrente. I
 ConstraintTemplate e i Constraint sono disponibili in **Custom Resources**;
 eventi e log di audit sono visibili dai workload in `gatekeeper-system`.
 Gatekeeper non espone una dashboard web propria.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-gatekeeper-lab.sh
+```

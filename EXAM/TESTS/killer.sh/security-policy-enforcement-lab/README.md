@@ -71,3 +71,16 @@ Sono sovrascrivibili tramite `KYVERNO_VERSION`, `TEKTON_VERSION` e
 
 La directory del lab è autonoma: può essere copiata ed eseguita senza il file
 condiviso `../lab-question-layout.sh`.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-security-policy-enforcement-lab.sh
+```

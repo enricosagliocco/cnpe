@@ -18,8 +18,8 @@ prepare_question_layout() {
     awk '/^### Q[0-9]+ - / { count++ } END { print count + 0 }' \
       "$questions_file"
   )"
-  [ "$question_count" -gt 0 ] || {
-    echo "[ERR] no questions found in $questions_file" >&2
+  [ "$question_count" -eq 20 ] || {
+    echo "[ERR] expected 20 questions, found $question_count" >&2
     return 1
   }
 
@@ -69,10 +69,10 @@ prepare_question_layout() {
       else
         directory="$(printf '%02d' "$number")"
       fi
-      if [ ! -s "$course_dir/$directory/QUESTION.md" ]; then
-        echo "[ERR] Q${number#0} was not extracted from $questions_file" >&2
+      [ -s "$course_dir/$directory/QUESTION.md" ] || {
+        echo "[ERR] Q$number was not extracted" >&2
         return 1
-      fi
+      }
       heading="$(head -n 1 "$course_dir/$directory/QUESTION.md")"
       heading="${heading#\#\#\# }"
       printf -- '- [%s](%s/QUESTION.md)\n' "$heading" "$directory"

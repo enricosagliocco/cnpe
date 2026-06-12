@@ -45,3 +45,16 @@ Il provider Kubernetes rende il lab base leggero e ripetibile. Gli esercizi
 dedicati a NGINX e Gateway API includono gli starter da validare, ma non
 installano automaticamente ingress controller, Gateway API CRD o relativi
 controller.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-flagger-lab.sh
+```

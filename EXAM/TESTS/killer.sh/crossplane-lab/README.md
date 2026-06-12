@@ -64,3 +64,16 @@ COURSE_DIR=/tmp/course-crossplane LAB_SKIP_INSTALL=true \
 Per la GUI puoi usare Lens/OpenLens con il kubeconfig corrente. XRD,
 Composition, CompositionRevision, XR, eventi e risorse composte sono visibili
 tra le Custom Resources.
+
+## Metodologia comune
+
+Questo lab segue il contratto descritto in `../LAB-METHODOLOGY.md`: 20 task
+numerati, `QUESTION.md` ed `evidence.txt` per ogni domanda, soluzioni separate
+e verifica esplicita del risultato runtime.
+
+Controllo metodologico offline:
+
+```bash
+./
+validate-crossplane-lab.sh
+```

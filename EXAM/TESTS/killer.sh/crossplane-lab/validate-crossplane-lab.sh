@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf -- "$TMP_DIR"' EXIT
 
+bash "$SCRIPT_DIR/../validate-lab-methodology.sh" "$SCRIPT_DIR"
+
 COURSE_DIR="$TMP_DIR/course-crossplane"
 export COURSE_DIR
 LAB_SKIP_INSTALL=true bash "$SCRIPT_DIR/setup-crossplane-lab.sh" >/dev/null

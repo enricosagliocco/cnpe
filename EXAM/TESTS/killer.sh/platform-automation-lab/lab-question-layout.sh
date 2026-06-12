@@ -4,14 +4,26 @@ prepare_question_layout() {
   local course_dir="$1"
   local questions_file="$2"
   local directory_style="${3:-padded}"
-  local directory number heading
+  local question_count
+  local directory
+  local number
+  local heading
 
   [ -f "$questions_file" ] || {
     echo "[ERR] questions file not found: $questions_file" >&2
     return 1
   }
 
-  for number in $(seq 1 20); do
+  question_count="$(
+    awk '/^### Q[0-9]+ - / { count++ } END { print count + 0 }' \
+      "$questions_file"
+  )"
+  [ "$question_count" -eq 20 ] || {
+    echo "[ERR] expected 20 questions, found $question_count" >&2
+    return 1
+  }
+
+  for number in $(seq 1 "$question_count"); do
     if [ "$directory_style" = "plain" ]; then
       directory="$number"
     else
@@ -23,7 +35,7 @@ prepare_question_layout() {
   done
 
   awk -v course_dir="$course_dir" -v directory_style="$directory_style" '
-    /^### Q[0-9]+ / {
+    /^### Q[0-9]+ - / {
       heading = $0
       sub(/^### Q/, "", heading)
       split(heading, fields, " ")
@@ -36,25 +48,34 @@ prepare_question_layout() {
       print $0 > output
       next
     }
-    /^## Soluzioni/ { question = ""; next }
-    /^### / { question = "" }
-    question != "" { print $0 > output }
+    /^## (Soluzioni|Tracce di soluzione)/ {
+      question = ""
+      next
+    }
+    /^### / {
+      question = ""
+    }
+    question != "" {
+      print $0 > output
+    }
   ' "$questions_file"
 
   {
     echo "# Question index"
     echo
-    for number in $(seq 1 20); do
+    for number in $(seq 1 "$question_count"); do
       if [ "$directory_style" = "plain" ]; then
         directory="$number"
       else
         directory="$(printf '%02d' "$number")"
       fi
-      [ -s "$course_dir/$directory/QUESTION.md" ] || return 1
+      [ -s "$course_dir/$directory/QUESTION.md" ] || {
+        echo "[ERR] Q$number was not extracted" >&2
+        return 1
+      }
       heading="$(head -n 1 "$course_dir/$directory/QUESTION.md")"
       heading="${heading#\#\#\# }"
       printf -- '- [%s](%s/QUESTION.md)\n' "$heading" "$directory"
     done
   } > "$course_dir/questions-index.md"
 }
-
