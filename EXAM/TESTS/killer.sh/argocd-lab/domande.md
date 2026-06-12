@@ -8,6 +8,16 @@ le risorse richieste e verifica il risultato nel cluster. Le sezioni
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 
+Il setup prepara questi repository pubblici in Gitea:
+
+- `__EXAMPLE_REPO_URL__`, branch `master`, con `guestbook`,
+  `helm-guestbook`, `kustomize-guestbook` e gli altri esempi Argo CD;
+- `__EXTRA_REPO_URL__`, branch `main`, path `extras`, per gli esercizi
+  multi-source.
+
+Gli URL sono generati dai valori `GITEA_URL` e `GITEA_ORG` usati durante il
+setup. Non usare i repository GitHub upstream negli esercizi.
+
 
 Comandi utili:
 
@@ -23,8 +33,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 Percorso: `~/course-argocd/01`.
 
 1. Correggi `01/application.yaml` usando repository
-   `https://github.com/argoproj/argocd-example-apps.git`, revisione `master` e
-   path `guestbook`.
+   `__EXAMPLE_REPO_URL__`, revisione `master` e path `guestbook`.
 
 2. Applica e verifica che Argo CD riesca a generare i manifest.
 
@@ -278,7 +287,7 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 Percorso: `~/course-argocd/09`.
 
-1. Correggi `09/project.yaml`: consenti il repository di esempio e soltanto i
+1. Correggi `09/project.yaml`: consenti `__EXAMPLE_REPO_URL__` e soltanto i
    Namespace `team-*` sul cluster locale.
 
 2. Collega e sincronizza l'Application.
@@ -407,8 +416,8 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 Percorso: `~/course-argocd/13`.
 
-1. Correggi `13/applicationset.yaml` affinché scopra le directory del
-   repository di esempio e usi il basename nel nome delle Application.
+1. Correggi `13/applicationset.yaml` affinché scopra le directory di
+   `__EXAMPLE_REPO_URL__` e usi il basename nel nome delle Application.
 
 2. Limita il generator ai path applicativi validi.
 
@@ -501,7 +510,9 @@ kubectl get events -A --sort-by=.lastTimestamp
 
 Percorso: `~/course-argocd/16`.
 
-1. Correggi `16/application.yaml` definendo due source valide e univoche.
+1. Correggi `16/application.yaml` definendo due source valide e univoche:
+   usa `__EXAMPLE_REPO_URL__` (`master`, path `guestbook`) e
+   `__EXTRA_REPO_URL__` (`main`, path `extras`).
 
 2. Verifica che lo status esponga le revisioni di entrambe senza repeated
    resource warning.

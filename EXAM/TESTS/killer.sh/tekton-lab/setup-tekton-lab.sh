@@ -12,6 +12,47 @@ LOCAL_PATH_MANIFEST_URL="${LOCAL_PATH_MANIFEST_URL:-https://raw.githubuserconten
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 
+write_send_event_script() {
+  local question=$1 listener=$2 port=$3
+  cat > "$COURSE_DIR/$question/send-event.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+payload="\${1:?usage: ./send-event.sh PAYLOAD.json}"
+port="\${PORT:-$port}"
+response="\${2:-response.json}"
+log_file="\$(mktemp)"
+
+kubectl -n tekton-lab wait --for=condition=Ready \
+  "eventlistener/$listener" --timeout=90s
+kubectl -n tekton-lab port-forward \
+  "service/el-$listener" "\${port}:8080" >"\$log_file" 2>&1 &
+forward_pid=\$!
+cleanup() {
+  kill "\$forward_pid" 2>/dev/null || true
+  wait "\$forward_pid" 2>/dev/null || true
+  rm -f "\$log_file"
+}
+trap cleanup EXIT
+
+for _ in \$(seq 1 30); do
+  if curl -sS -o /dev/null "http://127.0.0.1:\${port}" 2>/dev/null; then
+    break
+  fi
+  sleep 0.2
+done
+
+http_code="\$(curl -sS -o "\$response" -w '%{http_code}' \
+  -X POST "http://127.0.0.1:\${port}" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@\$payload")"
+echo "HTTP \$http_code"
+cat "\$response"
+echo
+EOF
+  chmod +x "$COURSE_DIR/$question/send-event.sh"
+}
+
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
     kind)
@@ -465,33 +506,33 @@ cat > "$COURSE_DIR/11/rbac.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tekton-trigger
+  name: q11-trigger
   namespace: tekton-lab
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: tekton-trigger
+  name: q11-trigger
   namespace: tekton-lab
 rules: [] # TODO PipelineRun create; TriggerBinding and TriggerTemplate get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tekton-trigger
+  name: q11-trigger
   namespace: tekton-lab
-subjects: [] # TODO ServiceAccount tekton-trigger
+subjects: [] # TODO ServiceAccount q11-trigger
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: tekton-trigger
+  name: q11-trigger
 YAML
 
 cat > "$COURSE_DIR/12/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: webhook-build
+  name: q12-webhook-build
   namespace: tekton-lab
 spec:
   params:
@@ -520,18 +561,18 @@ cat > "$COURSE_DIR/12/triggertemplate.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: git-push
+  name: q12-git-push
   namespace: tekton-lab
 spec:
   params: [] # TODO repository and revision
-  resourcetemplates: [] # TODO PipelineRun for webhook-build
+  resourcetemplates: [] # TODO PipelineRun for q12-webhook-build
 YAML
 
 cat > "$COURSE_DIR/13/triggerbinding.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: git-push
+  name: q13-git-push
   namespace: tekton-lab
 spec:
   params:
@@ -555,7 +596,7 @@ cat > "$COURSE_DIR/14/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: webhook-build
+  name: q14-webhook-build
   namespace: tekton-lab
 spec:
   params:
@@ -583,13 +624,13 @@ cat > "$COURSE_DIR/14/rbac.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tekton-trigger
+  name: q14-trigger
   namespace: tekton-lab
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: tekton-trigger
+  name: q14-trigger
   namespace: tekton-lab
 rules:
   - apiGroups: ["tekton.dev"]
@@ -602,22 +643,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tekton-trigger
+  name: q14-trigger
   namespace: tekton-lab
 subjects:
   - kind: ServiceAccount
-    name: tekton-trigger
+    name: q14-trigger
     namespace: tekton-lab
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: tekton-trigger
+  name: q14-trigger
 YAML
 cat > "$COURSE_DIR/14/triggers.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: git-push
+  name: q14-git-push
   namespace: tekton-lab
 spec:
   params:
@@ -629,7 +670,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: git-push
+  name: q14-git-push
   namespace: tekton-lab
 spec:
   params:
@@ -639,10 +680,12 @@ spec:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
-        generateName: webhook-build-
+        generateName: q14-webhook-build-
+        labels:
+          lab.cnpe.io/question: q14
       spec:
         pipelineRef:
-          name: webhook-build
+          name: q14-webhook-build
         params:
           - name: repository
             value: $(tt.params.repository)
@@ -652,10 +695,10 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: git-push
+  name: q14-git-push
   namespace: tekton-lab
 spec:
-  serviceAccountName: tekton-trigger
+  serviceAccountName: q14-trigger
   triggers:
     - name: push
       bindings:
@@ -666,16 +709,21 @@ YAML
 cat > "$COURSE_DIR/14/payload.json" <<'JSON'
 {"ref":"refs/heads/main","after":"abc123","repository":{"clone_url":"https://git.example/portal.git"}}
 JSON
+write_send_event_script 14 q14-git-push 18014
 
 for q in 15 18; do
   cp "$COURSE_DIR/14/pipeline.yaml" "$COURSE_DIR/$q/pipeline.yaml"
   cp "$COURSE_DIR/14/rbac.yaml" "$COURSE_DIR/$q/rbac.yaml"
+  sed -i \
+    -e "s/q14-webhook-build/q${q}-webhook-build/g" \
+    -e "s/q14-trigger/q${q}-trigger/g" \
+    "$COURSE_DIR/$q/pipeline.yaml" "$COURSE_DIR/$q/rbac.yaml"
 done
 cat > "$COURSE_DIR/15/triggers.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: branch-push
+  name: q15-branch-push
   namespace: tekton-lab
 spec:
   params:
@@ -687,7 +735,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: branch-push
+  name: q15-branch-push
   namespace: tekton-lab
 spec:
   params:
@@ -697,10 +745,12 @@ spec:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
-        generateName: branch-build-
+        generateName: q15-branch-build-
+        labels:
+          lab.cnpe.io/question: q15
       spec:
         pipelineRef:
-          name: webhook-build
+          name: q15-webhook-build
         params:
           - name: repository
             value: $(tt.params.repository)
@@ -710,17 +760,17 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: branch-push
+  name: q15-branch-push
   namespace: tekton-lab
 spec:
-  serviceAccountName: tekton-trigger
+  serviceAccountName: q15-trigger
   triggers:
     - name: all-branches
       interceptors: [] # TODO allow only refs/heads/main
       bindings:
-        - ref: branch-push
+        - ref: q15-branch-push
       template:
-        ref: branch-push
+        ref: q15-branch-push
 YAML
 cat > "$COURSE_DIR/15/payload-main.json" <<'JSON'
 {"ref":"refs/heads/main","after":"main123","repository":{"clone_url":"https://git.example/portal.git"}}
@@ -728,12 +778,13 @@ JSON
 cat > "$COURSE_DIR/15/payload-feature.json" <<'JSON'
 {"ref":"refs/heads/feature","after":"feature123","repository":{"clone_url":"https://git.example/portal.git"}}
 JSON
+write_send_event_script 15 q15-branch-push 18015
 
 cat > "$COURSE_DIR/16/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: payload-build
+  name: q16-payload-build
   namespace: tekton-lab
 spec:
   params:
@@ -764,11 +815,12 @@ spec:
               echo "branch=$(params.branch)"
 YAML
 cp "$COURSE_DIR/14/rbac.yaml" "$COURSE_DIR/16/rbac.yaml"
+sed -i 's/q14-trigger/q16-trigger/g' "$COURSE_DIR/16/rbac.yaml"
 cat > "$COURSE_DIR/16/triggers.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: payload-map
+  name: q16-payload-map
   namespace: tekton-lab
 spec:
   params:
@@ -782,7 +834,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: payload-map
+  name: q16-payload-map
   namespace: tekton-lab
 spec:
   params:
@@ -793,10 +845,12 @@ spec:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
-        generateName: payload-build-
+        generateName: q16-payload-build-
+        labels:
+          lab.cnpe.io/question: q16
       spec:
         pipelineRef:
-          name: payload-build
+          name: q16-payload-build
         params:
           - name: repository
             value: $(tt.params.repository)
@@ -808,28 +862,33 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: payload-map
+  name: q16-payload-map
   namespace: tekton-lab
 spec:
-  serviceAccountName: tekton-trigger
+  serviceAccountName: q16-trigger
   triggers:
     - name: push
       bindings:
-        - ref: payload-map
+        - ref: q16-payload-map
       template:
-        ref: payload-map
+        ref: q16-payload-map
 YAML
 cat > "$COURSE_DIR/16/payload.json" <<'JSON'
 {"ref":"refs/heads/release","after":"def456","repository":{"clone_url":"https://git.example/payments.git"}}
 JSON
+write_send_event_script 16 q16-payload-map 18016
 
 cp "$COURSE_DIR/14/pipeline.yaml" "$COURSE_DIR/17/pipeline.yaml"
 cp "$COURSE_DIR/14/rbac.yaml" "$COURSE_DIR/17/rbac.yaml"
+sed -i \
+  -e 's/q14-webhook-build/q17-webhook-build/g' \
+  -e 's/q14-trigger/q17-trigger/g' \
+  "$COURSE_DIR/17/pipeline.yaml" "$COURSE_DIR/17/rbac.yaml"
 cat > "$COURSE_DIR/17/triggers.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: release-event
+  name: q17-release-event
   namespace: tekton-lab
 spec:
   params:
@@ -841,7 +900,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: release-event
+  name: q17-release-event
   namespace: tekton-lab
 spec:
   params:
@@ -851,10 +910,12 @@ spec:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
-        generateName: release-build-
+        generateName: q17-release-build-
+        labels:
+          lab.cnpe.io/question: q17
       spec:
         pipelineRef:
-          name: webhook-build
+          name: q17-webhook-build
         params:
           - name: repository
             value: $(tt.params.repository)
@@ -864,11 +925,11 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: release-events
+  name: q17-release-events
   namespace: tekton-lab
 spec:
-  serviceAccountName: tekton-trigger
-  triggers: [] # TODO main-push and tag-push with separate CEL filters
+  serviceAccountName: q17-trigger
+  triggers: [] # TODO main/tag filters using q17-release-event
 YAML
 cat > "$COURSE_DIR/17/payload-main.json" <<'JSON'
 {"ref":"refs/heads/main","after":"main456","repository":{"clone_url":"https://git.example/portal.git"}}
@@ -879,18 +940,19 @@ JSON
 cat > "$COURSE_DIR/17/payload-feature.json" <<'JSON'
 {"ref":"refs/heads/feature","after":"feature456","repository":{"clone_url":"https://git.example/portal.git"}}
 JSON
+write_send_event_script 17 q17-release-events 18017
 
 cat > "$COURSE_DIR/18/rbac.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tekton-trigger
+  name: q18-trigger
   namespace: tekton-lab
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: tekton-trigger
+  name: q18-trigger
   namespace: tekton-lab
 rules:
   - apiGroups: ["*"]
@@ -900,33 +962,43 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tekton-trigger
+  name: q18-trigger
   namespace: tekton-lab
 subjects:
   - kind: ServiceAccount
-    name: tekton-trigger
+    name: q18-trigger
     namespace: tekton-lab
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: tekton-trigger
+  name: q18-trigger
 YAML
 cp "$COURSE_DIR/15/triggers.yaml" "$COURSE_DIR/18/triggers.yaml"
+sed -i \
+  -e 's/q15-branch-push/q18-branch-push/g' \
+  -e 's/q15-branch-build/q18-branch-build/g' \
+  -e 's/q15-webhook-build/q18-webhook-build/g' \
+  -e 's/q15-trigger/q18-trigger/g' \
+  -e 's/question: q15/question: q18/g' \
+  -e 's/interceptors: \[\] # TODO allow only refs\/heads\/main/interceptors: []/' \
+  "$COURSE_DIR/18/triggers.yaml"
 cp "$COURSE_DIR/15/payload-main.json" "$COURSE_DIR/18/payload.json"
 touch "$COURSE_DIR/18/rbac-check.txt"
+write_send_event_script 18 q18-branch-push 18018
 
 cp "$COURSE_DIR/14/pipeline.yaml" "$COURSE_DIR/19/pipeline.yaml"
+sed -i 's/q14-webhook-build/q19-webhook-build/g' "$COURSE_DIR/19/pipeline.yaml"
 cat > "$COURSE_DIR/19/rbac.yaml" <<'YAML'
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tekton-trigger
+  name: q19-trigger
   namespace: tekton-lab
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: tekton-trigger
+  name: q19-trigger
   namespace: tekton-lab
 rules:
   - apiGroups: ["tekton.dev"]
@@ -939,22 +1011,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tekton-trigger
+  name: q19-trigger
   namespace: tekton-lab
 subjects:
   - kind: ServiceAccount
-    name: tekton-trigger
+    name: q19-trigger
     namespace: tekton-lab
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: tekton-trigger
+  name: q19-trigger
 YAML
 cat > "$COURSE_DIR/19/triggers.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
-  name: broken-hook
+  name: q19-broken-hook
   namespace: tekton-lab
 spec:
   params:
@@ -966,7 +1038,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: broken-hook
+  name: q19-broken-hook
   namespace: tekton-lab
 spec:
   params:
@@ -976,9 +1048,11 @@ spec:
       kind: PipelineRun
       metadata:
         generateName: repaired-hook-
+        labels:
+          lab.cnpe.io/question: q19
       spec:
         pipelineRef:
-          name: webhook-build
+          name: q19-webhook-build
         params:
           - name: repository
             value: $(tt.params.repository)
@@ -988,7 +1062,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: broken-hook
+  name: q19-broken-hook
   namespace: tekton-lab
 spec:
   serviceAccountName: missing-service-account
@@ -997,12 +1071,13 @@ spec:
       bindings:
         - ref: missing-binding
       template:
-        ref: broken-hook
+        ref: q19-broken-hook
 YAML
 cat > "$COURSE_DIR/19/payload.json" <<'JSON'
 {"ref":"refs/heads/main","after":"repair123","repository":{"clone_url":"https://git.example/repaired.git"}}
 JSON
 touch "$COURSE_DIR/19/report.md"
+write_send_event_script 19 q19-broken-hook 18019
 
 cat > "$COURSE_DIR/20/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
@@ -1075,7 +1150,7 @@ metadata:
   namespace: tekton-lab
 spec:
   params: [] # TODO repository and revision
-  resourcetemplates: [] # TODO PipelineRun final-webhook-build
+  resourcetemplates: [] # TODO PipelineRun final-webhook-build with q20 label
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
@@ -1098,6 +1173,7 @@ cat > "$COURSE_DIR/20/payload-feature.json" <<'JSON'
 {"ref":"refs/heads/feature","after":"skip123","repository":{"clone_url":"https://git.example/final.git"}}
 JSON
 touch "$COURSE_DIR/20/run.log"
+write_send_event_script 20 final-webhook 18020
 source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"

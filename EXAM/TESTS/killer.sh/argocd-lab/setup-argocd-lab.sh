@@ -7,9 +7,98 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_FORCE="${LAB_FORCE:-false}"
 CLUSTER_PROVIDER="${CLUSTER_PROVIDER:-minikube}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-argocd-lab}"
+GITEA_URL="${GITEA_URL:-http://192.168.1.56:3000/}"
+GITEA_TOKEN="${GITEA_TOKEN:-d2fcd54b7a8e2762920d929bfd4456db208659e4}"
+GITEA_ORG="${GITEA_ORG:-organization}"
+GITEA_URL="${GITEA_URL%/}"
+EXAMPLE_REPO_NAME="${EXAMPLE_REPO_NAME:-argocd-example-apps}"
+EXTRA_REPO_NAME="${EXTRA_REPO_NAME:-argocd-extra-apps}"
+EXAMPLE_REPO_URL="${GITEA_URL}/${GITEA_ORG}/${EXAMPLE_REPO_NAME}.git"
+EXTRA_REPO_URL="${GITEA_URL}/${GITEA_ORG}/${EXTRA_REPO_NAME}.git"
 
 die() { echo "[ERR] $*" >&2; exit 1; }
 info() { echo "[INFO] $*"; }
+
+gitea_status() {
+  local method=$1 path=$2 data=${3:-}
+  local args=(
+    -sS -o /dev/null -w "%{http_code}" -X "$method"
+    -H "Authorization: token ${GITEA_TOKEN}"
+    -H "Content-Type: application/json"
+  )
+  [ -z "$data" ] || args+=(-d "$data")
+  curl "${args[@]}" "${GITEA_URL}${path}"
+}
+
+ensure_gitea_org() {
+  local code
+  code="$(gitea_status GET "/api/v1/orgs/${GITEA_ORG}")"
+  if [ "$code" != "200" ]; then
+    code="$(gitea_status POST "/api/v1/orgs" \
+      "{\"username\":\"${GITEA_ORG}\",\"full_name\":\"${GITEA_ORG}\"}")"
+    [ "$code" = "201" ] || [ "$code" = "200" ] || [ "$code" = "409" ] ||
+      die "Cannot create/access Gitea organization ${GITEA_ORG} (HTTP ${code})"
+  fi
+}
+
+ensure_gitea_repo() {
+  local repo=$1 code
+  code="$(gitea_status GET "/api/v1/repos/${GITEA_ORG}/${repo}")"
+  if [ "$code" != "200" ]; then
+    code="$(gitea_status POST "/api/v1/orgs/${GITEA_ORG}/repos" \
+      "{\"name\":\"${repo}\",\"private\":false,\"auto_init\":false}")"
+    [ "$code" = "201" ] || [ "$code" = "200" ] || [ "$code" = "409" ] ||
+      die "Cannot create/access Gitea repository ${GITEA_ORG}/${repo} (HTTP ${code})"
+  fi
+}
+
+gitea_authenticated_url() {
+  local repo=$1 login
+  login="$(curl -fsS -H "Authorization: token ${GITEA_TOKEN}" \
+    "${GITEA_URL}/api/v1/user" |
+    sed -n 's/.*"login"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+  [ -n "$login" ] || die "Cannot determine the Gitea user associated with GITEA_TOKEN"
+  case "$GITEA_URL" in
+    http://*) printf 'http://%s:%s@%s/%s/%s.git\n' \
+      "$login" "$GITEA_TOKEN" "${GITEA_URL#http://}" "$GITEA_ORG" "$repo" ;;
+    https://*) printf 'https://%s:%s@%s/%s/%s.git\n' \
+      "$login" "$GITEA_TOKEN" "${GITEA_URL#https://}" "$GITEA_ORG" "$repo" ;;
+    *) die "GITEA_URL must start with http:// or https://" ;;
+  esac
+}
+
+prepare_gitea_repositories() {
+  local work_dir example_auth_url extra_auth_url
+  work_dir="$(mktemp -d)"
+
+  ensure_gitea_org
+  ensure_gitea_repo "$EXAMPLE_REPO_NAME"
+  ensure_gitea_repo "$EXTRA_REPO_NAME"
+  example_auth_url="$(gitea_authenticated_url "$EXAMPLE_REPO_NAME")"
+  extra_auth_url="$(gitea_authenticated_url "$EXTRA_REPO_NAME")"
+
+  info "Mirroring Argo CD example applications to ${EXAMPLE_REPO_URL}"
+  git clone --quiet --depth 1 --branch master \
+    https://github.com/argoproj/argocd-example-apps.git "$work_dir/example"
+  git -C "$work_dir/example" push --quiet --force "$example_auth_url" HEAD:master
+
+  mkdir -p "$work_dir/extra/extras"
+  cat > "$work_dir/extra/extras/configmap.yaml" <<'YAML'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-extra-source
+data:
+  lab: multi-source
+YAML
+  git -C "$work_dir/extra" init --quiet --initial-branch=main
+  git -C "$work_dir/extra" config user.name "CNPE Lab Setup"
+  git -C "$work_dir/extra" config user.email "cnpe-lab@local"
+  git -C "$work_dir/extra" add extras/configmap.yaml
+  git -C "$work_dir/extra" commit --quiet -m "Add multi-source lab manifests"
+  git -C "$work_dir/extra" push --quiet --force "$extra_auth_url" HEAD:main
+  rm -rf "$work_dir"
+}
 
 ensure_cluster() {
   case "$CLUSTER_PROVIDER" in
@@ -33,12 +122,17 @@ ensure_cluster() {
   esac
 }
 
-command -v kubectl >/dev/null || die "kubectl is required"
-ensure_cluster
+for command_name in kubectl curl git sed; do
+  command -v "$command_name" >/dev/null || die "$command_name is required"
+done
 
 if [ -e "$COURSE_DIR/.initialized" ] && [ "$LAB_FORCE" != "true" ]; then
   die "$COURSE_DIR already initialized; use LAB_FORCE=true"
 fi
+
+prepare_gitea_repositories
+ensure_cluster
+
 if [ "$LAB_FORCE" = "true" ]; then
   for ns in argocd-apps team-a team-b helm-apps kustomize-apps; do
     kubectl delete namespace "$ns" --ignore-not-found --wait=true
@@ -65,7 +159,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: missing
     path: wrong
   destination:
@@ -82,7 +176,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: guestbook
   destination: {} # TODO local cluster and argocd-apps
@@ -97,7 +191,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: guestbook
   destination:
@@ -120,7 +214,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: guestbook
   destination:
@@ -143,7 +237,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: guestbook
   destination:
@@ -171,7 +265,7 @@ metadata:
 spec:
   project: platform
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: guestbook
   destination:
@@ -187,7 +281,7 @@ metadata:
   namespace: argocd
 spec:
   sourceRepos:
-    - https://github.com/argoproj/argocd-example-apps.git
+    - __EXAMPLE_REPO_URL__
   destinations:
     - server: https://kubernetes.default.svc
       namespace: team-*
@@ -226,7 +320,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        repoURL: __EXAMPLE_REPO_URL__
         targetRevision: master
         path: guestbook
       destination:
@@ -246,7 +340,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        repoURL: __EXAMPLE_REPO_URL__
         revision: master
         directories: [] # TODO valid directories
   template:
@@ -255,7 +349,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        repoURL: __EXAMPLE_REPO_URL__
         targetRevision: master
         path: '{{path}}'
       destination:
@@ -272,7 +366,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: helm-guestbook
     helm:
@@ -294,7 +388,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: master
     path: kustomize-guestbook
     kustomize: {} # TODO prefix and common label
@@ -315,10 +409,10 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://github.com/argoproj/argocd-example-apps.git
+    - repoURL: __EXAMPLE_REPO_URL__
       targetRevision: master
       path: guestbook
-    - repoURL: TODO
+    - repoURL: __EXTRA_REPO_URL__
       targetRevision: TODO
       path: TODO
   destination:
@@ -362,7 +456,7 @@ metadata:
 spec:
   project: missing-project
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: __EXAMPLE_REPO_URL__
     targetRevision: missing
     path: missing
   destination:
@@ -403,8 +497,14 @@ YAML
 touch "$COURSE_DIR/20/final-report.md"
 
 cp "$SCRIPT_DIR/domande.md" "$COURSE_DIR/domande.md"
+find "$COURSE_DIR" -type f \( -name '*.yaml' -o -name '*.md' \) -exec \
+  sed -i \
+    -e "s|__EXAMPLE_REPO_URL__|${EXAMPLE_REPO_URL}|g" \
+    -e "s|__EXTRA_REPO_URL__|${EXTRA_REPO_URL}|g" {} +
 source "$SCRIPT_DIR/lab-question-layout.sh"
 prepare_question_layout "$COURSE_DIR" "$COURSE_DIR/domande.md"
 touch "$COURSE_DIR/.initialized"
 info "Argo CD lab ready: $COURSE_DIR"
+info "Example repository: $EXAMPLE_REPO_URL (branch master)"
+info "Extra repository: $EXTRA_REPO_URL (branch main, path extras)"
 info "UI: kubectl -n argocd port-forward svc/argocd-server 8080:443"
