@@ -527,6 +527,112 @@ roleRef:
   kind: Role
   name: q11-trigger
 YAML
+cat > "$COURSE_DIR/11/pipeline.yaml" <<'YAML'
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: q11-ci-pipeline
+  namespace: tekton-lab
+spec:
+  params:
+    - name: git-repo-url
+      type: string
+    - name: git-commit-sha
+      type: string
+    - name: git-commit-message
+      type: string
+  tasks:
+    - name: log-commit
+      params:
+        - name: repository-url
+          value: $(params.git-repo-url)
+        - name: commit-sha
+          value: $(params.git-commit-sha)
+        - name: commit-message
+          value: $(params.git-commit-message)
+      taskSpec:
+        params:
+          - name: repository-url
+          - name: commit-sha
+          - name: commit-message
+        steps:
+          - name: log
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "Repository: $(params.repository-url)"
+              echo "Commit SHA: $(params.commit-sha)"
+              echo "Message: $(params.commit-message)"
+YAML
+cat > "$COURSE_DIR/11/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: q11-git-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: git-repo-url
+      value: $(body.repository.url)
+    - name: git-commit-sha
+      value: $(body.head_commit.id)
+    - name: git-commit-message
+      value: $(body.head_commit.message)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: q11-git-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: git-repo-url
+    - name: git-commit-sha
+    - name: git-commit-message
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: q11-ci-pipeline-run-
+        labels:
+          lab.cnpe.io/question: q11
+      spec:
+        pipelineRef:
+          name: q11-ci-pipeline
+        params:
+          - name: git-repo-url
+            value: $(tt.params.git-repo-url)
+          - name: git-commit-sha
+            value: $(tt.params.git-commit-sha)
+          - name: git-commit-message
+            value: $(tt.params.git-commit-message)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: q11-git-push
+  namespace: tekton-lab
+spec:
+  serviceAccountName: q11-trigger
+  triggers:
+    - name: push
+      bindings:
+        - ref: q11-git-push
+      template:
+        ref: q11-git-push
+YAML
+cat > "$COURSE_DIR/11/payload.json" <<'JSON'
+{
+  "repository": {
+    "url": "https://git.example/exam/commit-logger.git"
+  },
+  "head_commit": {
+    "id": "abc123def456",
+    "message": "Add trigger exercise"
+  }
+}
+JSON
+write_send_event_script 11 q11-git-push 18011
 
 cat > "$COURSE_DIR/12/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1
@@ -565,8 +671,78 @@ metadata:
   namespace: tekton-lab
 spec:
   params: [] # TODO repository and revision
-  resourcetemplates: [] # TODO PipelineRun for q12-webhook-build
+  resourcetemplates: [] # TODO PipelineRun for q12-webhook-build with q12 label
 YAML
+cat > "$COURSE_DIR/12/rbac.yaml" <<'YAML'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: q12-trigger
+  namespace: tekton-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: q12-trigger
+  namespace: tekton-lab
+rules:
+  - apiGroups: ["tekton.dev"]
+    resources: ["pipelineruns"]
+    verbs: ["create"]
+  - apiGroups: ["triggers.tekton.dev"]
+    resources: ["triggerbindings", "triggertemplates"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: q12-trigger
+  namespace: tekton-lab
+subjects:
+  - kind: ServiceAccount
+    name: q12-trigger
+    namespace: tekton-lab
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: q12-trigger
+YAML
+cat > "$COURSE_DIR/12/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: q12-git-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+      value: $(body.repository.clone_url)
+    - name: revision
+      value: $(body.after)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: q12-git-push
+  namespace: tekton-lab
+spec:
+  serviceAccountName: q12-trigger
+  triggers:
+    - name: push
+      bindings:
+        - ref: q12-git-push
+      template:
+        ref: q12-git-push
+YAML
+cat > "$COURSE_DIR/12/payload.json" <<'JSON'
+{
+  "after": "template123",
+  "repository": {
+    "clone_url": "https://git.example/exam/template-app.git"
+  }
+}
+JSON
+write_send_event_script 12 q12-git-push 18012
 
 cat > "$COURSE_DIR/13/triggerbinding.yaml" <<'YAML'
 apiVersion: triggers.tekton.dev/v1beta1
@@ -591,6 +767,109 @@ cat > "$COURSE_DIR/13/payload.json" <<'JSON'
   }
 }
 JSON
+cat > "$COURSE_DIR/13/pipeline.yaml" <<'YAML'
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: q13-webhook-build
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+    - name: revision
+  tasks:
+    - name: log-commit
+      params:
+        - name: repository
+          value: $(params.repository)
+        - name: revision
+          value: $(params.revision)
+      taskSpec:
+        params:
+          - name: repository
+          - name: revision
+        steps:
+          - name: log
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.repository)@$(params.revision)"
+YAML
+cat > "$COURSE_DIR/13/rbac.yaml" <<'YAML'
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: q13-trigger
+  namespace: tekton-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: q13-trigger
+  namespace: tekton-lab
+rules:
+  - apiGroups: ["tekton.dev"]
+    resources: ["pipelineruns"]
+    verbs: ["create"]
+  - apiGroups: ["triggers.tekton.dev"]
+    resources: ["triggerbindings", "triggertemplates"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: q13-trigger
+  namespace: tekton-lab
+subjects:
+  - kind: ServiceAccount
+    name: q13-trigger
+    namespace: tekton-lab
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: q13-trigger
+YAML
+cat > "$COURSE_DIR/13/triggers.yaml" <<'YAML'
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: q13-git-push
+  namespace: tekton-lab
+spec:
+  params:
+    - name: repository
+    - name: revision
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: q13-webhook-build-
+        labels:
+          lab.cnpe.io/question: q13
+      spec:
+        pipelineRef:
+          name: q13-webhook-build
+        params:
+          - name: repository
+            value: $(tt.params.repository)
+          - name: revision
+            value: $(tt.params.revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: q13-git-push
+  namespace: tekton-lab
+spec:
+  serviceAccountName: q13-trigger
+  triggers:
+    - name: push
+      bindings:
+        - ref: q13-git-push
+      template:
+        ref: q13-git-push
+YAML
+write_send_event_script 13 q13-git-push 18013
 
 cat > "$COURSE_DIR/14/pipeline.yaml" <<'YAML'
 apiVersion: tekton.dev/v1

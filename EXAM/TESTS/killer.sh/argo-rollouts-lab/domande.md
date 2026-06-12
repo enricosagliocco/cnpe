@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -36,17 +36,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/01` prima di applic
 kubectl apply --server-side --dry-run=server -f 01/rollout.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/01
-kubectl apply -f 01/rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 - Canary steps
@@ -64,17 +53,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/02` prima di applic
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 02/rollout.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/02
-kubectl apply -f 02/rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -97,17 +75,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/03` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/03
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 - Promozione manuale
@@ -124,17 +91,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/04` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/04
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -158,17 +114,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/05` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/05
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q6 - Undo
@@ -186,17 +131,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/06` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/06
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -219,17 +153,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/07` prima di applic
 kubectl apply --server-side --dry-run=server -f 07/rollout.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/07
-kubectl apply -f 07/rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q8 - Preview verification
@@ -250,17 +173,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/08` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/08
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q9 - Blue/green promotion
@@ -277,17 +189,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/09` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/09
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -311,17 +212,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/10` prima di applic
 kubectl apply --server-side --dry-run=server -f 10/analysis-template.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/10
-kubectl apply -f 10/analysis-template.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q11 - Post-promotion analysis
@@ -338,17 +228,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/11` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/11
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -371,17 +250,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/12` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/12
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q13 - Metric success condition
@@ -398,17 +266,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/13` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/13
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -432,17 +289,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/14` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/14
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q15 - Inconclusive e retry
@@ -460,17 +306,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/15` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/15
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -495,17 +330,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/16` prima di applic
 kubectl apply --server-side --dry-run=server -f 16/experiment.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/16
-kubectl apply -f 16/experiment.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 - Anti-affinity
@@ -522,17 +346,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/17` prima di applic
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/17
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -557,17 +370,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/18` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/18
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 - Troubleshooting
@@ -587,17 +389,6 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/19` prima di applic
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 19/rollout.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-rollouts/19
-kubectl apply -f 19/rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -626,7 +417,260 @@ Esamina tutti i manifest presenti in `~/course-argo-rollouts/20` prima di applic
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Rollout base
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/01
+kubectl apply -f 01/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Canary steps
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/02
+kubectl apply -f 02/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Stable e canary Service
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Promozione manuale
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Abort
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Undo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Blue/green
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/07
+kubectl apply -f 07/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Preview verification
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/08
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - Blue/green promotion
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/09
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - Pre-promotion analysis
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/10
+kubectl apply -f 10/analysis-template.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Post-promotion analysis
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Background analysis
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/12
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Metric success condition
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/13
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Analysis arguments
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - Inconclusive e retry
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/15
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - Experiment
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/16
+kubectl apply -f 16/experiment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - Anti-affinity
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/17
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Scale-down controls
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/18
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Troubleshooting
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-rollouts/19
+kubectl apply -f 19/rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Simulazione a tempo
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

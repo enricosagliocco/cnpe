@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -41,19 +41,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f defaulted-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q2 - Manifest esplicito
@@ -78,19 +65,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f explicit-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q3 - Request oltre il massimo
@@ -111,19 +85,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f oversized-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -147,19 +108,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f burst-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q5 - Request sotto il minimo
@@ -179,19 +127,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f below-minimum-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -216,19 +151,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f multi-container-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q7 - Limite aggiunto automaticamente
@@ -249,19 +171,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f missing-limit-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -286,19 +195,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f oversized-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q9 - ReplicaSet senza Pod
@@ -321,19 +217,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f batch-worker.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q10 - Ridimensionamento del Deployment
@@ -354,19 +237,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f batch-worker.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -392,19 +262,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f pod-slot-test.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q12 - Recupero di uno slot Pod
@@ -424,19 +281,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f pod-slot-test.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -461,20 +305,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f temporary-settings.yaml
-kubectl apply -f worker-settings.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q14 - Service negato
@@ -494,19 +324,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f extra-service.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -531,19 +348,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f worker-headless.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q16 - Rollout bloccato da resources mancanti
@@ -566,19 +370,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f broken-rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -606,19 +397,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f broken-rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q18 - Drift delle risorse
@@ -642,19 +420,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl apply -f broken-rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q19 - Ripristino stato operativo
@@ -675,19 +440,6 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-resource-governance/01
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -715,7 +467,299 @@ Esamina tutti i manifest presenti in `~/course-resource-governance/01` prima di 
 ./create-resources.sh
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Pod senza resources
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f defaulted-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q2 - Manifest esplicito
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f explicit-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q3 - Request oltre il massimo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f oversized-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q4 - Rapporto limit/request
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f burst-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q5 - Request sotto il minimo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f below-minimum-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q6 - Errore nascosto nel sidecar
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f multi-container-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q7 - Limite aggiunto automaticamente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f missing-limit-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q8 - Quota CPU esaurita
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f oversized-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q9 - ReplicaSet senza Pod
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f batch-worker.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q10 - Ridimensionamento del Deployment
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f batch-worker.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q11 - Pod count esaurito
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f pod-slot-test.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q12 - Recupero di uno slot Pod
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f pod-slot-test.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q13 - ConfigMap count
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f temporary-settings.yaml
+kubectl apply -f worker-settings.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q14 - Service negato
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f extra-service.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q15 - Service senza endpoint
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f worker-headless.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q16 - Rollout bloccato da resources mancanti
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f broken-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q17 - Creazione entro il budget
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f broken-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q18 - Drift delle risorse
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl apply -f broken-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q19 - Ripristino stato operativo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-resource-governance/01
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q20 - Verifica finale
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

@@ -38,7 +38,9 @@ StorageClass predefinita, necessario per gli esercizi che creano PVC.
 Il setup installa Tekton Pipelines v1.9.0 LTS, Tekton Triggers v0.33.0,
 interceptor CEL e Tekton Dashboard. Gli starter vengono creati in
 `~/course-tekton`; ogni directory contiene una risorsa incompleta o guasta e
-gli input con cui verificare la correzione. Per aprire la GUI:
+gli input con cui verificare la correzione. Gli esercizi Trigger Q11-Q20
+includono autonomamente Pipeline, RBAC, risorse Trigger, payload JSON e uno
+script `send-event.sh` per la prova end-to-end. Per aprire la GUI:
 
 ```bash
 kubectl -n tekton-pipelines port-forward svc/tekton-dashboard 30120:9097

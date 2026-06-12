@@ -2,8 +2,8 @@
 
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
-`Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+`Tip` aiutano a individuare API, file e comandi utili. Tutte le soluzioni
+sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -11,7 +11,7 @@ Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
 Le domande sono autonome: ogni directory contiene Pipeline, RBAC, risorse
 Trigger e payload necessari allo scenario. Le risorse delle domande Q11-Q20
 usano nomi distinti, quindi non richiedono lo svolgimento delle domande
-precedenti. Da Q14 in poi usa `send-event.sh` per effettuare il port-forward,
+precedenti. Da Q11 in poi usa `send-event.sh` per effettuare il port-forward,
 inviare il payload JSON e salvare la risposta HTTP.
 
 
@@ -43,18 +43,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/01` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f task.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/01
-kubectl apply -f task.yaml
-kubectl apply -f taskrun.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 - Workspace condiviso
@@ -74,17 +62,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/02` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/02
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -110,17 +87,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/03` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f task.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/03
-kubectl apply -f task.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 - Workspace del TaskRun
@@ -139,17 +105,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/04` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/04
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -174,17 +129,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/05` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/05
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q6 - Ordine della Pipeline
@@ -203,17 +147,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/06` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/06
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -238,17 +171,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/07` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/07
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q8 - Propagazione di un result
@@ -267,17 +189,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/08` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/08
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -303,17 +214,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/09` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/09
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q10 - Deploy condizionale
@@ -335,29 +235,28 @@ Esamina tutti i manifest presenti in `~/course-tekton/10` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f run-dev.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/10
-kubectl apply -f run-dev.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q11 - ServiceAccount dell'EventListener
 
 Percorso: `~/course-tekton/11`.
 
-1. Esamina `rbac.yaml` e individua i permessi mancanti.
-2. Consenti al ServiceAccount `q11-trigger` di creare PipelineRun e leggere
-   TriggerBinding e TriggerTemplate nel solo Namespace `tekton-lab`.
-3. Completa il RoleBinding.
-4. Verifica che possa creare PipelineRun e leggere TriggerBinding, ma non
-   leggere Secret né creare risorse fuori da `tekton-lab`.
+La directory contiene una Pipeline che registra repository, SHA e messaggio
+del commit, le risorse Trigger complete e un payload di push simulato.
+
+1. Applica `pipeline.yaml`, `rbac.yaml` e `triggers.yaml`, quindi invia
+   `payload.json` con `send-event.sh` e raccogli l'errore iniziale.
+2. Correggi soltanto `rbac.yaml`: consenti al ServiceAccount `q11-trigger` di
+   creare PipelineRun e leggere TriggerBinding e TriggerTemplate nel solo
+   Namespace `tekton-lab`.
+3. Completa il RoleBinding senza usare ClusterRoleBinding o wildcard.
+4. Invia nuovamente il payload e verifica un PipelineRun con label
+   `lab.cnpe.io/question=q11`, `Succeeded=True`.
+5. Nei log devono comparire repository
+   `https://git.example/exam/commit-logger.git`, SHA `abc123def456` e messaggio
+   `Add trigger exercise`.
+6. Verifica inoltre che il ServiceAccount non possa leggere Secret né creare
+   PipelineRun fuori da `tekton-lab`.
 
 **Tip 1**
 
@@ -369,35 +268,26 @@ Esamina tutti i manifest presenti in `~/course-tekton/11` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f rbac.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/11
-kubectl apply -f rbac.yaml
-kubectl auth can-i create pipelineruns.tekton.dev -n tekton-lab \
-  --as=system:serviceaccount:tekton-lab:q11-trigger
-kubectl auth can-i get triggerbindings.triggers.tekton.dev -n tekton-lab \
-  --as=system:serviceaccount:tekton-lab:q11-trigger
-kubectl auth can-i get secrets -n tekton-lab \
-  --as=system:serviceaccount:tekton-lab:q11-trigger
-```
-
 ---
 
 ### Q12 - TriggerTemplate
 
 Percorso: `~/course-tekton/12`.
 
-1. Applica `pipeline.yaml` e tenta di applicare `triggertemplate.yaml`.
-2. Dichiara i parametri `repository` e `revision`.
+La directory contiene Pipeline, RBAC, TriggerBinding, EventListener e payload;
+soltanto il TriggerTemplate è incompleto.
+
+1. Applica tutti i manifest e invia `payload.json` con `send-event.sh`.
+   Diagnostica perché non viene creato un PipelineRun valido.
+2. In `triggertemplate.yaml` dichiara i parametri `repository` e `revision`.
 3. Nel resource template genera un PipelineRun con prefisso
    `q12-webhook-build-` per la Pipeline `q12-webhook-build`, passando entrambi
    i valori tramite `$(tt.params.*)`.
-4. Applica il TriggerTemplate `q12-git-push` e verifica nello YAML salvato che
-   non siano rimasti valori statici o `TODO`.
+4. Aggiungi al PipelineRun la label `lab.cnpe.io/question=q12`.
+5. Riapplica il template, invia nuovamente il payload e verifica
+   `Succeeded=True`.
+6. Nei log devono comparire repository
+   `https://git.example/exam/template-app.git` e revision `template123`.
 
 **Tip 1**
 
@@ -409,29 +299,25 @@ Esamina tutti i manifest presenti in `~/course-tekton/12` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f pipeline.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/12
-kubectl apply -f pipeline.yaml
-kubectl apply -f triggertemplate.yaml
-kubectl -n tekton-lab get triggertemplate q12-git-push -o yaml
-```
-
 ---
 
 ### Q13 - TriggerBinding
 
 Percorso: `~/course-tekton/13`.
 
-1. Ispeziona `payload.json` e il binding incompleto.
+La directory contiene Pipeline, RBAC, TriggerTemplate ed EventListener;
+soltanto il TriggerBinding è incompleto.
+
+1. Applica tutti i manifest, invia `payload.json` con `send-event.sh` e
+   osserva nel PipelineRun o nei log i valori errati causati dal binding
+   incompleto.
 2. Estrai `body.repository.clone_url` nel parametro `repository`.
 3. Estrai `body.after` nel parametro `revision`.
-4. Applica il TriggerBinding `q13-git-push` e verifica i campi salvati nel
-   cluster. Il payload è un dato di test e non è una risorsa Kubernetes.
+4. Non modificare Pipeline, RBAC, TriggerTemplate, EventListener o payload.
+5. Riapplica il TriggerBinding, invia nuovamente l'evento e verifica un
+   PipelineRun con label `lab.cnpe.io/question=q13`, `Succeeded=True`.
+6. I log devono contenere
+   `https://git.example/teams/portal.git@abc123def456`.
 
 **Tip 1**
 
@@ -441,17 +327,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/13` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f triggerbinding.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/13
-kubectl apply -f triggerbinding.yaml
-kubectl -n tekton-lab get triggerbinding q13-git-push -o yaml
 ```
 
 ---
@@ -481,23 +356,6 @@ kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/14
-kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-./send-event.sh payload.json
-kubectl -n tekton-lab get pipelineruns \
-  -l lab.cnpe.io/question=q14
-run=$(kubectl -n tekton-lab get pipelineruns \
-  -l lab.cnpe.io/question=q14 -o jsonpath='{.items[0].metadata.name}')
-kubectl -n tekton-lab logs \
-  -l "tekton.dev/pipelineRun=$run" --all-containers=true
-```
-
 ---
 
 ### Q15 - Filtro CEL sul branch
@@ -522,20 +380,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/15` prima di applicarli.
 ```bash
 kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/15
-kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-./send-event.sh payload-feature.json response-feature.json
-./send-event.sh payload-main.json response-main.json
-kubectl -n tekton-lab get pipelineruns \
-  -l lab.cnpe.io/question=q15
 ```
 
 ---
@@ -564,19 +408,6 @@ kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/16
-kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-./send-event.sh payload.json
-kubectl -n tekton-lab get pipelineruns \
-  -l lab.cnpe.io/question=q16 -o yaml
-```
-
 ---
 
 ### Q17 - Trigger multipli
@@ -603,21 +434,6 @@ kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/17
-kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-./send-event.sh payload-feature.json response-feature.json
-./send-event.sh payload-main.json response-main.json
-./send-event.sh payload-tag.json response-tag.json
-kubectl -n tekton-lab get pipelineruns \
-  -l lab.cnpe.io/question=q17
-```
-
 ---
 
 ### Q18 - Sicurezza del webhook
@@ -641,21 +457,6 @@ Esamina tutti i manifest presenti in `~/course-tekton/18` prima di applicarli.
 ```bash
 kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/18
-kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-./send-event.sh payload.json
-kubectl auth can-i create pipelineruns.tekton.dev -n tekton-lab \
-  --as=system:serviceaccount:tekton-lab:q18-trigger
-kubectl auth can-i get secrets -n tekton-lab \
-  --as=system:serviceaccount:tekton-lab:q18-trigger
 ```
 
 ---
@@ -687,20 +488,6 @@ kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-tekton/19
-kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
-kubectl -n tekton-lab describe eventlistener q19-broken-hook
-./send-event.sh payload.json
-kubectl -n tekton-lab get pipelineruns \
-  -l lab.cnpe.io/question=q19
-```
-
 ---
 
 ### Q20 - Webhook end-to-end
@@ -729,7 +516,299 @@ kubectl apply --server-side --dry-run=server \
   -f pipeline.yaml -f rbac.yaml -f triggers.yaml
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Task e parametri
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/01
+kubectl apply -f task.yaml
+kubectl apply -f taskrun.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Workspace condiviso
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Result di un Task
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/03
+kubectl apply -f task.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Workspace del TaskRun
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Workspace persistente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Ordine della Pipeline
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Task paralleli
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Propagazione di un result
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/08
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - Result della Pipeline
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/09
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - Deploy condizionale
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/10
+kubectl apply -f run-dev.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - ServiceAccount dell'EventListener
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/11
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+./send-event.sh payload.json
+kubectl auth can-i create pipelineruns.tekton.dev -n tekton-lab \
+  --as=system:serviceaccount:tekton-lab:q11-trigger
+kubectl auth can-i get triggerbindings.triggers.tekton.dev -n tekton-lab \
+  --as=system:serviceaccount:tekton-lab:q11-trigger
+kubectl auth can-i get secrets -n tekton-lab \
+  --as=system:serviceaccount:tekton-lab:q11-trigger
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q11
+```
+
+---
+
+### Soluzione Q12 - TriggerTemplate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/12
+kubectl apply -f pipeline.yaml -f rbac.yaml \
+  -f triggertemplate.yaml -f triggers.yaml
+./send-event.sh payload.json
+kubectl apply -f triggertemplate.yaml
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q12
+```
+
+---
+
+### Soluzione Q13 - TriggerBinding
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/13
+kubectl apply -f pipeline.yaml -f rbac.yaml \
+  -f triggerbinding.yaml -f triggers.yaml
+./send-event.sh payload.json
+kubectl apply -f triggerbinding.yaml
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q13
+```
+
+---
+
+### Soluzione Q14 - EventListener
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/14
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+./send-event.sh payload.json
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q14
+run=$(kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q14 -o jsonpath='{.items[0].metadata.name}')
+kubectl -n tekton-lab logs \
+  -l "tekton.dev/pipelineRun=$run" --all-containers=true
+```
+
+---
+
+### Soluzione Q15 - Filtro CEL sul branch
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/15
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+./send-event.sh payload-feature.json response-feature.json
+./send-event.sh payload-main.json response-main.json
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q15
+```
+
+---
+
+### Soluzione Q16 - Mapping del payload
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/16
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+./send-event.sh payload.json
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q16 -o yaml
+```
+
+---
+
+### Soluzione Q17 - Trigger multipli
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/17
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+./send-event.sh payload-feature.json response-feature.json
+./send-event.sh payload-main.json response-main.json
+./send-event.sh payload-tag.json response-tag.json
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q17
+```
+
+---
+
+### Soluzione Q18 - Sicurezza del webhook
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/18
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+./send-event.sh payload.json
+kubectl auth can-i create pipelineruns.tekton.dev -n tekton-lab \
+  --as=system:serviceaccount:tekton-lab:q18-trigger
+kubectl auth can-i get secrets -n tekton-lab \
+  --as=system:serviceaccount:tekton-lab:q18-trigger
+```
+
+---
+
+### Soluzione Q19 - Troubleshooting EventListener
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-tekton/19
+kubectl apply -f pipeline.yaml -f rbac.yaml -f triggers.yaml
+kubectl -n tekton-lab describe eventlistener q19-broken-hook
+./send-event.sh payload.json
+kubectl -n tekton-lab get pipelineruns \
+  -l lab.cnpe.io/question=q19
+```
+
+---
+
+### Soluzione Q20 - Webhook end-to-end
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

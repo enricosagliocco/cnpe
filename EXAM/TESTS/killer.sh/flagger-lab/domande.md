@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -42,18 +42,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/01` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f canary.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/01
-kubectl apply -f canary.yaml
-kubectl apply -f deployment.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 - Target reference
@@ -75,17 +63,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/02` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f canary.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/02
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -113,17 +90,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/03` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f canary.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/03
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 - Intervallo e progressione
@@ -149,17 +115,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/04` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/04
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q5 - Iterazioni di analisi
@@ -179,17 +134,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/05` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/05
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -216,18 +160,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/06` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f deployment.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/06
-kubectl apply -f deployment.yaml
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q7 - Rollout fallito
@@ -247,17 +179,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/07` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/07
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -388,18 +309,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/08` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f deployment.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/08
-kubectl apply -f deployment.yaml
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q9 - MetricTemplate
@@ -423,18 +332,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/09` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f metric-template.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/09
-kubectl apply -f metric-template.yaml
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q10 - Soglie di una metrica custom
@@ -454,17 +351,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/10` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/10
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -493,17 +379,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/11` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/11
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q12 - Webhook rollout
@@ -526,17 +401,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/12` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/12
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q13 - Conferma della promozione
@@ -556,17 +420,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/13` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/13
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -594,17 +447,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/14` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/14
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q15 - AlertProvider
@@ -627,17 +469,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/15` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f alert-provider.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/15
-kubectl apply -f alert-provider.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -664,17 +495,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/16` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/16
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 - A/B testing
@@ -696,18 +516,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/17` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f ingress.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/17
-kubectl apply -f ingress.yaml
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -735,18 +543,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/18` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f gateway.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/18
-kubectl apply -f gateway.yaml
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 - Troubleshooting
@@ -770,17 +566,6 @@ Esamina tutti i manifest presenti in `~/course-flagger/19` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f canary.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-flagger/19
-kubectl apply -f canary.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -821,7 +606,266 @@ Esamina tutti i manifest presenti in `~/course-flagger/20` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f metric-template.yaml
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Canary base
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/01
+kubectl apply -f canary.yaml
+kubectl apply -f deployment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Target reference
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/02
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Configurazione del Service
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/03
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Intervallo e progressione
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Iterazioni di analisi
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Promozione riuscita
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/06
+kubectl apply -f deployment.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Rollout fallito
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Metriche integrate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/08
+kubectl apply -f deployment.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - MetricTemplate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/09
+kubectl apply -f metric-template.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - Soglie di una metrica custom
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/10
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Webhook pre-rollout
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Webhook rollout
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/12
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Conferma della promozione
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/13
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Webhook post-rollout
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - AlertProvider
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/15
+kubectl apply -f alert-provider.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - Strategia blue/green
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/16
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - A/B testing
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/17
+kubectl apply -f ingress.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Gateway API e HTTPRoute generato
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/18
+kubectl apply -f gateway.yaml
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Troubleshooting
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-flagger/19
+kubectl apply -f canary.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Simulazione a tempo finale
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -36,17 +36,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/01` prima di appli
 kubectl apply --server-side --dry-run=server -f 01/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/01
-kubectl apply -f 01/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 - Parametri
@@ -66,17 +55,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/02` prima di appli
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 02/workflow.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/02
-kubectl apply -f 02/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -100,17 +78,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/03` prima di appli
 kubectl apply --server-side --dry-run=server -f 03/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/03
-kubectl apply -f 03/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 - Steps paralleli
@@ -132,17 +99,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/04` prima di appli
 kubectl apply --server-side --dry-run=server -f 04/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/04
-kubectl apply -f 04/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q5 - DAG dependencies
@@ -160,17 +116,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/05` prima di appli
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 05/workflow.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/05
-kubectl apply -f 05/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -194,17 +139,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/06` prima di appli
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/06
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q7 - Artifacts
@@ -224,17 +158,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/07` prima di appli
 kubectl apply --server-side --dry-run=server -f 07/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/07
-kubectl apply -f 07/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q8 - Volumi
@@ -252,17 +175,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/08` prima di appli
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 08/workflow.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/08
-kubectl apply -f 08/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -286,17 +198,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/09` prima di appli
 kubectl apply --server-side --dry-run=server -f 09/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/09
-kubectl apply -f 09/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q10 - when
@@ -318,17 +219,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/10` prima di appli
 kubectl apply --server-side --dry-run=server -f 10/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/10
-kubectl apply -f 10/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q11 - Retry strategy
@@ -347,17 +237,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/11` prima di appli
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/11
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -382,17 +261,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/12` prima di appli
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/12
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q13 - Exit handler
@@ -414,17 +282,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/13` prima di appli
 kubectl apply --server-side --dry-run=server -f 13/workflow.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/13
-kubectl apply -f 13/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q14 - Continue on failure
@@ -441,17 +298,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/14` prima di appli
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/14
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -474,18 +320,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/15` prima di appli
 kubectl apply --server-side --dry-run=server -f 15/template.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/15
-kubectl apply -f 15/template.yaml
-kubectl apply -f workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q16 - ClusterWorkflowTemplate
@@ -506,17 +340,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/16` prima di appli
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/16
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 - CronWorkflow
@@ -534,17 +357,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/17` prima di appli
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 17/cronworkflow.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/17
-kubectl apply -f 17/cronworkflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -568,17 +380,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/18` prima di appli
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/18
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 - Troubleshooting
@@ -598,17 +399,6 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/19` prima di appli
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 19/workflow.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argo-workflows/19
-kubectl apply -f 19/workflow.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -639,7 +429,261 @@ Esamina tutti i manifest presenti in `~/course-argo-workflows/20` prima di appli
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Workflow container
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/01
+kubectl apply -f 01/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Parametri
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/02
+kubectl apply -f 02/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Steps sequenziali
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/03
+kubectl apply -f 03/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Steps paralleli
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/04
+kubectl apply -f 04/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - DAG dependencies
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/05
+kubectl apply -f 05/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Output parameters
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/06
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Artifacts
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/07
+kubectl apply -f 07/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Volumi
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/08
+kubectl apply -f 08/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - PVC dinamico
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/09
+kubectl apply -f 09/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - when
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/10
+kubectl apply -f 10/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Retry strategy
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Timeout e deadline
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/12
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Exit handler
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/13
+kubectl apply -f 13/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Continue on failure
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - WorkflowTemplate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/15
+kubectl apply -f 15/template.yaml
+kubectl apply -f workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - ClusterWorkflowTemplate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/16
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - CronWorkflow
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/17
+kubectl apply -f 17/cronworkflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Mutex e sincronizzazione
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/18
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Troubleshooting
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argo-workflows/19
+kubectl apply -f 19/workflow.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Simulazione a tempo
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

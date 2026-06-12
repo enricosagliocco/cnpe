@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -35,17 +35,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/01` p
 kubectl apply --server-side --dry-run=server -f 01/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/01
-kubectl apply -f 01/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 – Source e destination Argo CD
@@ -61,17 +50,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/01` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/01
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -95,17 +73,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/01` p
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/01
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 – Drift e self-heal
@@ -122,17 +89,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/01` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/01
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -155,17 +111,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/02` p
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/02
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q6 – Correzione GitRepository
@@ -185,17 +130,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/02` p
 kubectl apply --server-side --dry-run=server -f 02/source.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/02
-kubectl apply -f 02/source.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q7 – Correzione Kustomization
@@ -212,17 +146,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/02` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/02
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -245,17 +168,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/02` p
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/02
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q9 – Dipendenze Pipeline
@@ -275,17 +187,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/03` p
 kubectl apply --server-side --dry-run=server -f 03/pipeline.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/03
-kubectl apply -f 03/pipeline.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q10 – Workspace condiviso
@@ -302,17 +203,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/03` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/03
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -335,17 +225,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/03` p
 kubectl apply --server-side --dry-run=server -f promotion/image-patch.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/03
-kubectl apply -f promotion/image-patch.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q12 – Esecuzione GitOps CI
@@ -362,17 +241,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/03` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/03
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -395,17 +263,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/04` p
 kubectl apply --server-side --dry-run=server -f 04/canary-rollout.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/04
-kubectl apply -f 04/canary-rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q14 – Canary steps
@@ -421,17 +278,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/04` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/04
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -454,17 +300,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/04` p
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/04
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q16 – Rollback canary
@@ -481,17 +316,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/04` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/04
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -514,17 +338,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/05` p
 kubectl apply --server-side --dry-run=server -f 05/bluegreen-rollout.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/05
-kubectl apply -f 05/bluegreen-rollout.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q18 – Preview verification
@@ -544,17 +357,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/05` p
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/05
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 – Promotion e abort
@@ -571,17 +373,6 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/05` p
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gitops-progressive-delivery/05
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -611,7 +402,260 @@ Esamina tutti i manifest presenti in `~/course-gitops-progressive-delivery/05` p
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Diagnosi Argo CD Application
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/01
+kubectl apply -f 01/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Source e destination Argo CD
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Sync policy
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Drift e self-heal
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Diagnosi Flux Source
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Correzione GitRepository
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/02
+kubectl apply -f 02/source.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Correzione Kustomization
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Flux drift remediation
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - Dipendenze Pipeline
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/03
+kubectl apply -f 03/pipeline.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - Workspace condiviso
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Artefatto di promozione
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/03
+kubectl apply -f promotion/image-patch.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Esecuzione GitOps CI
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Service canary
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/04
+kubectl apply -f 04/canary-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Canary steps
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - Promozione canary
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - Rollback canary
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - Configurazione Blue/Green
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/05
+kubectl apply -f 05/bluegreen-rollout.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Preview verification
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Promotion e abort
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gitops-progressive-delivery/05
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Verifica finale delivery
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

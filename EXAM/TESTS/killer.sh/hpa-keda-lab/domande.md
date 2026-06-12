@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -39,19 +39,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q01` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q01
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q2 - Target HPA inesistente
@@ -69,19 +56,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q02` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q02
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -104,19 +78,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q03` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q03
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q4 - Intervallo repliche non valido
@@ -136,19 +97,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q04` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q04
-./create-resources.sh
-kubectl apply -f scenario.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q5 - Metrica memory senza request
@@ -166,19 +114,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q05` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q05
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -201,19 +136,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q06` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q06
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q7 - Scale down troppo aggressivo
@@ -233,19 +155,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q07` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q07
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q8 - Limite massimo insufficiente
@@ -263,19 +172,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q08` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q08
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -298,19 +194,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q09` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q09
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q10 - Verifica HPA end-to-end
@@ -328,19 +211,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q10` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q10
-./create-resources.sh
-kubectl apply -f load-generator.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -362,19 +232,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q11` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q11
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q12 - Intervallo KEDA incoerente
@@ -392,19 +249,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q12` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q12
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -426,19 +270,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q13` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q13
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q14 - Trigger cron senza desiredReplicas
@@ -456,19 +287,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q14` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q14
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -491,19 +309,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q15` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q15
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q16 - Fallback non raggiungibile
@@ -521,19 +326,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q16` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q16
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -556,19 +348,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q17` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q17
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q18 - Indirizzo Prometheus errato
@@ -587,19 +366,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q18` prima di applicarli
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q18
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -622,19 +388,6 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q19` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-hpa-keda/q19
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q20 - Conflitto tra HPA e KEDA
@@ -655,7 +408,298 @@ Esamina tutti i manifest presenti in `~/course-hpa-keda/q20` prima di applicarli
 ./create-resources.sh
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - HPA senza CPU request
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q01
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q2 - Target HPA inesistente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q02
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q3 - Tipo di target CPU errato
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q03
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q4 - Intervallo repliche non valido
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q04
+./create-resources.sh
+kubectl apply -f scenario.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q5 - Metrica memory senza request
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q05
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q6 - HPA con metriche multiple
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q06
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q7 - Scale down troppo aggressivo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q07
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q8 - Limite massimo insufficiente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q08
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q9 - Campo replicas gestito da HPA
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q09
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q10 - Verifica HPA end-to-end
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q10
+./create-resources.sh
+kubectl apply -f load-generator.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q11 - ScaledObject con target errato
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q11
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q12 - Intervallo KEDA incoerente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q12
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q13 - Trigger cron con timezone errata
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q13
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q14 - Trigger cron senza desiredReplicas
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q14
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q15 - Scaling sospeso
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q15
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q16 - Fallback non raggiungibile
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q16
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q17 - Secret di autenticazione mancante
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q17
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q18 - Indirizzo Prometheus errato
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q18
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q19 - Query Prometheus non scalare
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-hpa-keda/q19
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q20 - Conflitto tra HPA e KEDA
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

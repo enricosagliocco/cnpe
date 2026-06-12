@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -55,17 +55,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/01` prima di applicarl
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/01
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 – RequiredLabels con array
@@ -93,18 +82,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/02` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f pod-bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/02
-kubectl apply -f pod-bad.yaml
-kubectl apply -f deployment-good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -142,18 +119,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/03` prima di applicarl
 kubectl apply --server-side --dry-run=server -f pod-allowed.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/03
-kubectl apply -f pod-allowed.yaml
-kubectl apply -f pod-denied.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 – Numero minimo di repliche
@@ -181,19 +146,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/04` prima di applicarl
 kubectl apply --server-side --dry-run=server -f constraint.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/04
-kubectl apply -f constraint.yaml
-kubectl apply -f deployment-no-replicas.yaml
-kubectl apply -f prod-api.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q5 – Match ed esclusioni
@@ -218,20 +170,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/05` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f constraint.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/05
-kubectl apply -f constraint.yaml
-kubectl apply -f dev-deployment.yaml
-kubectl apply -f legacy-deployment.yaml
-kubectl apply -f dev-pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -262,17 +200,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/06` prima di applicarl
 kubectl apply --server-side --dry-run=server -f new-deployment.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/06
-kubectl apply -f new-deployment.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q7 – Enforcement warn
@@ -295,17 +222,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/07` prima di applicarl
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/07
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -339,19 +255,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/08` prima di applicarl
 kubectl apply --server-side --dry-run=server -f staging-bad.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/08
-kubectl apply -f staging-bad.yaml
-kubectl apply -f prod-good.yaml
-kubectl apply -f exempt-bad.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q9 – Vietare Service NodePort
@@ -375,17 +278,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/09` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f public-api.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/09
-kubectl apply -f public-api.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -412,17 +304,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/10` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f duplicate.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/10
-kubectl apply -f duplicate.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -454,17 +335,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/11` prima di applicarl
 kubectl apply --server-side --dry-run=server -f worker.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/11
-kubectl apply -f worker.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q12 – Security context
@@ -493,17 +363,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/12` prima di applicarl
 kubectl apply --server-side --dry-run=server -f pod.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/12
-kubectl apply -f pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q13 – Service type parametrico
@@ -526,19 +385,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/13` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f service-default.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/13
-kubectl apply -f service-default.yaml
-kubectl apply -f service-external.yaml
-kubectl apply -f service-nodeport.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -569,19 +415,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/14` prima di applicarl
 kubectl apply --server-side --dry-run=server -f deployment.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/14
-kubectl apply -f deployment.yaml
-kubectl apply -f change-team-label.yaml
-kubectl apply -f change-app-label.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q15 – Container, initContainer ed ephemeralContainer
@@ -608,18 +441,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/15` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f pod-init-denied.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/15
-kubectl apply -f pod-init-denied.yaml
-kubectl apply -f pod-all-allowed.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -656,19 +477,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/16` prima di applicarl
 kubectl apply --server-side --dry-run=server -f expansion.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/16
-kubectl apply -f expansion.yaml
-kubectl apply -f deployment-bad.yaml
-kubectl apply -f deployment-good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 – Troubleshooting ConstraintTemplate
@@ -695,18 +503,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/17` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f broken-template.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/17
-kubectl apply -f broken-template.yaml
-kubectl apply -f constraint.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -739,18 +535,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/18` prima di applicarl
 
 ```bash
 kubectl apply --server-side --dry-run=server -f invalid-parameters.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/18
-kubectl apply -f invalid-parameters.yaml
-kubectl apply -f valid-parameters.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -786,18 +570,6 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/19/policy-bundle` prim
 
 ```bash
 kubectl apply --server-side --dry-run=server -f install.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-gatekeeper/19/policy-bundle
-kubectl apply -f workload-good.yaml
-kubectl apply -f workload-bad.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -843,7 +615,279 @@ Esamina tutti i manifest presenti in `~/course-gatekeeper/20` prima di applicarl
 kubectl apply --server-side --dry-run=server -f constraints.yaml
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - RequiredAnnotations parametrica
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - RequiredLabels con array
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/02
+kubectl apply -f pod-bad.yaml
+kubectl apply -f deployment-good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Repository immagini consentiti
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/03
+kubectl apply -f pod-allowed.yaml
+kubectl apply -f pod-denied.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Numero minimo di repliche
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/04
+kubectl apply -f constraint.yaml
+kubectl apply -f deployment-no-replicas.yaml
+kubectl apply -f prod-api.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Match ed esclusioni
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/05
+kubectl apply -f constraint.yaml
+kubectl apply -f dev-deployment.yaml
+kubectl apply -f legacy-deployment.yaml
+kubectl apply -f dev-pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Audit con enforcement dryrun
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/06
+kubectl apply -f new-deployment.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Enforcement warn
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Namespace selector
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/08
+kubectl apply -f staging-bad.yaml
+kubectl apply -f prod-good.yaml
+kubectl apply -f exempt-bad.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - Vietare Service NodePort
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/09
+kubectl apply -f public-api.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - Host Ingress univoci con inventory
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/10
+kubectl apply -f duplicate.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Resource requests e limits
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/11
+kubectl apply -f worker.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Security context
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/12
+kubectl apply -f pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Service type parametrico
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/13
+kubectl apply -f service-default.yaml
+kubectl apply -f service-external.yaml
+kubectl apply -f service-nodeport.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Label immutabile durante UPDATE
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/14
+kubectl apply -f deployment.yaml
+kubectl apply -f change-team-label.yaml
+kubectl apply -f change-app-label.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - Container, initContainer ed ephemeralContainer
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/15
+kubectl apply -f pod-init-denied.yaml
+kubectl apply -f pod-all-allowed.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - ExpansionTemplate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/16
+kubectl apply -f expansion.yaml
+kubectl apply -f deployment-bad.yaml
+kubectl apply -f deployment-good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - Troubleshooting ConstraintTemplate
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/17
+kubectl apply -f broken-template.yaml
+kubectl apply -f constraint.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Schema avanzato dei parametri
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/18
+kubectl apply -f invalid-parameters.yaml
+kubectl apply -f valid-parameters.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Policy bundle con Kustomize
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-gatekeeper/19/policy-bundle
+kubectl apply -f workload-good.yaml
+kubectl apply -f workload-bad.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Incident finale
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

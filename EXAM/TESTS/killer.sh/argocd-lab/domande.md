@@ -2,8 +2,8 @@
 
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
-`Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+`Tip` aiutano a individuare API, file e comandi utili. Tutte le soluzioni
+sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -47,17 +47,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/01` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 01/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/01
-kubectl apply -f 01/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 - Destination
@@ -77,17 +66,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/02` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 02/application.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/02
-kubectl apply -f 02/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -111,17 +89,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/03` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 03/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/03
-kubectl apply -f 03/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 - CreateNamespace
@@ -140,17 +107,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/04` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/04
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -174,17 +130,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/05` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 05/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/05
-kubectl apply -f 05/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q6 - Self-heal
@@ -204,17 +149,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/06` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 06/application.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/06
-kubectl apply -f 06/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -238,17 +172,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/07` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 07/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/07
-kubectl apply -f 07/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q8 - Sync options
@@ -270,17 +193,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/08` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 08/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/08
-kubectl apply -f 08/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q9 - AppProject destinations
@@ -300,17 +212,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/09` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 09/project.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/09
-kubectl apply -f 09/project.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -335,17 +236,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/10` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/10
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q11 - Orphaned resources
@@ -365,17 +255,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/11` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 11/project.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/11
-kubectl apply -f 11/project.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -399,17 +278,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/12` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 12/applicationset.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/12
-kubectl apply -f 12/applicationset.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q13 - ApplicationSet git generator
@@ -429,17 +297,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/13` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 13/applicationset.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/13
-kubectl apply -f 13/applicationset.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -463,17 +320,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/14` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 14/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/14
-kubectl apply -f 14/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q15 - Kustomize overrides
@@ -491,17 +337,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/15` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 15/application.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/15
-kubectl apply -f 15/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -527,17 +362,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/16` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 16/application.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/16
-kubectl apply -f 16/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 - Sync windows
@@ -557,17 +381,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/17` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 17/project.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/17
-kubectl apply -f 17/project.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -591,17 +404,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/18` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 18/argocd-rbac-cm.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/18
-kubectl apply -f 18/argocd-rbac-cm.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 - Troubleshooting
@@ -621,17 +423,6 @@ Esamina tutti i manifest presenti in `~/course-argocd/19` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f 19/application.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-argocd/19
-kubectl apply -f 19/application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -665,7 +456,260 @@ Esamina tutti i manifest presenti in `~/course-argocd/20` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Application source
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/01
+kubectl apply -f 01/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Destination
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/02
+kubectl apply -f 02/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Sync automatica
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/03
+kubectl apply -f 03/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - CreateNamespace
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/04
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Prune
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/05
+kubectl apply -f 05/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Self-heal
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/06
+kubectl apply -f 06/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Ignore differences
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/07
+kubectl apply -f 07/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Sync options
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/08
+kubectl apply -f 08/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - AppProject destinations
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/09
+kubectl apply -f 09/project.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - AppProject resource policy
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/10
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Orphaned resources
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/11
+kubectl apply -f 11/project.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - ApplicationSet list generator
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/12
+kubectl apply -f 12/applicationset.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - ApplicationSet git generator
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/13
+kubectl apply -f 13/applicationset.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Helm values
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/14
+kubectl apply -f 14/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - Kustomize overrides
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/15
+kubectl apply -f 15/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - Multi-source
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/16
+kubectl apply -f 16/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - Sync windows
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/17
+kubectl apply -f 17/project.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - RBAC
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/18
+kubectl apply -f 18/argocd-rbac-cm.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Troubleshooting
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-argocd/19
+kubectl apply -f 19/application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Simulazione a tempo
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

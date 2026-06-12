@@ -16,7 +16,6 @@ kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
-
 ### Q1 - Create a TeamSpace
 
 Work in `~/course-crossplane/01`.
@@ -36,7 +35,157 @@ kubectl apply -f ~/course-crossplane/01/composition.yaml
 The API is `platform.example.com/v1alpha1`. Examine the Composition to
 understand which resources are created and where.
 
-**Solution**
+---
+
+### Q2 - Create a ProjectSpace
+
+Work in `~/course-crossplane/02`. Apply the supplied definitions and create
+`ProjectSpace` `payments` with `owner: finance`. Verify Namespace `payments`,
+its annotation, and ConfigMap `project-config`.
+
+**Tip**
+
+Inspect `spec.names`, the schema, and `spec.pipeline` before writing the XR.
+
+---
+
+### Q3 - Create an EnvironmentSpace
+
+Work in `~/course-crossplane/03`. Create `EnvironmentSpace` `staging-blue`
+with `environment: staging`. Verify Namespace and `environment-config`.
+
+---
+
+### Q4 - Create a CostSpace
+
+Work in `~/course-crossplane/04`. Create `CostSpace` `billing` with
+`costCenter: cc-4100`. Verify Namespace annotation and `cost-config` data.
+
+---
+
+### Q5 - Create a ProductSpace
+
+Work in `~/course-crossplane/05`. Create `ProductSpace` `catalog` with
+`productId: product-88`. Verify Namespace and `product-config`.
+
+---
+
+### Q6 - Create a TenantSpace
+
+Work in `~/course-crossplane/06`. Create `TenantSpace` `tenant-acme` with
+`tenantId: acme-001`. Verify Namespace and `tenant-config`.
+
+---
+
+### Q7 - Create a ClusterSpace
+
+Work in `~/course-crossplane/07`. Create `ClusterSpace` `edge-west` with
+`clusterName: edge-west-01`. Verify Namespace and `cluster-config`.
+
+---
+
+### Q8 - Create a RegionSpace
+
+Work in `~/course-crossplane/08`. Create `RegionSpace` `apps-eu` with
+`region: eu-west-1`. Verify Namespace and `region-config`.
+
+---
+
+### Q9 - Create an AccountSpace
+
+Work in `~/course-crossplane/09`. Create `AccountSpace` `shared-services`
+with `accountId: "123456789012"`. Verify Namespace and `account-config`.
+
+---
+
+### Q10 - Create an ApplicationSpace
+
+Work in `~/course-crossplane/10`. Create `ApplicationSpace` `checkout` with
+`applicationId: app-checkout`. Verify Namespace and `application-config`.
+
+---
+
+### Q11 - Create a DomainSpace
+
+Work in `~/course-crossplane/11`. Create `DomainSpace` `orders` with
+`domain: commerce`. Verify Namespace and `domain-config`.
+
+---
+
+### Q12 - Create a ServiceSpace
+
+Work in `~/course-crossplane/12`. Create `ServiceSpace` `identity` with
+`serviceOwner: iam-team`. Verify Namespace and `service-config`.
+
+---
+
+### Q13 - Create a DataSpace
+
+Work in `~/course-crossplane/13`. Create `DataSpace` `analytics` with
+`classification: confidential`. Verify Namespace and `data-config`.
+
+---
+
+### Q14 - Create a SecuritySpace
+
+Work in `~/course-crossplane/14`. Create `SecuritySpace` `restricted` with
+`securityTier: high`. Verify Namespace and `security-config`.
+
+---
+
+### Q15 - Create a ComplianceSpace
+
+Work in `~/course-crossplane/15`. Create `ComplianceSpace` `pci-workloads`
+with `policySet: pci-dss`. Verify Namespace and `compliance-config`.
+
+---
+
+### Q16 - Create a RuntimeSpace
+
+Work in `~/course-crossplane/16`. Create `RuntimeSpace` `java-services` with
+`runtime: java-21`. Verify Namespace and `runtime-config`.
+
+---
+
+### Q17 - Create a ReleaseSpace
+
+Work in `~/course-crossplane/17`. Create `ReleaseSpace` `canary` with
+`releaseChannel: canary`. Verify Namespace and `release-config`.
+
+---
+
+### Q18 - Create an ObservabilitySpace
+
+Work in `~/course-crossplane/18`. Create `ObservabilitySpace` `sre-tools`
+with `monitoringProfile: full`. Verify Namespace and `observability-config`.
+
+---
+
+### Q19 - Create a BackupSpace
+
+Work in `~/course-crossplane/19`. Create `BackupSpace` `critical-backups`
+with `backupPolicy: daily-30d`. Verify Namespace and `backup-config`.
+
+---
+
+### Q20 - Create a PlatformSpace
+
+Work in `~/course-crossplane/20`. Create `PlatformSpace` `developer-portal`
+with `platformOwner: platform-team`. Verify the XR, both resource references,
+Namespace annotation, and `platform-config` data.
+
+**Tip**
+
+Use `kubectl describe platformspace developer-portal` to inspect conditions
+and resource references.
+
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Create a TeamSpace
 
 ```yaml
 apiVersion: platform.example.com/v1alpha1
@@ -55,17 +204,7 @@ kubectl -n team-alpha get networkpolicy default-deny-ingress
 
 ---
 
-### Q2 - Create a ProjectSpace
-
-Work in `~/course-crossplane/02`. Apply the supplied definitions and create
-`ProjectSpace` `payments` with `owner: finance`. Verify Namespace `payments`,
-its annotation, and ConfigMap `project-config`.
-
-**Tip**
-
-Inspect `spec.names`, the schema, and `spec.pipeline` before writing the XR.
-
-**Solution**
+### Soluzione Q2 - Create a ProjectSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/02/xrd.yaml -f ~/course-crossplane/02/composition.yaml
@@ -83,12 +222,7 @@ kubectl -n payments get cm project-config -o yaml
 
 ---
 
-### Q3 - Create an EnvironmentSpace
-
-Work in `~/course-crossplane/03`. Create `EnvironmentSpace` `staging-blue`
-with `environment: staging`. Verify Namespace and `environment-config`.
-
-**Solution**
+### Soluzione Q3 - Create an EnvironmentSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/03/xrd.yaml -f ~/course-crossplane/03/composition.yaml
@@ -106,12 +240,7 @@ kubectl -n staging-blue get cm environment-config -o yaml
 
 ---
 
-### Q4 - Create a CostSpace
-
-Work in `~/course-crossplane/04`. Create `CostSpace` `billing` with
-`costCenter: cc-4100`. Verify Namespace annotation and `cost-config` data.
-
-**Solution**
+### Soluzione Q4 - Create a CostSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/04/xrd.yaml -f ~/course-crossplane/04/composition.yaml
@@ -129,12 +258,7 @@ kubectl -n billing get cm cost-config -o yaml
 
 ---
 
-### Q5 - Create a ProductSpace
-
-Work in `~/course-crossplane/05`. Create `ProductSpace` `catalog` with
-`productId: product-88`. Verify Namespace and `product-config`.
-
-**Solution**
+### Soluzione Q5 - Create a ProductSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/05/xrd.yaml -f ~/course-crossplane/05/composition.yaml
@@ -152,12 +276,7 @@ kubectl -n catalog get cm product-config -o yaml
 
 ---
 
-### Q6 - Create a TenantSpace
-
-Work in `~/course-crossplane/06`. Create `TenantSpace` `tenant-acme` with
-`tenantId: acme-001`. Verify Namespace and `tenant-config`.
-
-**Solution**
+### Soluzione Q6 - Create a TenantSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/06/xrd.yaml -f ~/course-crossplane/06/composition.yaml
@@ -175,12 +294,7 @@ kubectl -n tenant-acme get cm tenant-config -o yaml
 
 ---
 
-### Q7 - Create a ClusterSpace
-
-Work in `~/course-crossplane/07`. Create `ClusterSpace` `edge-west` with
-`clusterName: edge-west-01`. Verify Namespace and `cluster-config`.
-
-**Solution**
+### Soluzione Q7 - Create a ClusterSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/07/xrd.yaml -f ~/course-crossplane/07/composition.yaml
@@ -198,12 +312,7 @@ kubectl -n edge-west get cm cluster-config -o yaml
 
 ---
 
-### Q8 - Create a RegionSpace
-
-Work in `~/course-crossplane/08`. Create `RegionSpace` `apps-eu` with
-`region: eu-west-1`. Verify Namespace and `region-config`.
-
-**Solution**
+### Soluzione Q8 - Create a RegionSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/08/xrd.yaml -f ~/course-crossplane/08/composition.yaml
@@ -221,12 +330,7 @@ kubectl -n apps-eu get cm region-config -o yaml
 
 ---
 
-### Q9 - Create an AccountSpace
-
-Work in `~/course-crossplane/09`. Create `AccountSpace` `shared-services`
-with `accountId: "123456789012"`. Verify Namespace and `account-config`.
-
-**Solution**
+### Soluzione Q9 - Create an AccountSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/09/xrd.yaml -f ~/course-crossplane/09/composition.yaml
@@ -244,12 +348,7 @@ kubectl -n shared-services get cm account-config -o yaml
 
 ---
 
-### Q10 - Create an ApplicationSpace
-
-Work in `~/course-crossplane/10`. Create `ApplicationSpace` `checkout` with
-`applicationId: app-checkout`. Verify Namespace and `application-config`.
-
-**Solution**
+### Soluzione Q10 - Create an ApplicationSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/10/xrd.yaml -f ~/course-crossplane/10/composition.yaml
@@ -267,12 +366,7 @@ kubectl -n checkout get cm application-config -o yaml
 
 ---
 
-### Q11 - Create a DomainSpace
-
-Work in `~/course-crossplane/11`. Create `DomainSpace` `orders` with
-`domain: commerce`. Verify Namespace and `domain-config`.
-
-**Solution**
+### Soluzione Q11 - Create a DomainSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/11/xrd.yaml -f ~/course-crossplane/11/composition.yaml
@@ -290,12 +384,7 @@ kubectl -n orders get cm domain-config -o yaml
 
 ---
 
-### Q12 - Create a ServiceSpace
-
-Work in `~/course-crossplane/12`. Create `ServiceSpace` `identity` with
-`serviceOwner: iam-team`. Verify Namespace and `service-config`.
-
-**Solution**
+### Soluzione Q12 - Create a ServiceSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/12/xrd.yaml -f ~/course-crossplane/12/composition.yaml
@@ -313,12 +402,7 @@ kubectl -n identity get cm service-config -o yaml
 
 ---
 
-### Q13 - Create a DataSpace
-
-Work in `~/course-crossplane/13`. Create `DataSpace` `analytics` with
-`classification: confidential`. Verify Namespace and `data-config`.
-
-**Solution**
+### Soluzione Q13 - Create a DataSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/13/xrd.yaml -f ~/course-crossplane/13/composition.yaml
@@ -336,12 +420,7 @@ kubectl -n analytics get cm data-config -o yaml
 
 ---
 
-### Q14 - Create a SecuritySpace
-
-Work in `~/course-crossplane/14`. Create `SecuritySpace` `restricted` with
-`securityTier: high`. Verify Namespace and `security-config`.
-
-**Solution**
+### Soluzione Q14 - Create a SecuritySpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/14/xrd.yaml -f ~/course-crossplane/14/composition.yaml
@@ -359,12 +438,7 @@ kubectl -n restricted get cm security-config -o yaml
 
 ---
 
-### Q15 - Create a ComplianceSpace
-
-Work in `~/course-crossplane/15`. Create `ComplianceSpace` `pci-workloads`
-with `policySet: pci-dss`. Verify Namespace and `compliance-config`.
-
-**Solution**
+### Soluzione Q15 - Create a ComplianceSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/15/xrd.yaml -f ~/course-crossplane/15/composition.yaml
@@ -382,12 +456,7 @@ kubectl -n pci-workloads get cm compliance-config -o yaml
 
 ---
 
-### Q16 - Create a RuntimeSpace
-
-Work in `~/course-crossplane/16`. Create `RuntimeSpace` `java-services` with
-`runtime: java-21`. Verify Namespace and `runtime-config`.
-
-**Solution**
+### Soluzione Q16 - Create a RuntimeSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/16/xrd.yaml -f ~/course-crossplane/16/composition.yaml
@@ -405,12 +474,7 @@ kubectl -n java-services get cm runtime-config -o yaml
 
 ---
 
-### Q17 - Create a ReleaseSpace
-
-Work in `~/course-crossplane/17`. Create `ReleaseSpace` `canary` with
-`releaseChannel: canary`. Verify Namespace and `release-config`.
-
-**Solution**
+### Soluzione Q17 - Create a ReleaseSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/17/xrd.yaml -f ~/course-crossplane/17/composition.yaml
@@ -428,12 +492,7 @@ kubectl -n canary get cm release-config -o yaml
 
 ---
 
-### Q18 - Create an ObservabilitySpace
-
-Work in `~/course-crossplane/18`. Create `ObservabilitySpace` `sre-tools`
-with `monitoringProfile: full`. Verify Namespace and `observability-config`.
-
-**Solution**
+### Soluzione Q18 - Create an ObservabilitySpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/18/xrd.yaml -f ~/course-crossplane/18/composition.yaml
@@ -451,12 +510,7 @@ kubectl -n sre-tools get cm observability-config -o yaml
 
 ---
 
-### Q19 - Create a BackupSpace
-
-Work in `~/course-crossplane/19`. Create `BackupSpace` `critical-backups`
-with `backupPolicy: daily-30d`. Verify Namespace and `backup-config`.
-
-**Solution**
+### Soluzione Q19 - Create a BackupSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/19/xrd.yaml -f ~/course-crossplane/19/composition.yaml
@@ -474,18 +528,7 @@ kubectl -n critical-backups get cm backup-config -o yaml
 
 ---
 
-### Q20 - Create a PlatformSpace
-
-Work in `~/course-crossplane/20`. Create `PlatformSpace` `developer-portal`
-with `platformOwner: platform-team`. Verify the XR, both resource references,
-Namespace annotation, and `platform-config` data.
-
-**Tip**
-
-Use `kubectl describe platformspace developer-portal` to inspect conditions
-and resource references.
-
-**Solution**
+### Soluzione Q20 - Create a PlatformSpace
 
 ```bash
 kubectl apply -f ~/course-crossplane/20/xrd.yaml -f ~/course-crossplane/20/composition.yaml

@@ -43,6 +43,10 @@ prepare_question_layout() {
       print "./create-resources.sh\n```" > output
       next
     }
+    /^## Soluzioni/ {
+      question = ""
+      next
+    }
     /^### / {
       question = ""
     }

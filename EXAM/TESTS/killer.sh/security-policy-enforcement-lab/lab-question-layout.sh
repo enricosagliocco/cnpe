@@ -37,6 +37,10 @@ prepare_question_layout() {
       print $0 > output
       next
     }
+    /^## Soluzioni/ {
+      question = ""
+      next
+    }
     /^### / {
       question = ""
     }

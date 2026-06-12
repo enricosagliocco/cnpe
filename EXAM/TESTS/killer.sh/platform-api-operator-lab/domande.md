@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -42,17 +42,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima d
 kubectl apply --server-side --dry-run=server -f platformservice-crd.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/01
-kubectl apply -f platformservice-crd.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 - Validazione PlatformService
@@ -75,17 +64,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima d
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/01
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -113,17 +91,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima d
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/01
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 - Test della Platform API
@@ -146,19 +113,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/01` prima d
 
 ```bash
 kubectl apply --server-side --dry-run=server -f service-valid.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/01
-kubectl apply -f service-valid.yaml
-kubectl apply -f service-invalid-plan.yaml
-kubectl apply -f service-invalid-replicas.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -186,17 +140,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima d
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/02
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q6 - RBAC self-service write
@@ -221,17 +164,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima d
 kubectl apply --server-side --dry-run=server -f developer-rbac.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/02
-kubectl apply -f developer-rbac.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q7 - Confini del Namespace
@@ -253,17 +185,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima d
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/02
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -294,17 +215,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/02` prima d
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/02
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q9 - Diagnosi dell'operator
@@ -327,17 +237,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima d
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/03
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -365,17 +264,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima d
 kubectl apply --server-side --dry-run=server -f operator-rbac.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/03
-kubectl apply -f operator-rbac.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q11 - RBAC sulle risorse gestite
@@ -395,17 +283,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima d
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/03
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -432,17 +309,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/03` prima d
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/03
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q13 - Dipendenza della Pipeline
@@ -464,17 +330,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima d
 
 ```bash
 kubectl apply --server-side --dry-run=server -f provisioning-pipeline.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/04
-kubectl apply -f provisioning-pipeline.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -500,18 +355,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima d
 kubectl apply --server-side --dry-run=server -f pipeline-rbac.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/04
-kubectl apply -f pipeline-rbac.yaml
-kubectl apply -f provisioning-run.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q15 - Provisioning positivo
@@ -533,17 +376,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima d
 
 ```bash
 kubectl apply --server-side --dry-run=server -f provisioning-run.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/04
-kubectl apply -f provisioning-run.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -568,17 +400,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/04` prima d
 kubectl apply --server-side --dry-run=server -f provisioning-run-invalid.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/04
-kubectl apply -f provisioning-run-invalid.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 - Finalizer
@@ -601,18 +422,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima d
 
 ```bash
 kubectl apply --server-side --dry-run=server -f lifecycle-service.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/05
-kubectl apply -f lifecycle-service.yaml
-kubectl apply -f 03/operator-rbac.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -642,17 +451,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima d
 kubectl apply --server-side --dry-run=server -f 03/operator.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/05
-kubectl apply -f 03/operator.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 - Idempotenza e recovery
@@ -675,17 +473,6 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima d
 
 ```bash
 kubectl apply --server-side --dry-run=server -f lifecycle-service.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-platform-api-operator/05
-kubectl apply -f lifecycle-service.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -722,7 +509,264 @@ Esamina tutti i manifest presenti in `~/course-platform-api-operator/05` prima d
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Schema strutturale della CRD
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl apply -f platformservice-crd.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Validazione PlatformService
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Status e printer columns
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Test della Platform API
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/01
+kubectl apply -f service-valid.yaml
+kubectl apply -f service-invalid-plan.yaml
+kubectl apply -f service-invalid-replicas.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Diagnosi RBAC developer
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - RBAC self-service write
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl apply -f developer-rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Confini del Namespace
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Test dei privilegi negativi
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/02
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - Diagnosi dell'operator
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - RBAC su custom resource e status
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl apply -f operator-rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - RBAC sulle risorse gestite
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Reconciliation e drift
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/03
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Dipendenza della Pipeline
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f provisioning-pipeline.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - ServiceAccount provisioner
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f pipeline-rbac.yaml
+kubectl apply -f provisioning-run.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - Provisioning positivo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f provisioning-run.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - Provisioning negativo
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/04
+kubectl apply -f provisioning-run-invalid.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - Finalizer
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl apply -f lifecycle-service.yaml
+kubectl apply -f 03/operator-rbac.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Cleanup delle dipendenze
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl apply -f 03/operator.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Idempotenza e recovery
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-platform-api-operator/05
+kubectl apply -f lifecycle-service.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Verifica finale Platform API
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -43,19 +43,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/01` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f 01/policy.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/01
-kubectl apply -f 01/policy.yaml
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q2 – Mutation di label e annotation sui Pod
@@ -79,17 +66,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/02` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f pod.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/02
-kubectl apply -f pod.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -116,18 +92,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/03` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f bad.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/03
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q4 – Numero minimo di repliche
@@ -149,18 +113,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/04` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/04
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -187,18 +139,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/05` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f bad.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/05
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q6 – Registry immagini consentiti
@@ -221,18 +161,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/06` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/06
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -259,17 +187,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/07` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/07
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q8 – Pod runAsNonRoot
@@ -291,18 +208,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/08` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/08
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -329,17 +234,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/09` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/09
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q10 – Volumi hostPath vietati
@@ -361,18 +255,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/10` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/10
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -399,17 +281,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/11` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/11
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q12 – Ingress TLS obbligatorio
@@ -431,18 +302,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/12` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/12
-kubectl apply -f bad.yaml
-kubectl apply -f good.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -472,19 +331,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/13` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f deployment.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/13
-kubectl apply -f deployment.yaml
-kubectl apply -f change-team.yaml
-kubectl apply -f change-version.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q14 – Namespace selector ed esclusione
@@ -509,17 +355,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/14` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/14
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q15 – Policy namespaced per autonomia team
@@ -541,17 +376,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/15` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/15
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -582,17 +406,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/16` prima di applicarli.
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/16
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q17 – Messaggio dinamico con messageExpression
@@ -615,17 +428,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/17` prima di applicarli.
 
 ```bash
 kubectl apply --server-side --dry-run=server -f bad.yaml
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/17
-kubectl apply -f bad.yaml
-kubectl get events -A --sort-by=.lastTimestamp
 ```
 
 ---
@@ -652,18 +454,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/18` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f pod-missing.yaml
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/18
-kubectl apply -f pod-missing.yaml
-kubectl apply -f pod-existing.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
 ---
 
 ### Q19 – Default security context su tutti i container
@@ -686,17 +476,6 @@ Esamina tutti i manifest presenti in `~/course-kyverno/19` prima di applicarli.
 **Tip 2**
 
 ```bash
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-kyverno/19
-kubectl get all -A
 kubectl get events -A --sort-by=.lastTimestamp
 ```
 
@@ -727,7 +506,272 @@ Esamina tutti i manifest presenti in `~/course-kyverno/20` prima di applicarli.
 kubectl apply --server-side --dry-run=server -f validating-policy.yaml
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - Namespace annotation obbligatoria
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/01
+kubectl apply -f 01/policy.yaml
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q2 - Mutation di label e annotation sui Pod
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/02
+kubectl apply -f pod.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q3 - Label obbligatorie sui Deployment
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/03
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q4 - Numero minimo di repliche
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/04
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q5 - Resource requests e limits
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/05
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q6 - Registry immagini consentiti
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/06
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q7 - Vietare tag latest e immagini senza tag
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/07
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q8 - Pod runAsNonRoot
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/08
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q9 - Container privilegiati e privilege escalation
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/09
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q10 - Volumi hostPath vietati
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/10
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q11 - Service NodePort e LoadBalancer vietati
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/11
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q12 - Ingress TLS obbligatorio
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/12
+kubectl apply -f bad.yaml
+kubectl apply -f good.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q13 - Label team immutabile durante UPDATE
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/13
+kubectl apply -f deployment.yaml
+kubectl apply -f change-team.yaml
+kubectl apply -f change-version.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q14 - Namespace selector ed esclusione
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/14
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q15 - Policy namespaced per autonomia team
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/15
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q16 - Audit prima di Deny
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/16
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q17 - Messaggio dinamico con messageExpression
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/17
+kubectl apply -f bad.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q18 - Mutation condizionale senza sovrascrittura
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/18
+kubectl apply -f pod-missing.yaml
+kubectl apply -f pod-existing.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q19 - Default security context su tutti i container
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-kyverno/19
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+```
+
+---
+
+### Soluzione Q20 - Incident finale end-to-end
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.

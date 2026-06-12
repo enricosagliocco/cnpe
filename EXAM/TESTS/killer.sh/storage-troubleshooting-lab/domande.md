@@ -3,7 +3,7 @@
 Ogni domanda e una prova pratica autonoma. Esamina i file forniti, applica
 le risorse richieste e verifica il risultato nel cluster. Le sezioni
 `Tip` aiutano a individuare API, file e comandi utili; la sezione
-`Solution` riporta il flusso operativo di applicazione e verifica.
+Le soluzioni sono raccolte nella sezione finale del documento.
 
 Non modificare o disinstallare i componenti core installati dal setup.
 Usa il kubeconfig corrente e conserva le evidenze richieste dalla domanda.
@@ -39,19 +39,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q2 - Binding statico con selector
@@ -70,19 +57,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -105,19 +79,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q4 - Access mode incompatibile
@@ -135,19 +96,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -170,19 +118,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q6 - Pre-binding verso un volume inesistente
@@ -200,19 +135,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -235,19 +157,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q8 - ConfigMap volume non disponibile
@@ -265,19 +174,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -300,19 +196,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q10 - Chiave ConfigMap non trovata
@@ -333,19 +216,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl apply -f application.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q11 - Volume montato read-only
@@ -363,19 +233,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -398,19 +255,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q13 - Node affinity del volume locale
@@ -429,19 +273,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -464,19 +295,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q15 - StatefulSet senza provisioning
@@ -495,19 +313,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -530,19 +335,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q17 - Volume mode incompatibile
@@ -561,19 +353,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -596,19 +375,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl apply -f /etc/app/config.yaml
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
-```
-
 ---
 
 ### Q19 - Permessi sul volume
@@ -627,19 +393,6 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 
 ```bash
 ./create-resources.sh
-```
-
-**Solution**
-
-Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
-condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
-
-```bash
-cd ~/course-storage-troubleshooting
-./create-resources.sh
-kubectl get all -A
-kubectl get events -A --sort-by=.lastTimestamp
-./remove-resources.sh
 ```
 
 ---
@@ -663,7 +416,298 @@ Esamina tutti i manifest presenti in `~/course-storage-troubleshooting` prima di
 ./create-resources.sh
 ```
 
-**Solution**
+---
+
+## Soluzioni
+
+Le soluzioni sono raccolte qui per permettere lo svolgimento delle prove senza anticipazioni.
+
+### Soluzione Q1 - PVC bloccato in Pending
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q2 - Binding statico con selector
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q3 - Capacità incompatibile
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q4 - Access mode incompatibile
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q5 - StorageClass incoerente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q6 - Pre-binding verso un volume inesistente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q7 - Claim mancante
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q8 - ConfigMap volume non disponibile
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q9 - Secret volume non disponibile
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q10 - Chiave ConfigMap non trovata
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl apply -f application.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q11 - Volume montato read-only
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q12 - Configurazione del mount path
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q13 - Node affinity del volume locale
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q14 - Conflitto tra Pod e local PV
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q15 - StatefulSet senza provisioning
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q16 - PV in stato Released
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q17 - Volume mode incompatibile
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q18 - subPath assente
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl apply -f /etc/app/config.yaml
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q19 - Permessi sul volume
+
+Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
+condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
+
+```bash
+cd ~/course-storage-troubleshooting
+./create-resources.sh
+kubectl get all -A
+kubectl get events -A --sort-by=.lastTimestamp
+./remove-resources.sh
+```
+
+---
+
+### Soluzione Q20 - Incidente storage multi-causa
 
 Porta le risorse allo stato richiesto dalla domanda, applicale e verifica
 condizioni, eventi e comportamento runtime indicati nei criteri precedenti.
