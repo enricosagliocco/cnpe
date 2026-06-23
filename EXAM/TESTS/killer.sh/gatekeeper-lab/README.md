@@ -78,6 +78,5 @@ e verifica esplicita del risultato runtime.
 Controllo metodologico offline:
 
 ```bash
-./
-validate-gatekeeper-lab.sh
+./validate-gatekeeper-lab.sh
 ```
